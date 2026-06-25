@@ -112,6 +112,22 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
 
+/* Dropdown option list — force solid dark, readable */
+select option {
+  background-color: #1a1a1d;
+  color: #F3F4F6;
+  padding: 8px;
+}
+select option:checked,
+select option:hover {
+  background-color: #F59E0B;
+  color: #000;
+}
+/* Firefox needs the select itself to carry a solid bg for the popup */
+@-moz-document url-prefix() {
+  select { background-color: #1a1a1d; }
+}
+
 .btn-amber {
   background: linear-gradient(135deg, #F59E0B, #D97706);
   color: #000;
