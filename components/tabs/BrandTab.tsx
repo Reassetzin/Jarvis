@@ -3,6 +3,7 @@ import { usePersistentStore, useDailyStore } from '@/hooks/useStore'
 import { useState } from 'react'
 import { X, Plus, Check } from 'lucide-react'
 import DesktopGrid from '@/components/ui/DesktopGrid'
+import PageShell from '@/components/ui/PageShell'
 
 interface SocialPlatform { name: string; count: number; history: number[] }
 interface Reflection { id: string; date: string; text: string }
@@ -167,8 +168,20 @@ export default function BrandTab() {
     </div>
   )
 
+
+
+
+
+
+
+
+
+
+
+
+
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', paddingBottom: 32 }}>
+    <PageShell>
       <DesktopGrid columns={3}>
         {BrandHeader}
         {SocialCounts}
@@ -176,6 +189,6 @@ export default function BrandTab() {
         {PostCounter}
         {IdeaBank}
       </DesktopGrid>
-    </div>
+    </PageShell>
   )
 }

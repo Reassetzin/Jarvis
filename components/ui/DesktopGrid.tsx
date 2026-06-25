@@ -1,19 +1,12 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, ReactNode } from 'react'
 
 interface Props {
-  children: React.ReactNode[]
-  columns?: number // how many columns on desktop (default 3)
+  children: ReactNode | ReactNode[]
+  columns?: number
 }
 
-// Splits children into columns in a masonry-like order
-function distributeChildren(children: React.ReactNode[], cols: number) {
-  const columns: React.ReactNode[][] = Array.from({ length: cols }, () => [])
-  children.forEach((child, i) => columns[i % cols].push(child))
-  return columns
-}
-
-export default function DesktopGrid({ children, columns = 3 }: Props) {
+export default function DesktopGrid({ children, columns = 2 }: Props) {
   const [isDesktop, setIsDesktop] = useState(false)
 
   useEffect(() => {
@@ -24,7 +17,7 @@ export default function DesktopGrid({ children, columns = 3 }: Props) {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
-  const items = Array.isArray(children) ? children.flat() : [children]
+  const items = (Array.isArray(children) ? children.flat() : [children]).filter(Boolean)
 
   if (!isDesktop) {
     return (
@@ -34,8 +27,6 @@ export default function DesktopGrid({ children, columns = 3 }: Props) {
     )
   }
 
-  const cols = distributeChildren(items, columns)
-
   return (
     <div style={{
       display: 'grid',
@@ -43,11 +34,7 @@ export default function DesktopGrid({ children, columns = 3 }: Props) {
       gap: 16,
       alignItems: 'start',
     }}>
-      {cols.map((col, i) => (
-        <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {col}
-        </div>
-      ))}
+      {items}
     </div>
   )
 }

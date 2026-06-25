@@ -3,6 +3,7 @@ import { usePersistentStore } from '@/hooks/useStore'
 import { useState } from 'react'
 import { X, Plus } from 'lucide-react'
 import DesktopGrid from '@/components/ui/DesktopGrid'
+import PageShell from '@/components/ui/PageShell'
 
 interface Asset { id: string; label: string; amount: number }
 interface Subscription { id: string; name: string; amount: number; currency: string; period: 'monthly' | 'yearly'; renewal: string }
@@ -184,9 +185,8 @@ export default function FinancesTab() {
       </div>
     </div>
   )
-
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', paddingBottom: 32 }}>
+    <PageShell>
       <DesktopGrid columns={3}>
         {NetWorthCard}
         {SubsCard}
@@ -194,6 +194,6 @@ export default function FinancesTab() {
         {HaulCard}
         {WishlistCard}
       </DesktopGrid>
-    </div>
+    </PageShell>
   )
 }
