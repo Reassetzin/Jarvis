@@ -19,8 +19,8 @@ export default function BottomNav({ active, onChange }: Props) {
   return (
     <nav style={{
       position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-      width: '100%', maxWidth: 480, background: 'rgba(0,0,0,0.97)',
-      borderTop: '1px solid #1f1f1f', display: 'flex', height: 56, zIndex: 100, backdropFilter: 'blur(12px)',
+      width: '100%', maxWidth: 480, background: 'rgba(10,10,12,0.7)',
+      borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', height: 56, zIndex: 100, backdropFilter: 'blur(20px) saturate(150%)', WebkitBackdropFilter: 'blur(20px) saturate(150%)',
     }}>
       {TABS.map(({ id, label, Icon }) => {
         const isActive = active === id

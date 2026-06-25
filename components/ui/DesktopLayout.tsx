@@ -25,7 +25,9 @@ export default function DesktopLayout({ active, onChange, children }: Props) {
       <aside style={{
         width: 200,
         minWidth: 200,
-        borderRight: '1px solid #1a1a1a',
+        borderRight: '1px solid rgba(255,255,255,0.06)',
+        background: 'rgba(12,12,14,0.5)',
+        backdropFilter: 'blur(20px)',
         display: 'flex',
         flexDirection: 'column',
         padding: '24px 0',

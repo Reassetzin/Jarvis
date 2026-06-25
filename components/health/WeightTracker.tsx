@@ -15,6 +15,13 @@ export default function WeightTracker() {
   const [editingGoal, setEditingGoal] = useState(false)
   const [goalInput, setGoalInput] = useState('')
 
+  function toggleUnit() {
+    const factor = unit === 'lbs' ? 0.453592 : 2.20462
+    setEntries(es => es.map(e => ({ ...e, weight: Math.round(e.weight * factor * 10) / 10 })))
+    if (goal > 0) setGoal(Math.round(goal * factor * 10) / 10)
+    setUnit(u => u === 'lbs' ? 'kg' : 'lbs')
+  }
+
   function logWeight() {
     const w = parseFloat(weight); if (isNaN(w)) return
     const today = new Date().toISOString().split('T')[0]
@@ -40,7 +47,7 @@ export default function WeightTracker() {
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div className="section-header" style={{ marginBottom: 0 }}>Weight</div>
-        <button onClick={() => setUnit(u => u === 'lbs' ? 'kg' : 'lbs')} className="btn-ghost" style={{ fontSize: '0.65rem', padding: '3px 8px' }}>{unit}</button>
+        <button onClick={toggleUnit} className="btn-ghost" style={{ fontSize: '0.65rem', padding: '3px 8px' }}>{unit}</button>
       </div>
 
       <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', marginBottom: 4 }}>

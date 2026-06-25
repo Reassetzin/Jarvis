@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import BottomNav, { TabId } from '@/components/ui/BottomNav'
 import DesktopLayout from '@/components/ui/DesktopLayout'
+import ErrorBoundary from '@/components/ui/ErrorBoundary'
 import MainTab from '@/components/tabs/MainTab'
 import PlannerTab from '@/components/tabs/PlannerTab'
 import HealthTab from '@/components/tabs/HealthTab'
@@ -12,7 +13,7 @@ import SearchTab from '@/components/tabs/SearchTab'
 
 function TabContent({ active }: { active: TabId }) {
   return (
-    <>
+    <ErrorBoundary name={active} key={active}>
       {active === 'main' && <MainTab />}
       {active === 'planner' && <PlannerTab />}
       {active === 'health' && <HealthTab />}
@@ -20,7 +21,7 @@ function TabContent({ active }: { active: TabId }) {
       {active === 'finances' && <FinancesTab />}
       {active === 'gym' && <GymTab />}
       {active === 'search' && <SearchTab />}
-    </>
+    </ErrorBoundary>
   )
 }
 

@@ -63,7 +63,7 @@ export default function CashFlowChart({ txns }: { txns: Txn[] }) {
                   </PieChart>
                 </ResponsiveContainer>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  {pieData.sort((a, b) => b.value - a.value).slice(0, 6).map(e => (
+                  {[...pieData].sort((a, b) => b.value - a.value).slice(0, 6).map(e => (
                     <div key={e.name} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <div style={{ width: 8, height: 8, borderRadius: 2, background: CAT_COLORS[e.name] || '#6B7280' }} />
                       <span style={{ fontSize: '0.68rem', color: '#9CA3AF', flex: 1 }}>{e.name}</span>

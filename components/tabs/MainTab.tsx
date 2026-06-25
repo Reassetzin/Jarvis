@@ -5,6 +5,8 @@ import Goalmaxxing from '@/components/main/Goalmaxxing'
 import OverseerWidget from '@/components/main/OverseerWidget'
 import TodayPlanner from '@/components/main/TodayPlanner'
 import { VitaminsMini, WaterMini } from '@/components/main/QuickGlance'
+import { CashTrendChart, WeightTrendChart } from '@/components/main/DashboardCharts'
+import Heatmap from '@/components/ui/Heatmap'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
 import { useDailyStore, usePersistentStore } from '@/hooks/useStore'
@@ -45,6 +47,15 @@ export default function MainTab() {
   const todayTasks = tasks.filter(t => t.date === today)
   const tasksDone = todayTasks.filter(t => t.done).length
 
+  const activityHeatmap: Record<string, number> = {}
+  activity.forEach(s => {
+    const d = new Date(s.date)
+    if (!isNaN(d.getTime())) {
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+      activityHeatmap[key] = (activityHeatmap[key] || 0) + 1
+    }
+  })
+
   const stats = [
     { icon: Zap, label: 'Goals', value: `${goalsDone}/${goals.length}`, color: '#F59E0B', done: goals.length > 0 && goalsDone === goals.length },
     { icon: CalendarDays, label: 'Tasks', value: `${tasksDone}/${todayTasks.length}`, color: '#3B82F6', done: todayTasks.length > 0 && tasksDone === todayTasks.length },
@@ -60,11 +71,11 @@ export default function MainTab() {
         {stats.map((s, i) => {
           const Icon = s.icon
           return (
-            <div key={i} className="card" style={{ padding: 12 }}>
+            <div key={i} className="card" style={{ padding: 12, boxShadow: `0 0 20px ${s.color}18, 0 4px 24px rgba(0,0,0,0.4)`, borderColor: `${s.color}22` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
                 <Icon size={12} color={s.color} />
                 <span style={{ fontSize: '0.58rem', color: '#6B7280' }}>{s.label}</span>
-                {s.done && <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#22C55E', marginLeft: 'auto' }} />}
+                {s.done && <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#22C55E', marginLeft: 'auto', boxShadow: '0 0 6px #22C55E' }} />}
               </div>
               <div style={{ fontSize: '1.1rem', fontWeight: 800, color: s.color }}>{s.value}</div>
             </div>
@@ -83,10 +94,16 @@ export default function MainTab() {
         <DayProgressRing />
         <Goalmaxxing />
         <TodayPlanner />
+        <CashTrendChart />
+        <WeightTrendChart />
         <VitaminsMini />
         <WaterMini />
         <OverseerWidget />
       </DesktopGrid>
+
+      <div className="card" style={{ marginTop: 16 }}>
+        <Heatmap data={activityHeatmap} color="#EC4899" title="Activity · Last 17 Weeks" weeks={17} />
+      </div>
     </PageShell>
   )
 }
