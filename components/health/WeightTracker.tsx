@@ -107,6 +107,25 @@ export default function WeightTracker() {
           {goal > 0 ? `Goal: ${goal} ${unit} · edit` : '+ Set goal weight'}
         </button>
       )}
+
+      {sorted.length > 0 && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <span style={{ fontSize: '0.6rem', color: '#4B5563', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Entries</span>
+            <button onClick={() => { if (confirm('Clear ALL weight entries and goal? This cannot be undone.')) { setEntries([]); setGoal(0) } }} style={{ background: 'none', border: 'none', color: '#7f1d1d', cursor: 'pointer', fontSize: '0.62rem' }}>Reset all</button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, maxHeight: 130, overflowY: 'auto' }}>
+            {[...sorted].reverse().map(e => (
+              <div key={e.date} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.72rem', color: '#9CA3AF', padding: '4px 0', borderBottom: '1px solid #111' }}>
+                <span style={{ flex: 1 }}>{new Date(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                <span style={{ color: '#F59E0B', fontWeight: 600 }}>{e.weight} {unit}</span>
+                {e.bodyFat != null && <span style={{ color: '#4B5563' }}>{e.bodyFat}%</span>}
+                <button onClick={() => setEntries(es => es.filter(x => x.date !== e.date))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
