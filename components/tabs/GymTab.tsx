@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, ChevronDown, ChevronUp, Plus, Activity } from 'lucide-react'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
+import Heatmap from '@/components/ui/Heatmap'
 
 type ActivityType = 'Soccer' | 'Volleyball' | 'Pickleball' | 'Run' | 'Climbing' | 'Calisthenics' | 'Home Workout'
 
@@ -74,6 +75,15 @@ export default function GymTab() {
     return d >= weekStart
   }).length
 
+  const activityHeatmap: Record<string, number> = {}
+  history.forEach(s => {
+    const d = new Date(s.date)
+    if (!isNaN(d.getTime())) {
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+      activityHeatmap[key] = (activityHeatmap[key] || 0) + 1
+    }
+  })
+
   return (
     <PageShell>
       {/* Weekly goal banner */}
@@ -94,6 +104,10 @@ export default function GymTab() {
           <span style={{ fontSize: '0.6rem', color: '#6B7280' }}>Goal/wk </span>
           <input type="number" value={weeklyGoal} onChange={e => setWeeklyGoal(Number(e.target.value))} style={{ width: 50, display: 'inline-block' }} />
         </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 16 }}>
+        <Heatmap data={activityHeatmap} color="#EC4899" title="Training Days · Last 17 Weeks" weeks={17} />
       </div>
 
       <DesktopGrid columns={2}>

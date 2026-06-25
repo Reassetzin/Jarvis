@@ -4,6 +4,9 @@ import { useState, useMemo } from 'react'
 import { X, Plus, TrendingUp, TrendingDown, Target } from 'lucide-react'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
+import DebtTracker from '@/components/finances/DebtTracker'
+import TransactionExplorer from '@/components/finances/TransactionExplorer'
+import CashFlowChart from '@/components/finances/CashFlowChart'
 
 interface Txn { id: string; type: 'income' | 'expense'; amount: number; category: string; label: string; date: string }
 interface Budget { category: string; limit: number }
@@ -41,6 +44,7 @@ export default function FinancesTab() {
   const [addingAsset, setAddingAsset] = useState(false)
   const [txnSearch, setTxnSearch] = useState('')
   const [txnFilter, setTxnFilter] = useState('all')
+  const [showExplorer, setShowExplorer] = useState(false)
 
   const monthTxns = useMemo(() => txns.filter(t => thisMonth(t.date)), [txns])
   const income = monthTxns.filter(t => t.type === 'income').reduce((a, t) => a + t.amount, 0)
@@ -103,6 +107,8 @@ export default function FinancesTab() {
       </div>
 
       <DesktopGrid columns={2}>
+        <CashFlowChart txns={txns} />
+        <DebtTracker />
         {/* Add transaction */}
         <div className="card">
           <div className="section-header">Add Transaction</div>
@@ -123,6 +129,7 @@ export default function FinancesTab() {
             <div style={{ marginTop: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                 <span style={{ fontSize: '0.6rem', color: '#4B5563', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>This Month · {monthTxns.length} txns</span>
+                <button onClick={() => setShowExplorer(true)} className="btn-ghost" style={{ fontSize: '0.65rem', padding: '4px 10px' }}>View all →</button>
               </div>
               <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                 <input type="text" placeholder="Search transactions..." value={txnSearch} onChange={e => setTxnSearch(e.target.value)} style={{ flex: 1, fontSize: '0.75rem', padding: '7px 10px' }} />
@@ -314,6 +321,14 @@ export default function FinancesTab() {
           )}
         </div>
       </DesktopGrid>
+
+      {showExplorer && (
+        <TransactionExplorer
+          txns={txns}
+          onDelete={id => setTxns(ts => ts.filter(x => x.id !== id))}
+          onClose={() => setShowExplorer(false)}
+        />
+      )}
     </PageShell>
   )
 }
