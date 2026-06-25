@@ -1,0 +1,124 @@
+'use client'
+import { useState, useEffect } from 'react'
+import { Search } from 'lucide-react'
+
+interface Result { section: string; text: string; sub?: string }
+
+export default function SearchTab() {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<Result[]>([])
+
+  useEffect(() => {
+    if (!query.trim()) { setResults([]); return }
+    const q = query.toLowerCase()
+    const found: Result[] = []
+
+    const search = (key: string, section: string, textFn: (item: any) => string, subFn?: (item: any) => string) => {
+      try {
+        const raw = localStorage.getItem(key)
+        if (!raw) return
+        const parsed = JSON.parse(raw)
+        const arr = parsed?.data ?? parsed
+        if (!Array.isArray(arr)) return
+        arr.forEach((item: any) => {
+          const text = textFn(item)
+          if (text.toLowerCase().includes(q)) {
+            found.push({ section, text, sub: subFn?.(item) })
+          }
+        })
+      } catch {}
+    }
+
+    // Goals
+    search('los_goals_today', 'Goals · Today', (g: any) => g.text, (g: any) => g.done ? 'Done' : 'Pending')
+    search('los_p_goals_tomorrow', 'Goals · Tomorrow', (g: any) => g.text)
+
+    // Supplements
+    search('los_p_supplements', 'Supplements', (s: any) => s.name, (s: any) => `${s.dose} · ${s.time_of_day}`)
+
+    // Ideas
+    search('los_p_ideas', 'Brand · Ideas', (i: any) => i.text, (i: any) => i.shipped ? 'Shipped' : 'Pending')
+
+    // Subscriptions
+    search('los_p_subscriptions', 'Finances · Subscriptions', (s: any) => s.name, (s: any) => `${s.currency} ${s.amount}/${s.period}`)
+
+    // Haul items
+    search('los_p_haul_items', 'Finances · Haul', (h: any) => h.name, (h: any) => `CHF ${h.cost}`)
+
+    // Wants
+    try {
+      const buyRaw = localStorage.getItem('los_p_wants_buy')
+      const futRaw = localStorage.getItem('los_p_wants_future')
+      if (buyRaw) { const arr = JSON.parse(buyRaw); arr.forEach((w: string) => { if (w.toLowerCase().includes(q)) found.push({ section: 'Finances · Wants', text: w, sub: 'To Buy' }) }) }
+      if (futRaw) { const arr = JSON.parse(futRaw); arr.forEach((w: string) => { if (w.toLowerCase().includes(q)) found.push({ section: 'Finances · Wants', text: w, sub: 'Future' }) }) }
+    } catch {}
+
+    // Gym history
+    try {
+      const raw = localStorage.getItem('los_p_gym_history')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        ;(parsed || []).forEach((log: any) => {
+          ;(log.exercises || []).forEach((ex: any) => {
+            if (ex.name.toLowerCase().includes(q)) {
+              found.push({ section: 'Gym · History', text: ex.name, sub: log.date })
+            }
+          })
+        })
+      }
+    } catch {}
+
+    setResults(found)
+  }, [query])
+
+  const grouped: Record<string, Result[]> = {}
+  results.forEach(r => {
+    if (!grouped[r.section]) grouped[r.section] = []
+    grouped[r.section].push(r)
+  })
+
+  return (
+    <div className="tab-scroll-notop" style={{ padding: '14px 16px' }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#111', border: '1px solid #222', borderRadius: 6, padding: '0 14px', marginBottom: 16 }}>
+        <Search size={16} color="#6B7280" />
+        <input type="text" placeholder="Search everything..." value={query}
+          onChange={e => setQuery(e.target.value)} autoFocus
+          style={{ background: 'transparent', border: 'none', flex: 1, padding: '12px 0', fontSize: '0.9rem', outline: 'none', color: '#F3F4F6' }} />
+      </div>
+
+      {query && results.length === 0 && (
+        <div style={{ textAlign: 'center', color: '#374151', fontSize: '0.8rem', padding: '32px 0' }}>
+          No results for "{query}"
+        </div>
+      )}
+
+      {Object.entries(grouped).map(([section, items]) => (
+        <div key={section} style={{ marginBottom: 16 }}>
+          <div className="section-header">{section}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {items.map((item, i) => (
+              <div key={i} style={{ background: '#111', border: '1px solid #1f1f1f', borderRadius: 4, padding: '10px 12px' }}>
+                <div style={{ fontSize: '0.82rem', color: '#F3F4F6' }}>
+                  {item.text.split(new RegExp(`(${query})`, 'gi')).map((part, pi) =>
+                    part.toLowerCase() === query.toLowerCase()
+                      ? <mark key={pi} style={{ background: '#92400E', color: '#F59E0B', borderRadius: 2 }}>{part}</mark>
+                      : part
+                  )}
+                </div>
+                {item.sub && <div style={{ fontSize: '0.65rem', color: '#4B5563', marginTop: 2 }}>{item.sub}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {!query && (
+        <div style={{ textAlign: 'center', color: '#374151', fontSize: '0.78rem', padding: '32px 0', lineHeight: 2 }}>
+          Search across:<br />
+          Goals · Supplements · Brand Ideas<br />
+          Subscriptions · Haul Items · Wishlist · Gym
+        </div>
+      )}
+    </div>
+  )
+}
