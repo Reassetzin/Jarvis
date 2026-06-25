@@ -23,6 +23,7 @@ export default function SearchTab() {
     }
     search('los_goals_today', 'Goals · Today', (g: any) => g.text, (g: any) => g.done ? 'Done' : 'Pending')
     search('los_p_goals_tomorrow', 'Goals · Tomorrow', (g: any) => g.text)
+    search('los_p_planner_tasks', 'Planner', (t: any) => t.text, (t: any) => `${t.category} · ${t.date}`)
     search('los_p_supplements', 'Supplements', (s: any) => s.name, (s: any) => `${s.dose} · ${s.time_of_day}`)
     search('los_p_ideas', 'Brand · Ideas', (i: any) => i.text, (i: any) => i.shipped ? 'Shipped' : 'Pending')
     search('los_p_subscriptions', 'Finances · Subscriptions', (s: any) => s.name, (s: any) => `${s.currency} ${s.amount}/${s.period}`)

@@ -35,7 +35,7 @@ export default function Goalmaxxing() {
   const [tmInput, setTmInput] = useState('')
   const [priority, setPriority] = useState(false)
 
-  const isPast9 = new Date().getHours() >= 21
+  const isPast9 = true // planning always available
 
   const done = goals.filter(g => g.done).length
   const total = goals.length
