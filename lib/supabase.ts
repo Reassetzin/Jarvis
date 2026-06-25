@@ -1,13 +1,20 @@
-import { createClient } from '@supabase/supabase-js'
+let _supabase: any = null
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+export function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key || url === 'https://placeholder.supabase.co') return null
+  if (!_supabase) {
+    const { createClient } = require('@supabase/supabase-js')
+    _supabase = createClient(url, key)
+  }
+  return _supabase
+}
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = null
 
 export const USER_ID = process.env.NEXT_PUBLIC_USER_ID || 'default-user'
 
-// Reset time: 6 AM
 export function shouldReset(lastReset: string | null): boolean {
   if (!lastReset) return true
   const last = new Date(lastReset)
