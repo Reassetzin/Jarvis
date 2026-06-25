@@ -48,7 +48,7 @@ export default function Heatmap({ data, weeks = 17, color = '#22C55E', title, ma
       {title && <div className="section-header">{title}</div>}
       <div style={{ display: 'flex', gap: 3, overflowX: 'auto', paddingBottom: 4 }}>
         {cols.map((col, ci) => (
-          <div key={ci} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <div key={ci} style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1 }}>
             {col.map((d, di) => {
               const key = ymd(d)
               const v = data[key] || 0
@@ -56,10 +56,10 @@ export default function Heatmap({ data, weeks = 17, color = '#22C55E', title, ma
               const isFuture = d > today
               return (
                 <div key={di} title={`${key}: ${v}`} style={{
-                  width: 12, height: 12, borderRadius: 2,
-                  background: isFuture ? 'transparent' : intens === 0 ? '#1a1a1a' : color,
+                  width: '100%', aspectRatio: '1', minWidth: 9, borderRadius: 2,
+                  background: isFuture ? 'transparent' : intens === 0 ? 'rgba(255,255,255,0.04)' : color,
                   opacity: isFuture ? 0 : intens === 0 ? 1 : intens,
-                  border: isFuture ? 'none' : '1px solid #0a0a0a',
+                  boxShadow: intens > 0 && !isFuture ? `0 0 6px ${color}80` : 'none',
                 }} />
               )
             })}

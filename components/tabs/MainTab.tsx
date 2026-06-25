@@ -97,13 +97,12 @@ export default function MainTab() {
         <CashTrendChart />
         <WeightTrendChart />
         <VitaminsMini />
+        <div className="card">
+          <Heatmap data={activityHeatmap} color="#EC4899" title="Activity · 12 Weeks" weeks={12} />
+        </div>
         <WaterMini />
         <OverseerWidget />
       </DesktopGrid>
-
-      <div className="card" style={{ marginTop: 16 }}>
-        <Heatmap data={activityHeatmap} color="#EC4899" title="Activity · Last 17 Weeks" weeks={17} />
-      </div>
     </PageShell>
   )
 }

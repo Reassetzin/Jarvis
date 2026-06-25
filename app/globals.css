@@ -27,13 +27,21 @@ html, body {
 body::before {
   content: '';
   position: fixed;
-  inset: 0;
+  inset: -20%;
   z-index: -1;
   background:
-    radial-gradient(ellipse 60% 50% at 20% 0%, rgba(245, 158, 11, 0.08), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 90% 20%, rgba(139, 92, 246, 0.06), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 70% 100%, rgba(34, 197, 94, 0.05), transparent 60%);
+    radial-gradient(circle 400px at 15% 10%, rgba(245, 158, 11, 0.12), transparent 60%),
+    radial-gradient(circle 450px at 85% 15%, rgba(139, 92, 246, 0.12), transparent 60%),
+    radial-gradient(circle 400px at 75% 85%, rgba(34, 197, 94, 0.10), transparent 60%),
+    radial-gradient(circle 350px at 25% 90%, rgba(59, 130, 246, 0.10), transparent 60%);
   pointer-events: none;
+  animation: orbDrift 24s ease-in-out infinite alternate;
+}
+
+@keyframes orbDrift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, -2%) scale(1.06); }
+  100% { transform: translate(-2%, 3%) scale(1); }
 }
 
 ::-webkit-scrollbar { width: 0; }
@@ -51,21 +59,25 @@ body::before {
 }
 
 .card {
-  background: rgba(20, 20, 22, 0.6);
-  backdrop-filter: blur(12px) saturate(120%);
-  -webkit-backdrop-filter: blur(12px) saturate(120%);
-  border-radius: 10px;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  position: relative;
+  background: linear-gradient(135deg, rgba(30, 30, 34, 0.55), rgba(15, 15, 18, 0.45));
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
 .card-2 {
-  background: rgba(28, 28, 30, 0.5);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(8px);
-  border-radius: 6px;
+  border-radius: 10px;
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .glow-amber { box-shadow: 0 0 24px rgba(245, 158, 11, 0.25); }
@@ -73,31 +85,48 @@ body::before {
 .glow-red { box-shadow: 0 0 24px rgba(239, 68, 68, 0.22); }
 .glow-blue { box-shadow: 0 0 24px rgba(59, 130, 246, 0.22); }
 
+input[type="text"], input[type="number"], input[type="time"], input[type="date"], textarea, select {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
 .btn-amber {
-  background: var(--amber);
+  background: linear-gradient(135deg, #F59E0B, #D97706);
   color: #000;
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 10px 16px;
   font-size: 0.85rem;
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, box-shadow 0.15s;
   width: 100%;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
 }
-.btn-amber:hover { opacity: 0.85; }
+.btn-amber:hover { opacity: 0.9; box-shadow: 0 0 24px rgba(245, 158, 11, 0.45); }
 
 .btn-ghost {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-dim);
   font-size: 0.8rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
   padding: 8px 12px;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
-.btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+.btn-ghost:hover { border-color: rgba(245, 158, 11, 0.5); color: var(--amber); background: rgba(245, 158, 11, 0.05); }
 
 .tag {
   display: inline-flex;
@@ -110,19 +139,6 @@ body::before {
   font-size: 0.75rem;
   color: var(--text-dim);
 }
-
-input[type="text"], input[type="number"], textarea, select {
-  background: var(--card-2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  padding: 10px 12px;
-  font-size: 0.85rem;
-  width: 100%;
-  outline: none;
-  transition: border-color 0.15s;
-}
-input:focus, textarea:focus, select:focus { border-color: var(--amber); }
 
 /* ─── Mobile layout (≤768px) ─────────────────────────────── */
 @media (max-width: 768px) {
