@@ -1,194 +1,209 @@
 'use client'
-import { usePersistentStore, useDailyStore } from '@/hooks/useStore'
+import { usePersistentStore } from '@/hooks/useStore'
 import { useState } from 'react'
-import { X, Plus, Check } from 'lucide-react'
+import { X, Plus, Check, ChevronDown } from 'lucide-react'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
 
-interface SocialPlatform { name: string; count: number; history: number[] }
-interface Reflection { id: string; date: string; text: string }
-interface Idea { id: string; text: string; shipped: boolean }
+interface Account { id: string; platform: string; handle: string; followers: number; history: number[] }
+interface Idea { id: string; text: string; status: 'idea' | 'planned' | 'shipped' }
+interface Brand {
+  id: string; name: string; tagline: string
+  accounts: Account[]; ideas: Idea[]
+}
 
-const PLATFORMS = ['TikTok', 'Instagram', 'YouTube'] as const
+const PLATFORMS = ['TikTok', 'Instagram', 'YouTube', 'X', 'LinkedIn', 'Other']
+const STATUS_META = { idea: { label: 'Idea', color: '#6B7280' }, planned: { label: 'Planned', color: '#F59E0B' }, shipped: { label: 'Shipped', color: '#22C55E' } }
 
 function Sparkline({ data }: { data: number[] }) {
-  if (data.length < 2) return <div style={{ width: 60, height: 24, background: '#1a1a1a', borderRadius: 3 }} />
+  if (data.length < 2) return <div style={{ width: 50, height: 20, background: '#1a1a1a', borderRadius: 3 }} />
   const min = Math.min(...data); const max = Math.max(...data); const range = max - min || 1
-  const w = 60, h = 24
+  const w = 50, h = 20
   const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * (h - 4) - 2}`)
-  return (
-    <svg width={w} height={h}>
-      <polyline points={pts.join(' ')} fill="none" stroke="#F59E0B" strokeWidth="1.5" strokeLinejoin="round" />
-    </svg>
-  )
+  return <svg width={w} height={h}><polyline points={pts.join(' ')} fill="none" stroke="#F59E0B" strokeWidth="1.5" /></svg>
 }
 
 export default function BrandTab() {
-  const [brand, setBrand] = usePersistentStore('brand_info', { name: 'My Brand', tagline: 'Your tagline here' })
-  const [socials, setSocials] = usePersistentStore<Record<string, SocialPlatform>>('socials', {
-    TikTok: { name: 'TikTok', count: 0, history: [] },
-    Instagram: { name: 'Instagram', count: 0, history: [] },
-    YouTube: { name: 'YouTube', count: 0, history: [] },
-  })
-  const [reflections, setReflections] = usePersistentStore<Reflection[]>('reflections', [])
-  const [refText, setRefText] = useState('')
-  const [posts, setPosts] = useDailyStore('posts_today', 0)
-  const [ideas, setIdeas] = usePersistentStore<Idea[]>('ideas', [])
+  const [brands, setBrands] = usePersistentStore<Brand[]>('brands', [])
+  const [activeBrandId, setActiveBrandId] = usePersistentStore<string | null>('active_brand', null)
+  const [newBrandName, setNewBrandName] = useState('')
+  const [addingBrand, setAddingBrand] = useState(false)
+  const [acctForm, setAcctForm] = useState({ platform: 'TikTok', handle: '' })
+  const [addingAcct, setAddingAcct] = useState(false)
   const [ideaInput, setIdeaInput] = useState('')
-  const [editingTag, setEditingTag] = useState<string | null>(null)
-  const [newCount, setNewCount] = useState('')
+  const [editingFollowers, setEditingFollowers] = useState<string | null>(null)
+  const [followerInput, setFollowerInput] = useState('')
   const [editingTagline, setEditingTagline] = useState(false)
 
-  function updateCount(platform: string) {
-    const n = parseInt(newCount); if (isNaN(n)) return
-    setSocials(s => ({ ...s, [platform]: { ...s[platform], history: [...(s[platform].history || []).slice(-4), s[platform].count], count: n } }))
-    setEditingTag(null); setNewCount('')
-  }
+  const active = brands.find(b => b.id === activeBrandId) || brands[0]
 
-  function saveReflection() {
-    if (!refText.trim()) return
-    setReflections(r => [...r, { id: Date.now().toString(), date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), text: refText.trim() }])
-    setRefText('')
+  function addBrand() {
+    if (!newBrandName.trim()) return
+    const b: Brand = { id: Date.now().toString(), name: newBrandName.trim(), tagline: 'Add a tagline', accounts: [], ideas: [] }
+    setBrands(bs => [...bs, b]); setActiveBrandId(b.id); setNewBrandName(''); setAddingBrand(false)
   }
-
+  function updateActive(fn: (b: Brand) => Brand) {
+    setBrands(bs => bs.map(b => b.id === active?.id ? fn(b) : b))
+  }
+  function addAccount() {
+    if (!acctForm.handle.trim() || !active) return
+    updateActive(b => ({ ...b, accounts: [...b.accounts, { id: Date.now().toString(), platform: acctForm.platform, handle: acctForm.handle.trim(), followers: 0, history: [] }] }))
+    setAcctForm({ platform: 'TikTok', handle: '' }); setAddingAcct(false)
+  }
+  function updateFollowers(acctId: string) {
+    const n = parseInt(followerInput); if (isNaN(n)) return
+    updateActive(b => ({ ...b, accounts: b.accounts.map(a => a.id === acctId ? { ...a, history: [...a.history.slice(-4), a.followers], followers: n } : a) }))
+    setEditingFollowers(null); setFollowerInput('')
+  }
   function addIdea() {
-    if (!ideaInput.trim()) return
-    setIdeas(i => [...i, { id: Date.now().toString(), text: ideaInput.trim(), shipped: false }])
+    if (!ideaInput.trim() || !active) return
+    updateActive(b => ({ ...b, ideas: [...b.ideas, { id: Date.now().toString(), text: ideaInput.trim(), status: 'idea' }] }))
     setIdeaInput('')
   }
+  function cycleStatus(ideaId: string) {
+    const order: Idea['status'][] = ['idea', 'planned', 'shipped']
+    updateActive(b => ({ ...b, ideas: b.ideas.map(i => i.id === ideaId ? { ...i, status: order[(order.indexOf(i.status) + 1) % 3] } : i) }))
+  }
 
-  const BrandHeader = (
-    <div className="card">
-      <div className="section-header">Personal Brand</div>
-      <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{brand.name}</div>
-      {editingTagline ? (
-        <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
-          <input type="text" value={brand.tagline} onChange={e => setBrand(b => ({ ...b, tagline: e.target.value }))} style={{ flex: 1 }} />
-          <button onClick={() => setEditingTagline(false)} style={{ background: '#22C55E', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer' }}>✓</button>
-        </div>
-      ) : (
-        <div onClick={() => setEditingTagline(true)} style={{ fontSize: '0.78rem', color: '#6B7280', marginTop: 4, cursor: 'pointer' }}>
-          {brand.tagline} <span style={{ color: '#374151', fontSize: '0.6rem' }}>· tap to edit</span>
-        </div>
-      )}
-    </div>
-  )
-
-  const SocialCounts = (
-    <div className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div className="section-header" style={{ marginBottom: 0 }}>Social Counts</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E' }} className="animate-pulse-slow" />
-          <span style={{ fontSize: '0.6rem', color: '#22C55E', fontWeight: 700 }}>LIVE</span>
-        </div>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {PLATFORMS.map(p => {
-          const s = socials[p]
-          const delta = s.history.length > 0 ? s.count - s.history[s.history.length - 1] : 0
-          return (
-            <div key={p} style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#181818', border: '1px solid #222', borderRadius: 4, padding: '10px 12px' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.65rem', color: '#6B7280', marginBottom: 2 }}>{p}</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#F3F4F6' }}>{s.count.toLocaleString()}</div>
-                {delta !== 0 && <div style={{ fontSize: '0.65rem', color: delta > 0 ? '#22C55E' : '#EF4444' }}>{delta > 0 ? '+' : ''}{delta}</div>}
-              </div>
-              <Sparkline data={[...s.history, s.count]} />
-              {editingTag === p ? (
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <input type="number" value={newCount} onChange={e => setNewCount(e.target.value)} style={{ width: 80 }} autoFocus onKeyDown={e => e.key === 'Enter' && updateCount(p)} />
-                  <button onClick={() => updateCount(p)} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '6px 10px', cursor: 'pointer', fontWeight: 700 }}>✓</button>
-                </div>
-              ) : (
-                <button onClick={() => { setEditingTag(p); setNewCount(s.count.toString()) }} className="btn-ghost" style={{ fontSize: '0.7rem', padding: '6px 10px' }}>Update</button>
-              )}
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-
-  const DailyReflection = (
-    <div className="card">
-      <div className="section-header">Daily Reflection</div>
-      <div style={{ fontSize: '0.65rem', color: '#6B7280', marginBottom: 6 }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
-      <div style={{ fontSize: '0.75rem', color: '#4B5563', marginBottom: 8, fontStyle: 'italic' }}>Where is the account going? What's working? What's failing? What to do next?</div>
-      <textarea value={refText} onChange={e => setRefText(e.target.value)} rows={4} placeholder="Write your reflection..." style={{ marginBottom: 8, resize: 'vertical' }} />
-      <button onClick={saveReflection} className="btn-amber">Save Reflection</button>
-      {reflections.length > 0 && (
-        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ fontSize: '0.65rem', color: '#4B5563', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Past</div>
-          {reflections.slice().reverse().slice(0, 3).map(r => (
-            <details key={r.id} style={{ background: '#181818', border: '1px solid #222', borderRadius: 4, padding: '8px 12px' }}>
-              <summary style={{ fontSize: '0.72rem', color: '#6B7280', cursor: 'pointer', listStyle: 'none' }}>{r.date}</summary>
-              <div style={{ fontSize: '0.78rem', color: '#E5E7EB', marginTop: 8, lineHeight: 1.6 }}>{r.text}</div>
-            </details>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-
-  const PostCounter = (
-    <div className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-        <div className="section-header" style={{ marginBottom: 0 }}>Content Posted Today</div>
-        <span style={{ fontSize: '0.75rem', color: posts >= 1 ? '#22C55E' : '#6B7280', fontWeight: 700 }}>{posts}/1</span>
-      </div>
-      <button onClick={() => setPosts((p: number) => p + 1)} className="btn-amber" style={{ marginBottom: 8 }}>Posted one ↑</button>
-      {posts > 0 && <button onClick={() => setPosts((p: number) => Math.max(0, p - 1))} className="btn-ghost" style={{ width: '100%' }}>Undo</button>}
-    </div>
-  )
-
-  const IdeaBank = (
-    <div className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div className="section-header" style={{ marginBottom: 0 }}>Idea Bank</div>
-        <span style={{ fontSize: '0.7rem', color: '#6B7280' }}>{ideas.length} ideas</span>
-      </div>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-        <input type="text" placeholder="Content idea..." value={ideaInput} onChange={e => setIdeaInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addIdea()} style={{ flex: 1 }} />
-        <button onClick={addIdea} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {ideas.map(idea => (
-          <div key={idea.id} style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#181818', border: `1px solid ${idea.shipped ? '#166534' : '#222'}`, borderRadius: 4, padding: '8px 12px' }}>
-            <button onClick={() => setIdeas(is => is.map(x => x.id === idea.id ? { ...x, shipped: !x.shipped } : x))}
-              style={{ width: 18, height: 18, borderRadius: 3, border: `1.5px solid ${idea.shipped ? '#22C55E' : '#374151'}`, background: idea.shipped ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              {idea.shipped && <Check size={11} color="#000" strokeWidth={3} />}
-            </button>
-            <span style={{ flex: 1, fontSize: '0.8rem', color: idea.shipped ? '#4B5563' : '#E5E7EB', textDecoration: idea.shipped ? 'line-through' : 'none' }}>{idea.text}</span>
-            {idea.shipped && <span style={{ fontSize: '0.62rem', color: '#22C55E', fontWeight: 600 }}>SHIPPED</span>}
-            <button onClick={() => setIdeas(is => is.filter(x => x.id !== idea.id))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={13} /></button>
+  if (brands.length === 0) {
+    return (
+      <PageShell>
+        <div className="card" style={{ textAlign: 'center', padding: 40 }}>
+          <div className="section-header" style={{ display: 'inline-block' }}>Brands</div>
+          <p style={{ color: '#6B7280', fontSize: '0.85rem', margin: '12px 0 20px' }}>Create your first brand to start tracking accounts and content.</p>
+          <div style={{ display: 'flex', gap: 8, maxWidth: 400, margin: '0 auto' }}>
+            <input type="text" placeholder="Brand name (e.g. OrbitReach)" value={newBrandName} onChange={e => setNewBrandName(e.target.value)} onKeyDown={e => e.key === 'Enter' && addBrand()} style={{ flex: 1 }} />
+            <button onClick={addBrand} className="btn-amber" style={{ width: 'auto', padding: '10px 20px' }}>Create</button>
           </div>
-        ))}
-      </div>
-    </div>
-  )
+        </div>
+      </PageShell>
+    )
+  }
 
-
-
-
-
-
-
-
-
-
-
-
+  const totalFollowers = active?.accounts.reduce((a, x) => a + x.followers, 0) || 0
+  const grouped = { idea: active?.ideas.filter(i => i.status === 'idea') || [], planned: active?.ideas.filter(i => i.status === 'planned') || [], shipped: active?.ideas.filter(i => i.status === 'shipped') || [] }
 
   return (
     <PageShell>
-      <DesktopGrid columns={3}>
-        {BrandHeader}
-        {SocialCounts}
-        {DailyReflection}
-        {PostCounter}
-        {IdeaBank}
-      </DesktopGrid>
+      {/* Brand switcher */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+        {brands.map(b => (
+          <button key={b.id} onClick={() => setActiveBrandId(b.id)} style={{
+            background: active?.id === b.id ? '#1a0a00' : '#111',
+            border: `1px solid ${active?.id === b.id ? '#92400E' : '#222'}`,
+            borderRadius: 6, padding: '8px 16px', cursor: 'pointer',
+            color: active?.id === b.id ? '#F59E0B' : '#9CA3AF', fontWeight: active?.id === b.id ? 700 : 500, fontSize: '0.85rem',
+          }}>{b.name}</button>
+        ))}
+        {addingBrand ? (
+          <div style={{ display: 'flex', gap: 6 }}>
+            <input type="text" placeholder="Brand name" value={newBrandName} onChange={e => setNewBrandName(e.target.value)} onKeyDown={e => e.key === 'Enter' && addBrand()} style={{ width: 160 }} autoFocus />
+            <button onClick={addBrand} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>✓</button>
+          </div>
+        ) : (
+          <button onClick={() => setAddingBrand(true)} className="btn-ghost" style={{ padding: '8px 14px' }}><Plus size={13} style={{ display: 'inline' }} /> Brand</button>
+        )}
+      </div>
+
+      {active && (
+        <>
+          {/* Brand header */}
+          <div className="card" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontSize: '1.3rem', fontWeight: 800 }}>{active.name}</div>
+              {editingTagline ? (
+                <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                  <input type="text" value={active.tagline} onChange={e => updateActive(b => ({ ...b, tagline: e.target.value }))} style={{ flex: 1 }} />
+                  <button onClick={() => setEditingTagline(false)} style={{ background: '#22C55E', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer' }}>✓</button>
+                </div>
+              ) : (
+                <div onClick={() => setEditingTagline(true)} style={{ fontSize: '0.8rem', color: '#6B7280', marginTop: 2, cursor: 'pointer' }}>{active.tagline} <span style={{ fontSize: '0.6rem', color: '#374151' }}>· edit</span></div>
+              )}
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.62rem', color: '#6B7280' }}>Total reach</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#F59E0B' }}>{totalFollowers.toLocaleString()}</div>
+            </div>
+            <button onClick={() => { if (confirm(`Delete brand "${active.name}"?`)) { setBrands(bs => bs.filter(b => b.id !== active.id)); setActiveBrandId(null) } }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={16} /></button>
+          </div>
+
+          <DesktopGrid columns={2}>
+            {/* Accounts */}
+            <div className="card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <div className="section-header" style={{ marginBottom: 0 }}>Accounts</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div className="animate-pulse-slow" style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E' }} />
+                  <span style={{ fontSize: '0.6rem', color: '#22C55E', fontWeight: 700 }}>LIVE</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {active.accounts.map(a => {
+                  const delta = a.history.length > 0 ? a.followers - a.history[a.history.length - 1] : 0
+                  return (
+                    <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#181818', border: '1px solid #222', borderRadius: 4, padding: '10px 12px' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.62rem', color: '#6B7280' }}>{a.platform} · @{a.handle}</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{a.followers.toLocaleString()}</div>
+                        {delta !== 0 && <div style={{ fontSize: '0.62rem', color: delta > 0 ? '#22C55E' : '#EF4444' }}>{delta > 0 ? '+' : ''}{delta}</div>}
+                      </div>
+                      <Sparkline data={[...a.history, a.followers]} />
+                      {editingFollowers === a.id ? (
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          <input type="number" value={followerInput} onChange={e => setFollowerInput(e.target.value)} style={{ width: 70 }} autoFocus onKeyDown={e => e.key === 'Enter' && updateFollowers(a.id)} />
+                          <button onClick={() => updateFollowers(a.id)} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '6px 8px', cursor: 'pointer', fontWeight: 700 }}>✓</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => { setEditingFollowers(a.id); setFollowerInput(a.followers.toString()) }} className="btn-ghost" style={{ fontSize: '0.65rem', padding: '5px 8px' }}>Update</button>
+                      )}
+                      <button onClick={() => updateActive(b => ({ ...b, accounts: b.accounts.filter(x => x.id !== a.id) }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={12} /></button>
+                    </div>
+                  )
+                })}
+              </div>
+              {addingAcct ? (
+                <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+                  <select value={acctForm.platform} onChange={e => setAcctForm(f => ({ ...f, platform: e.target.value }))} style={{ flex: 1 }}>{PLATFORMS.map(p => <option key={p}>{p}</option>)}</select>
+                  <input type="text" placeholder="@handle" value={acctForm.handle} onChange={e => setAcctForm(f => ({ ...f, handle: e.target.value }))} style={{ flex: 1 }} />
+                  <button onClick={addAccount} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+                </div>
+              ) : (
+                <button onClick={() => setAddingAcct(true)} className="btn-ghost" style={{ width: '100%', marginTop: 10 }}>+ Add Account</button>
+              )}
+            </div>
+
+            {/* Content pipeline */}
+            <div className="card">
+              <div className="section-header">Content Pipeline</div>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                <input type="text" placeholder="New content idea..." value={ideaInput} onChange={e => setIdeaInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addIdea()} style={{ flex: 1 }} />
+                <button onClick={addIdea} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              </div>
+              {(['idea', 'planned', 'shipped'] as const).map(status => (
+                <div key={status} style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: STATUS_META[status].color }} />
+                    <span style={{ fontSize: '0.62rem', color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.06em' }}>{STATUS_META[status].label.toUpperCase()}</span>
+                    <span style={{ fontSize: '0.6rem', color: '#4B5563' }}>· {grouped[status].length}</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {grouped[status].map(idea => (
+                      <div key={idea.id} style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#181818', border: '1px solid #222', borderRadius: 4, padding: '8px 12px' }}>
+                        <button onClick={() => cycleStatus(idea.id)} title="Click to advance status" style={{ width: 16, height: 16, borderRadius: 4, border: `1.5px solid ${STATUS_META[idea.status].color}`, background: idea.status === 'shipped' ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          {idea.status === 'shipped' && <Check size={10} color="#000" strokeWidth={3} />}
+                        </button>
+                        <span style={{ flex: 1, fontSize: '0.78rem', color: idea.status === 'shipped' ? '#4B5563' : '#E5E7EB', textDecoration: idea.status === 'shipped' ? 'line-through' : 'none' }}>{idea.text}</span>
+                        <button onClick={() => updateActive(b => ({ ...b, ideas: b.ideas.filter(x => x.id !== idea.id) }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={12} /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <p style={{ fontSize: '0.6rem', color: '#374151', marginTop: 4 }}>Tap the checkbox to move ideas: Idea → Planned → Shipped</p>
+            </div>
+          </DesktopGrid>
+        </>
+      )}
     </PageShell>
   )
 }

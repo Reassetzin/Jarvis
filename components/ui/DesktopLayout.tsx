@@ -7,7 +7,7 @@ const TABS: { id: TabId; label: string; Icon: React.ElementType }[] = [
   { id: 'finances', label: 'Finances', Icon: TrendingUp },
   { id: 'brand', label: 'Brand', Icon: Star },
   { id: 'health', label: 'Health', Icon: Heart },
-  { id: 'gym', label: 'Gym', Icon: Dumbbell },
+  { id: 'gym', label: 'Activity', Icon: Dumbbell },
   { id: 'search', label: 'Search', Icon: Search },
 ]
 
