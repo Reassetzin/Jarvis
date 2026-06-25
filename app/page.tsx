@@ -14,13 +14,15 @@ import SearchTab from '@/components/tabs/SearchTab'
 function TabContent({ active }: { active: TabId }) {
   return (
     <ErrorBoundary name={active} key={active}>
-      {active === 'main' && <MainTab />}
-      {active === 'planner' && <PlannerTab />}
-      {active === 'health' && <HealthTab />}
-      {active === 'brand' && <BrandTab />}
-      {active === 'finances' && <FinancesTab />}
-      {active === 'gym' && <GymTab />}
-      {active === 'search' && <SearchTab />}
+      <div className="page-enter" style={{ height: '100%' }}>
+        {active === 'main' && <MainTab />}
+        {active === 'planner' && <PlannerTab />}
+        {active === 'health' && <HealthTab />}
+        {active === 'brand' && <BrandTab />}
+        {active === 'finances' && <FinancesTab />}
+        {active === 'gym' && <GymTab />}
+        {active === 'search' && <SearchTab />}
+      </div>
     </ErrorBoundary>
   )
 }

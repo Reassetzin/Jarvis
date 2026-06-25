@@ -46,8 +46,8 @@ export default function CashFlowChart({ txns }: { txns: Txn[] }) {
               <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#6B7280' }} tickLine={false} axisLine={false} />
               <YAxis tick={{ fontSize: 9, fill: '#4B5563' }} tickLine={false} axisLine={false} />
               <Tooltip contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: 4, fontSize: '0.75rem' }} cursor={{ fill: '#ffffff08' }} />
-              <Bar dataKey="income" fill="#22C55E" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="expense" fill="#EF4444" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="income" fill="#22C55E" radius={[3, 3, 0, 0]} isAnimationActive animationDuration={700} />
+              <Bar dataKey="expense" fill="#EF4444" radius={[3, 3, 0, 0]} isAnimationActive animationDuration={700} />
             </BarChart>
           </ResponsiveContainer>
           {pieData.length > 0 && (

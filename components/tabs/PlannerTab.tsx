@@ -196,9 +196,9 @@ export default function PlannerTab() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {selectedTasks.length === 0 && <div style={{ fontSize: '0.78rem', color: '#374151', textAlign: 'center', padding: '16px 0' }}>Nothing planned. Add a task above.</div>}
-            {selectedTasks.sort((a, b) => Number(b.priority) - Number(a.priority)).map(t => (
-              <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: t.done ? '#0d1a0d' : '#181818', border: `1px solid ${t.done ? '#15391590' : '#222'}`, borderRadius: 4, padding: '10px 12px' }}>
-                <button onClick={() => toggle(t.id)} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${t.done ? '#22C55E' : '#374151'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            {[...selectedTasks].sort((a, b) => Number(b.priority) - Number(a.priority)).map(t => (
+              <div key={t.id} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 8, background: t.done ? '#0d1a0d' : '#181818', border: `1px solid ${t.done ? '#15391590' : '#222'}`, borderRadius: 4, padding: '10px 12px' }}>
+                <button onClick={() => toggle(t.id)} className={t.done ? 'check-pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${t.done ? '#22C55E' : '#374151'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   {t.done && <Check size={11} color="#000" strokeWidth={3} />}
                 </button>
                 {t.priority && <span style={{ color: '#F59E0B' }}>⚡</span>}

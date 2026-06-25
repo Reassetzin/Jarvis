@@ -73,7 +73,7 @@ export default function WeightTracker() {
             <YAxis domain={[minW, maxW]} tick={{ fontSize: 9, fill: '#4B5563' }} tickLine={false} axisLine={false} />
             <Tooltip contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: 4, fontSize: '0.75rem' }} labelStyle={{ color: '#9CA3AF' }} />
             {goal > 0 && <ReferenceLine y={goal} stroke="#22C55E" strokeDasharray="4 4" label={{ value: `Goal ${goal}`, fontSize: 9, fill: '#22C55E', position: 'insideTopRight' }} />}
-            <Line type="monotone" dataKey="weight" stroke="#F59E0B" strokeWidth={2} dot={{ r: 2, fill: '#F59E0B' }} />
+            <Line type="monotone" dataKey="weight" stroke="#F59E0B" strokeWidth={2} dot={{ r: 2, fill: '#F59E0B' }} isAnimationActive animationDuration={800} animationEasing="ease-out" />
           </LineChart>
         </ResponsiveContainer>
       ) : (

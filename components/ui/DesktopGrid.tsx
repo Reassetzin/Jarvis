@@ -30,7 +30,11 @@ export default function DesktopGrid({ children, columns = 2 }: Props) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: 16, alignItems: 'start' }}>
       {cols.map((col, i) => (
-        <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>{col}</div>
+        <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {col.map((item, j) => (
+            <div key={j} style={{ animationDelay: `${(i + j * columns) * 0.04}s` }} className="stagger-item">{item}</div>
+          ))}
+        </div>
       ))}
     </div>
   )

@@ -211,3 +211,68 @@ input:focus, textarea:focus, select:focus {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ─── Motion system ─────────────────────────────── */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes itemIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes itemOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(12px); }
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popCheck {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Page-level fade/slide — applied to each tab on mount */
+.page-enter { animation: pageIn 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Cards stagger in */
+.card { animation: fadeSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.stagger-item { animation: fadeSlideIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.stagger-item > .card { animation: none; }
+
+/* New list items */
+.item-enter { animation: itemIn 0.28s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Completion pop on checkboxes */
+.check-pop { animation: popCheck 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* Modal + overlay */
+.modal-in { animation: modalIn 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+.overlay-in { animation: overlayIn 0.2s ease; }
+
+/* Smooth transitions on interactive elements */
+button, .card, input, select {
+  transition-property: transform, box-shadow, border-color, background, color, opacity;
+  transition-duration: 0.18s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+button:active { transform: scale(0.96); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, .card, .page-enter, .item-enter, .check-pop, .modal-in { animation: none !important; transition: none !important; }
+}

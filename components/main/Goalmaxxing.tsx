@@ -95,13 +95,13 @@ export default function Goalmaxxing() {
             </div>
           )}
           {goals.map(g => (
-            <div key={g.id} style={{
+            <div key={g.id} className="item-enter" style={{
               display: 'flex', alignItems: 'center', gap: 8,
               background: g.done ? '#0d1a0d' : '#111',
               border: `1px solid ${g.done ? '#15391590' : '#222'}`,
               borderRadius: 4, padding: '10px 12px',
             }}>
-              <button onClick={() => toggleGoal(g.id)} style={{
+              <button onClick={() => toggleGoal(g.id)} className={g.done ? 'check-pop' : ''} style={{
                 width: 18, height: 18, borderRadius: 3, border: `1.5px solid ${g.done ? '#22C55E' : '#374151'}`,
                 background: g.done ? '#22C55E' : 'transparent', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
