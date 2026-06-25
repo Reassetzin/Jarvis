@@ -5,11 +5,7 @@ export const metadata: Metadata = {
   title: 'Life OS',
   description: 'Personal life operating system',
   manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'Life OS',
-  },
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Life OS' },
 }
 
 export const viewport: Viewport = {
@@ -32,9 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script src="/register-sw.js" defer />
       </head>
       <body className="bg-black text-gray-100">
-        <div className="mobile-shell">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   )
