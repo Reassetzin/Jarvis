@@ -46,6 +46,15 @@ export default function DayProgressRing() {
       <div className="section-header" style={{ textAlign: 'left' }}>Day Progress</div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
         <svg width="160" height="160" viewBox="0 0 160 160">
+          <defs>
+            <filter id="ringGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
           <circle cx="80" cy="80" r={r} fill="none" stroke="#1f1f1f" strokeWidth="10" />
           <circle
             cx="80" cy="80" r={r}
@@ -56,6 +65,7 @@ export default function DayProgressRing() {
             strokeDasharray={circ}
             strokeDashoffset={offset}
             transform="rotate(-90 80 80)"
+            filter="url(#ringGlow)"
             style={{ transition: 'stroke-dashoffset 1s ease' }}
           />
           <text x="80" y="74" textAnchor="middle" fill="#F3F4F6" fontSize="22" fontWeight="800">

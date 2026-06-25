@@ -1,7 +1,7 @@
 'use client'
 import { usePersistentStore } from '@/hooks/useStore'
 import { useState } from 'react'
-import { X, Plus, CreditCard } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 
 export interface Debt {
   id: string; name: string; type: string
@@ -47,8 +47,7 @@ export default function DebtTracker() {
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <CreditCard size={14} color="#EF4444" />
-          <div className="section-header" style={{ marginBottom: 0, borderLeft: 'none', paddingLeft: 0 }}>Debt</div>
+          <div className="section-header" style={{ marginBottom: 0 }}>Debt</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#EF4444' }}>${totalDebt.toLocaleString()}</div>

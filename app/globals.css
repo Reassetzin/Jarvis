@@ -205,5 +205,13 @@ input:focus, textarea:focus, select:focus {
 .recharts-line-curve { filter: drop-shadow(0 0 5px currentColor); }
 .recharts-bar-rectangle path { filter: drop-shadow(0 0 4px rgba(255,255,255,0.15)); }
 
+/* Glow on colored action buttons (inline-styled) */
+button[style*="F59E0B"], button[style*="#F59E0B"] {
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+}
+button[style*="3B82F6"], button[style*="#3B82F6"] {
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+}
+
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }

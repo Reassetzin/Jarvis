@@ -1,6 +1,6 @@
 'use client'
 import { usePersistentStore } from '@/hooks/useStore'
-import { Check, CalendarDays } from 'lucide-react'
+import { Check } from 'lucide-react'
 
 interface Task { id: string; text: string; date: string; done: boolean; priority: boolean; category: string }
 const CAT_COLORS: Record<string, string> = { Personal: '#3B82F6', Work: '#F59E0B', Brand: '#8B5CF6', Health: '#22C55E', Finance: '#EF4444', Activity: '#EC4899' }
@@ -19,8 +19,7 @@ export default function TodayPlanner() {
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <CalendarDays size={13} color="#F59E0B" />
-          <div className="section-header" style={{ marginBottom: 0, borderLeft: 'none', paddingLeft: 0 }}>Today's Plan</div>
+          <div className="section-header" style={{ marginBottom: 0 }}>Today's Plan</div>
         </div>
         <span style={{ fontSize: '0.7rem', color: '#6B7280' }}>{done}/{todayTasks.length}</span>
       </div>

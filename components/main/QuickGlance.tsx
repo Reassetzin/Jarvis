@@ -1,6 +1,6 @@
 'use client'
 import { usePersistentStore, useDailyStore } from '@/hooks/useStore'
-import { Check, Pill, Droplet, Plus, Minus } from 'lucide-react'
+import { Check, Plus, Minus } from 'lucide-react'
 
 interface Vitamin { id: string; name: string; slot: string }
 
@@ -13,8 +13,7 @@ export function VitaminsMini() {
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Pill size={13} color="#22C55E" />
-          <div className="section-header" style={{ marginBottom: 0, borderLeft: 'none', paddingLeft: 0 }}>Vitamins</div>
+          <div className="section-header" style={{ marginBottom: 0 }}>Vitamins</div>
         </div>
         <span style={{ fontSize: '0.7rem', color: takenCount === vits.length && vits.length > 0 ? '#22C55E' : '#6B7280' }}>{takenCount}/{vits.length}</span>
       </div>
@@ -49,8 +48,7 @@ export function WaterMini() {
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Droplet size={13} color="#3B82F6" />
-          <div className="section-header" style={{ marginBottom: 0, borderLeft: 'none', paddingLeft: 0 }}>Water</div>
+          <div className="section-header" style={{ marginBottom: 0 }}>Water</div>
         </div>
         <span style={{ fontSize: '0.85rem', color, fontWeight: 700 }}>{count}/{goal}</span>
       </div>
