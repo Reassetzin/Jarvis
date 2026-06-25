@@ -17,21 +17,18 @@ export default function DesktopGrid({ children, columns = 2 }: Props) {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
-  const items = (Array.isArray(children) ? children.flat() : [children]).filter(Boolean)
+  const items = (Array.isArray(children) ? (children as ReactNode[]).flat() : [children]).filter(Boolean)
 
   if (!isDesktop) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {items}
-      </div>
-    )
+    return <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>{items}</div>
   }
 
   return (
     <div style={{
       display: 'grid',
       gridTemplateColumns: `repeat(${columns}, 1fr)`,
-      gap: 16,
+      gap: 20,
+      width: '100%',
       alignItems: 'start',
     }}>
       {items}

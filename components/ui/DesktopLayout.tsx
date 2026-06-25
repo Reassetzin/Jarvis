@@ -19,15 +19,18 @@ interface Props {
 
 export default function DesktopLayout({ active, onChange, children }: Props) {
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#000' }}>
-      {/* Sidebar */}
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', background: '#000', overflow: 'hidden' }}>
+      {/* Fixed sidebar */}
       <aside style={{
         width: 200,
+        minWidth: 200,
         borderRight: '1px solid #1a1a1a',
         display: 'flex',
         flexDirection: 'column',
         padding: '24px 0',
-        flexShrink: 0,
+        height: '100vh',
+        position: 'sticky',
+        top: 0,
       }}>
         <div style={{ padding: '0 20px 24px', borderBottom: '1px solid #1a1a1a', marginBottom: 16 }}>
           <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#F59E0B', letterSpacing: '-0.02em' }}>JARVIS</div>
@@ -59,10 +62,10 @@ export default function DesktopLayout({ active, onChange, children }: Props) {
         </div>
       </aside>
 
-      {/* Main content — fills remaining width */}
-      <main style={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
+      {/* Content area — takes all remaining width */}
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {children}
-      </main>
+      </div>
     </div>
   )
 }
