@@ -83,7 +83,7 @@ export default function OverseerWidget() {
           onKeyDown={e => e.key === 'Enter' && send()}
           style={{ flex: 1, fontSize: '0.82rem' }}
         />
-        <button onClick={send} disabled={loading} style={{
+        <button onClick={send} disabled={loading} className={loading ? '' : 'glow-orange'} style={{
           background: loading ? '#1f1f1f' : '#F59E0B',
           color: loading ? '#4B5563' : '#000',
           border: 'none', borderRadius: 4,

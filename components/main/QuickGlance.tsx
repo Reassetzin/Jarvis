@@ -57,7 +57,7 @@ export function WaterMini() {
       </div>
       <div style={{ display: 'flex', gap: 6 }}>
         <button onClick={() => setCount(c => Math.max(0, c - 1))} style={{ flex: 1, background: '#181818', border: '1px solid #333', borderRadius: 4, padding: '8px', cursor: 'pointer', color: '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={14} /></button>
-        <button onClick={() => setCount(c => c + 1)} style={{ flex: 2, background: '#3B82F6', border: 'none', borderRadius: 4, padding: '8px', cursor: 'pointer', color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}><Plus size={14} /> Bottle</button>
+        <button className="glow-blue" onClick={() => setCount(c => c + 1)} style={{ flex: 2, background: '#3B82F6', border: 'none', borderRadius: 4, padding: '8px', cursor: 'pointer', color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}><Plus size={14} /> Bottle</button>
       </div>
     </div>
   )

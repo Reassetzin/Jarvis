@@ -24,7 +24,7 @@ export function WaterTracker() {
         <span style={{ fontSize: '0.72rem', color: '#6B7280' }}>{status}</span>
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={() => setCount(c => Math.max(0, c - 1))} style={{ background: '#181818', border: '1px solid #333', borderRadius: 4, width: 32, height: 32, cursor: 'pointer', color: '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={14} /></button>
-          <button onClick={() => setCount(c => c + 1)} style={{ background: '#3B82F6', border: 'none', borderRadius: 4, width: 32, height: 32, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={14} /></button>
+          <button className="glow-blue" onClick={() => setCount(c => c + 1)} style={{ background: '#3B82F6', border: 'none', borderRadius: 4, width: 32, height: 32, cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={14} /></button>
         </div>
       </div>
     </div>

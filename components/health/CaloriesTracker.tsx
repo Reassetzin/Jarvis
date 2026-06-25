@@ -57,7 +57,7 @@ export default function CaloriesTracker() {
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
         <input type="text" placeholder='e.g. "1 lb grilled chicken + rice"' value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && aiEstimate()} style={{ flex: 1 }} />
-        <button onClick={aiEstimate} disabled={loading} style={{ background: loading ? '#1f1f1f' : '#F59E0B', color: loading ? '#6B7280' : '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5 }}>
+        <button onClick={aiEstimate} disabled={loading} className={loading ? "" : "glow-orange"} style={{ background: loading ? '#1f1f1f' : '#F59E0B', color: loading ? '#6B7280' : '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5 }}>
           {loading ? <Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={14} />}
         </button>
       </div>

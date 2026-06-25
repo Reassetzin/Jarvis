@@ -192,7 +192,7 @@ export default function FinancesTab() {
               {EXPENSE_CATS.map(c => <option key={c}>{c}</option>)}
             </select>
             <input type="number" placeholder="Limit" value={budgetForm.limit} onChange={e => setBudgetForm(f => ({ ...f, limit: e.target.value }))} style={{ width: 90 }} />
-            <button onClick={() => { if (!budgetForm.limit) return; setBudgets(b => [...b.filter(x => x.category !== budgetForm.category), { category: budgetForm.category, limit: parseFloat(budgetForm.limit) }]); setBudgetForm({ category: 'Food', limit: '' }) }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>Set</button>
+            <button className="glow-orange" onClick={() => { if (!budgetForm.limit) return; setBudgets(b => [...b.filter(x => x.category !== budgetForm.category), { category: budgetForm.category, limit: parseFloat(budgetForm.limit) }]); setBudgetForm({ category: 'Food', limit: '' }) }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>Set</button>
           </div>
         </div>
 
@@ -253,7 +253,7 @@ export default function FinancesTab() {
             <div style={{ display: 'flex', gap: 6 }}>
               <input type="text" placeholder="Goal name" value={goalForm.name} onChange={e => setGoalForm(f => ({ ...f, name: e.target.value }))} style={{ flex: 2 }} />
               <input type="number" placeholder="Target $" value={goalForm.target} onChange={e => setGoalForm(f => ({ ...f, target: e.target.value }))} style={{ flex: 1 }} />
-              <button onClick={() => { if (!goalForm.name || !goalForm.target) return; setGoals(g => [...g, { id: Date.now().toString(), name: goalForm.name, target: parseFloat(goalForm.target), saved: 0 }]); setGoalForm({ name: '', target: '' }); setAddingGoal(false) }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              <button className="glow-orange" onClick={() => { if (!goalForm.name || !goalForm.target) return; setGoals(g => [...g, { id: Date.now().toString(), name: goalForm.name, target: parseFloat(goalForm.target), saved: 0 }]); setGoalForm({ name: '', target: '' }); setAddingGoal(false) }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
             </div>
           ) : (
             <button onClick={() => setAddingGoal(true)} className="btn-ghost" style={{ width: '100%' }}>+ Add Savings Goal</button>
@@ -314,7 +314,7 @@ export default function FinancesTab() {
             <div style={{ marginTop: 10, display: 'flex', gap: 6 }}>
               <input type="text" placeholder="e.g. Coinbase, Savings" value={assetForm.label} onChange={e => setAssetForm(a => ({ ...a, label: e.target.value }))} style={{ flex: 2 }} />
               <input type="number" placeholder="$" value={assetForm.amount} onChange={e => setAssetForm(a => ({ ...a, amount: e.target.value }))} style={{ flex: 1 }} />
-              <button onClick={() => { if (!assetForm.label || !assetForm.amount) return; setAssets(as => [...as, { id: Date.now().toString(), label: assetForm.label, amount: parseFloat(assetForm.amount) }]); setAssetForm({ label: '', amount: '' }); setAddingAsset(false) }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              <button className="glow-orange" onClick={() => { if (!assetForm.label || !assetForm.amount) return; setAssets(as => [...as, { id: Date.now().toString(), label: assetForm.label, amount: parseFloat(assetForm.amount) }]); setAssetForm({ label: '', amount: '' }); setAddingAsset(false) }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
             </div>
           ) : (
             <button onClick={() => setAddingAsset(true)} className="btn-ghost" style={{ width: '100%', marginTop: 8 }}>+ Add Asset</button>

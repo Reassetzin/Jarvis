@@ -188,7 +188,7 @@ export default function PlannerTab() {
           <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
             <button onClick={() => setPriority(p => !p)} style={{ background: priority ? '#1a0a00' : 'transparent', border: `1px solid ${priority ? '#F59E0B' : '#374151'}`, borderRadius: 4, padding: '8px 10px', cursor: 'pointer', flexShrink: 0, color: priority ? '#F59E0B' : '#374151', fontWeight: 700 }}>⚡</button>
             <input type="text" placeholder="Add a task..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} style={{ flex: 1 }} />
-            <button onClick={addTask} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+            <button className="glow-orange" onClick={addTask} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
           </div>
           <select value={cat} onChange={e => setCat(e.target.value)} style={{ marginBottom: 12 }}>
             {CATEGORIES.map(c => <option key={c}>{c}</option>)}

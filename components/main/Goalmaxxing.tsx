@@ -134,7 +134,7 @@ export default function Goalmaxxing() {
             onKeyDown={e => e.key === 'Enter' && addGoal()}
             style={{ flex: 1 }}
           />
-          <button onClick={addGoal} style={{
+          <button className="glow-orange" onClick={addGoal} style={{
             background: '#F59E0B', color: '#000', fontWeight: 700, borderRadius: 4,
             padding: '8px 14px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', flexShrink: 0,
           }}>+</button>
@@ -174,7 +174,7 @@ export default function Goalmaxxing() {
             onChange={e => setTmInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addTomorrow()}
             style={{ flex: 1 }} disabled={!isPast9} />
-          <button onClick={addTomorrow} disabled={!isPast9} style={{
+          <button className="glow-orange" onClick={addTomorrow} disabled={!isPast9} style={{
             background: '#F59E0B', color: '#000', fontWeight: 700, borderRadius: 4,
             padding: '8px 14px', border: 'none', cursor: 'pointer', fontSize: '0.8rem',
             opacity: isPast9 ? 1 : 0.5,

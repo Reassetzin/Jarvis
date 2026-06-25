@@ -183,7 +183,7 @@ export default function GymTab() {
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <input type="text" placeholder="e.g. Pull-ups" value={exInput} onChange={e => setExInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addExercise()} style={{ flex: 1 }} />
-                <button onClick={addExercise} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+                <button className="glow-orange" onClick={addExercise} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
               </div>
             </div>
           )}
