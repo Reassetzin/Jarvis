@@ -11,30 +11,36 @@ interface Vitamin {
   slot: 'Morning' | 'Afternoon' | 'Evening' | 'Night'
   notes: string
   running_low: boolean
+  days: number[]    // 0=Sun..6=Sat; empty or all = every day
 }
 
 const SLOTS = ['Morning', 'Afternoon', 'Evening', 'Night'] as const
 const SLOT_TIMES = { Morning: '6–11 AM', Afternoon: '11 AM–4 PM', Evening: '4–8 PM', Night: '8 PM+' }
 const SLOT_COLORS = { Morning: '#F59E0B', Afternoon: '#22C55E', Evening: '#8B5CF6', Night: '#3B82F6' }
+const DOW = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 export default function VitaminSchedule() {
   const [vits, setVits] = usePersistentStore<Vitamin[]>('vitamins', [])
   const [taken, setTaken] = useDailyStore<string[]>('vitamins_taken', [])
   const [adding, setAdding] = useState(false)
-  const [form, setForm] = useState({ name: '', dose: '', time: '08:00', slot: 'Morning' as typeof SLOTS[number], notes: '', running_low: false })
+  const [form, setForm] = useState({ name: '', dose: '', time: '08:00', slot: 'Morning' as typeof SLOTS[number], notes: '', running_low: false, days: [] as number[] })
+
+  const todayDow = new Date().getDay()
 
   function addVit() {
     if (!form.name.trim()) return
     setVits(v => [...v, { ...form, id: Date.now().toString() }])
-    setForm({ name: '', dose: '', time: '08:00', slot: 'Morning', notes: '', running_low: false })
+    setForm({ name: '', dose: '', time: '08:00', slot: 'Morning', notes: '', running_low: false, days: [] })
     setAdding(false)
   }
   function toggle(id: string) { setTaken(t => t.includes(id) ? t.filter(x => x !== id) : [...t, id]) }
   function remove(id: string) { setVits(v => v.filter(x => x.id !== id)); setTaken(t => t.filter(x => x !== id)) }
   function toggleLow(id: string) { setVits(v => v.map(x => x.id === id ? { ...x, running_low: !x.running_low } : x)) }
 
-  const groups = SLOTS.map(s => ({ slot: s, items: vits.filter(v => v.slot === s).sort((a, b) => a.time.localeCompare(b.time)) })).filter(g => g.items.length > 0)
-  const takenCount = taken.filter(id => vits.some(v => v.id === id)).length
+  const scheduledToday = vits.filter(v => !v.days || v.days.length === 0 || v.days.includes(todayDow))
+  const groups = SLOTS.map(s => ({ slot: s, items: scheduledToday.filter(v => v.slot === s).sort((a, b) => a.time.localeCompare(b.time)) })).filter(g => g.items.length > 0)
+  const takenCount = taken.filter(id => scheduledToday.some(v => v.id === id)).length
+  const totalToday = scheduledToday.length
 
   function fmt(t: string) {
     const [h, m] = t.split(':').map(Number)
@@ -47,7 +53,7 @@ export default function VitaminSchedule() {
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div className="section-header" style={{ marginBottom: 0 }}>Vitamin Schedule</div>
-        <span style={{ fontSize: '0.7rem', color: takenCount === vits.length && vits.length > 0 ? '#22C55E' : '#6B7280', fontWeight: 700 }}>{takenCount}/{vits.length} taken</span>
+        <span style={{ fontSize: '0.7rem', color: takenCount === totalToday && totalToday > 0 ? '#22C55E' : '#6B7280', fontWeight: 700 }}>{takenCount}/{totalToday} taken</span>
       </div>
 
       {groups.map(g => (
@@ -102,6 +108,21 @@ export default function VitaminSchedule() {
           <select value={form.slot} onChange={e => setForm(f => ({ ...f, slot: e.target.value as any }))}>
             {SLOTS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
+          <div>
+            <div style={{ fontSize: '0.62rem', color: '#6B7280', marginBottom: 5 }}>Days (none selected = every day)</div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {DOW.map((d, i) => {
+                const on = form.days.includes(i)
+                return (
+                  <button key={i} type="button" onClick={() => setForm(f => ({ ...f, days: on ? f.days.filter(x => x !== i) : [...f.days, i] }))} style={{
+                    flex: 1, aspectRatio: '1', borderRadius: 4, cursor: 'pointer',
+                    background: on ? '#1a0a00' : '#181818', border: `1px solid ${on ? '#F59E0B' : '#333'}`,
+                    color: on ? '#F59E0B' : '#6B7280', fontWeight: on ? 700 : 400, fontSize: '0.72rem',
+                  }}>{d}</button>
+                )
+              })}
+            </div>
+          </div>
           <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: '0.8rem', color: '#9CA3AF' }}>
             <input type="checkbox" checked={form.running_low} onChange={e => setForm(f => ({ ...f, running_low: e.target.checked }))} style={{ width: 'auto' }} /> Running low
           </label>

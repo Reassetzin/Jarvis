@@ -23,15 +23,15 @@ export default function DesktopGrid({ children, columns = 2 }: Props) {
     return <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>{items}</div>
   }
 
+  // Masonry: distribute into columns top-to-bottom so cards pack tightly with no gaps
+  const cols: ReactNode[][] = Array.from({ length: columns }, () => [])
+  items.forEach((item, i) => cols[i % columns].push(item))
+
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: `repeat(${columns}, 1fr)`,
-      gap: 20,
-      width: '100%',
-      alignItems: 'start',
-    }}>
-      {items}
+    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: 16, alignItems: 'start' }}>
+      {cols.map((col, i) => (
+        <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>{col}</div>
+      ))}
     </div>
   )
 }

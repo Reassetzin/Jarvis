@@ -39,6 +39,8 @@ export default function FinancesTab() {
   const [addingSub, setAddingSub] = useState(false)
   const [addingGoal, setAddingGoal] = useState(false)
   const [addingAsset, setAddingAsset] = useState(false)
+  const [txnSearch, setTxnSearch] = useState('')
+  const [txnFilter, setTxnFilter] = useState('all')
 
   const monthTxns = useMemo(() => txns.filter(t => thisMonth(t.date)), [txns])
   const income = monthTxns.filter(t => t.type === 'income').reduce((a, t) => a + t.amount, 0)
@@ -59,6 +61,16 @@ export default function FinancesTab() {
 
   const netWorth = assets.reduce((a, x) => a + x.amount, 0)
   const monthlyBurn = subs.reduce((a, s) => a + (s.period === 'monthly' ? s.amount : s.amount / 12), 0)
+
+  const filteredTxns = useMemo(() => {
+    return monthTxns.filter(t => {
+      if (txnFilter === 'income' && t.type !== 'income') return false
+      if (txnFilter === 'expense' && t.type !== 'expense') return false
+      if (txnFilter !== 'all' && txnFilter !== 'income' && txnFilter !== 'expense' && t.category !== txnFilter) return false
+      if (txnSearch && !t.label.toLowerCase().includes(txnSearch.toLowerCase()) && !t.category.toLowerCase().includes(txnSearch.toLowerCase())) return false
+      return true
+    })
+  }, [monthTxns, txnFilter, txnSearch])
 
   function addTxn() {
     if (!txnForm.amount || !txnForm.label.trim()) return
@@ -108,19 +120,33 @@ export default function FinancesTab() {
           <button onClick={addTxn} className="btn-amber">Add Transaction</button>
 
           {monthTxns.length > 0 && (
-            <div style={{ marginTop: 12, maxHeight: 220, overflowY: 'auto' }}>
-              <div style={{ fontSize: '0.6rem', color: '#4B5563', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Recent</div>
-              {monthTxns.slice(0, 15).map(t => (
-                <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #111' }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[t.category] || '#6B7280', flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '0.76rem', color: '#E5E7EB' }}>{t.label}</div>
-                    <div style={{ fontSize: '0.58rem', color: '#4B5563' }}>{t.category}</div>
+            <div style={{ marginTop: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ fontSize: '0.6rem', color: '#4B5563', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>This Month · {monthTxns.length} txns</span>
+              </div>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                <input type="text" placeholder="Search transactions..." value={txnSearch} onChange={e => setTxnSearch(e.target.value)} style={{ flex: 1, fontSize: '0.75rem', padding: '7px 10px' }} />
+                <select value={txnFilter} onChange={e => setTxnFilter(e.target.value)} style={{ width: 'auto', fontSize: '0.72rem', padding: '7px 8px' }}>
+                  <option value="all">All</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                  {[...INCOME_CATS, ...EXPENSE_CATS].map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div style={{ maxHeight: 320, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                {filteredTxns.length === 0 && <div style={{ fontSize: '0.72rem', color: '#374151', textAlign: 'center', padding: '12px 0' }}>No matches.</div>}
+                {filteredTxns.map(t => (
+                  <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: '1px solid #111' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[t.category] || '#6B7280', flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.76rem', color: '#E5E7EB', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.label}</div>
+                      <div style={{ fontSize: '0.58rem', color: '#4B5563' }}>{t.category} · {new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                    </div>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700, color: t.type === 'income' ? '#22C55E' : '#EF4444', flexShrink: 0 }}>{t.type === 'income' ? '+' : '−'}${t.amount.toLocaleString()}</span>
+                    <button onClick={() => setTxns(ts => ts.filter(x => x.id !== t.id))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151', flexShrink: 0 }}><X size={12} /></button>
                   </div>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: t.type === 'income' ? '#22C55E' : '#EF4444' }}>{t.type === 'income' ? '+' : '−'}${t.amount.toLocaleString()}</span>
-                  <button onClick={() => setTxns(ts => ts.filter(x => x.id !== t.id))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={12} /></button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>

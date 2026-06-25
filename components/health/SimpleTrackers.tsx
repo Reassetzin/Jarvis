@@ -97,35 +97,3 @@ export function WinsTracker() {
     </div>
   )
 }
-
-interface CalEntry { id: string; name: string; calories: number }
-export function CaloriesTracker() {
-  const [log, setLog] = useDailyStore<CalEntry[]>('calories_log', [])
-  const [name, setName] = useState(''); const [cal, setCal] = useState('')
-  function add() {
-    if (!name.trim() || !cal) return
-    setLog(l => [...l, { id: Date.now().toString(), name: name.trim(), calories: parseInt(cal) }])
-    setName(''); setCal('')
-  }
-  const total = log.reduce((a, e) => a + e.calories, 0)
-  return (
-    <div className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div className="section-header" style={{ marginBottom: 0 }}>Calories</div>
-        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#F59E0B' }}>{total.toLocaleString()} kcal</div>
-      </div>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-        <input type="text" placeholder="Meal name" value={name} onChange={e => setName(e.target.value)} style={{ flex: 2 }} />
-        <input type="number" placeholder="kcal" value={cal} onChange={e => setCal(e.target.value)} style={{ flex: 1 }} />
-        <button onClick={add} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
-      </div>
-      {log.map(e => (
-        <div key={e.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #111' }}>
-          <span style={{ flex: 1, fontSize: '0.78rem', color: '#E5E7EB' }}>{e.name}</span>
-          <span style={{ fontSize: '0.78rem', color: '#F59E0B', fontWeight: 600 }}>{e.calories}</span>
-          <button onClick={() => setLog(l => l.filter(x => x.id !== e.id))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={12} /></button>
-        </div>
-      ))}
-    </div>
-  )
-}

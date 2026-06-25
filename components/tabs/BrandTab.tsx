@@ -3,10 +3,11 @@ import { usePersistentStore } from '@/hooks/useStore'
 import { useState } from 'react'
 import { X, Plus, Check, ChevronDown } from 'lucide-react'
 import DesktopGrid from '@/components/ui/DesktopGrid'
+import IdeaEditor, { Idea as FullIdea } from '@/components/brand/IdeaEditor'
 import PageShell from '@/components/ui/PageShell'
 
 interface Account { id: string; platform: string; handle: string; followers: number; history: number[] }
-interface Idea { id: string; text: string; status: 'idea' | 'planned' | 'shipped' }
+interface Idea { id: string; text: string; status: 'idea' | 'planned' | 'shipped'; notes?: string; date?: string; platform?: string; hook?: string; script?: string }
 interface Brand {
   id: string; name: string; tagline: string
   accounts: Account[]; ideas: Idea[]
@@ -31,6 +32,7 @@ export default function BrandTab() {
   const [acctForm, setAcctForm] = useState({ platform: 'TikTok', handle: '' })
   const [addingAcct, setAddingAcct] = useState(false)
   const [ideaInput, setIdeaInput] = useState('')
+  const [editingIdea, setEditingIdea] = useState<Idea | null>(null)
   const [editingFollowers, setEditingFollowers] = useState<string | null>(null)
   const [followerInput, setFollowerInput] = useState('')
   const [editingTagline, setEditingTagline] = useState(false)
@@ -192,17 +194,34 @@ export default function BrandTab() {
                         <button onClick={() => cycleStatus(idea.id)} title="Click to advance status" style={{ width: 16, height: 16, borderRadius: 4, border: `1.5px solid ${STATUS_META[idea.status].color}`, background: idea.status === 'shipped' ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           {idea.status === 'shipped' && <Check size={10} color="#000" strokeWidth={3} />}
                         </button>
-                        <span style={{ flex: 1, fontSize: '0.78rem', color: idea.status === 'shipped' ? '#4B5563' : '#E5E7EB', textDecoration: idea.status === 'shipped' ? 'line-through' : 'none' }}>{idea.text}</span>
+                        <div onClick={() => setEditingIdea(idea)} style={{ flex: 1, cursor: 'pointer', minWidth: 0 }}>
+                          <div style={{ fontSize: '0.78rem', color: idea.status === 'shipped' ? '#4B5563' : '#E5E7EB', textDecoration: idea.status === 'shipped' ? 'line-through' : 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{idea.text}</div>
+                          {(idea.platform || idea.date) && (
+                            <div style={{ fontSize: '0.58rem', color: '#4B5563', display: 'flex', gap: 6, marginTop: 1 }}>
+                              {idea.platform && <span>{idea.platform}</span>}
+                              {idea.date && <span>· {idea.date}</span>}
+                              {idea.script && <span>· 📝</span>}
+                            </div>
+                          )}
+                        </div>
                         <button onClick={() => updateActive(b => ({ ...b, ideas: b.ideas.filter(x => x.id !== idea.id) }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={12} /></button>
                       </div>
                     ))}
                   </div>
                 </div>
               ))}
-              <p style={{ fontSize: '0.6rem', color: '#374151', marginTop: 4 }}>Tap the checkbox to move ideas: Idea → Planned → Shipped</p>
+              <p style={{ fontSize: '0.6rem', color: '#374151', marginTop: 4 }}>Checkbox advances status · Click an idea to add notes, hook & script</p>
             </div>
           </DesktopGrid>
         </>
+      )}
+
+      {editingIdea && (
+        <IdeaEditor
+          idea={editingIdea}
+          onClose={() => setEditingIdea(null)}
+          onSave={updated => updateActive(b => ({ ...b, ideas: b.ideas.map(x => x.id === updated.id ? updated : x) }))}
+        />
       )}
     </PageShell>
   )

@@ -119,13 +119,23 @@ export default function PlannerTab() {
                     const isSelected = ds === selectedDate
                     return (
                       <button key={i} onClick={() => setSelectedDate(ds)} style={{
-                        aspectRatio: '1', background: isSelected ? '#1a0a00' : isToday ? '#181818' : 'transparent',
+                        minHeight: 92, background: isSelected ? '#1a0a00' : isToday ? '#181818' : '#0c0c0c',
                         border: `1px solid ${isSelected ? '#92400E' : isToday ? '#333' : '#1a1a1a'}`,
-                        borderRadius: 4, cursor: 'pointer', padding: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                        borderRadius: 4, cursor: 'pointer', padding: 5, display: 'flex', flexDirection: 'column', gap: 3, textAlign: 'left', overflow: 'hidden',
                       }}>
-                        <span style={{ fontSize: '0.72rem', color: isToday ? '#F59E0B' : isSelected ? '#F59E0B' : '#9CA3AF', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
-                        <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-                          {dayTasks.slice(0, 3).map(t => <div key={t.id} style={{ width: 4, height: 4, borderRadius: '50%', background: t.done ? '#374151' : CAT_COLORS[t.category] }} />)}
+                        <span style={{ fontSize: '0.7rem', color: isToday ? '#F59E0B' : isSelected ? '#F59E0B' : '#9CA3AF', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          {dayTasks.slice(0, 3).map(t => (
+                            <div key={t.id} style={{
+                              fontSize: '0.58rem', lineHeight: 1.3, padding: '1px 4px', borderRadius: 3,
+                              background: t.done ? '#1a1a1a' : `${CAT_COLORS[t.category]}22`,
+                              color: t.done ? '#4B5563' : CAT_COLORS[t.category],
+                              textDecoration: t.done ? 'line-through' : 'none',
+                              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                              borderLeft: `2px solid ${t.done ? '#333' : CAT_COLORS[t.category]}`,
+                            }}>{t.text}</div>
+                          ))}
+                          {dayTasks.length > 3 && <span style={{ fontSize: '0.55rem', color: '#4B5563', paddingLeft: 4 }}>+{dayTasks.length - 3} more</span>}
                         </div>
                       </button>
                     )
