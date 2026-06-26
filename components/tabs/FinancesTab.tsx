@@ -5,6 +5,7 @@ import { X, Plus, TrendingUp, TrendingDown, Target } from 'lucide-react'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
 import DebtTracker from '@/components/finances/DebtTracker'
+import RecurringTransactions from '@/components/finances/RecurringTransactions'
 import TransactionExplorer from '@/components/finances/TransactionExplorer'
 import CashFlowChart from '@/components/finances/CashFlowChart'
 
@@ -109,6 +110,7 @@ export default function FinancesTab() {
       <DesktopGrid columns={2}>
         <CashFlowChart txns={txns} />
         <DebtTracker />
+        <RecurringTransactions />
         {/* Add transaction */}
         <div className="card">
           <div className="section-header">Add Transaction</div>

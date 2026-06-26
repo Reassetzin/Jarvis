@@ -25,6 +25,8 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 
 export default function PlannerTab() {
   const [tasks, setTasks] = usePersistentStore<Task[]>('planner_tasks', [])
+  const [brands] = usePersistentStore<{ id: string; name: string; ideas: { id: string; text: string; status: string; date?: string; platform?: string }[] }[]>('brands', [])
+  const [showContent, setShowContent] = useState(true)
   const [view, setView] = useState<'month' | 'week' | 'day'>('month')
   const [cursor, setCursor] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(ymd(new Date()))
@@ -35,6 +37,16 @@ export default function PlannerTab() {
   const todayStr = ymd(new Date())
 
   function tasksFor(dateStr: string) { return tasks.filter(t => t.date === dateStr) }
+
+  // Brand content scheduled for a given date
+  function contentFor(dateStr: string) {
+    if (!showContent) return []
+    const items: { id: string; text: string; brand: string; platform?: string; status: string }[] = []
+    brands.forEach(b => (b.ideas || []).forEach(idea => {
+      if (idea.date === dateStr) items.push({ id: idea.id, text: idea.text, brand: b.name, platform: idea.platform, status: idea.status })
+    }))
+    return items
+  }
   function addTask() {
     if (!input.trim()) return
     setTasks(t => [...t, { id: Date.now().toString(), text: input.trim(), date: selectedDate, done: false, priority, category: cat }])
@@ -72,6 +84,7 @@ export default function PlannerTab() {
   }
 
   const selectedTasks = tasksFor(selectedDate)
+  const selectedContent = contentFor(selectedDate)
   const selDateObj = parseYmd(selectedDate)
 
   return (
@@ -98,6 +111,7 @@ export default function PlannerTab() {
           </span>
           <button onClick={() => navigate(1)} style={{ background: '#181818', border: '1px solid #333', borderRadius: 4, padding: 6, cursor: 'pointer', color: '#9CA3AF', display: 'flex' }}><ChevronRight size={15} /></button>
           <button onClick={() => { setCursor(new Date()); setSelectedDate(todayStr) }} className="btn-ghost" style={{ fontSize: '0.72rem' }}>Today</button>
+          <button onClick={() => setShowContent(s => !s)} className="btn-ghost" style={{ fontSize: '0.72rem', color: showContent ? '#EC4899' : '#6B7280', borderColor: showContent ? 'rgba(236,72,153,0.4)' : undefined }}>🎬 Content</button>
         </div>
       </div>
 
@@ -115,6 +129,7 @@ export default function PlannerTab() {
                     if (!d) return <div key={i} />
                     const ds = ymd(d)
                     const dayTasks = tasksFor(ds)
+                    const dayContent = contentFor(ds)
                     const isToday = ds === todayStr
                     const isSelected = ds === selectedDate
                     return (
@@ -125,7 +140,7 @@ export default function PlannerTab() {
                       }}>
                         <span style={{ fontSize: '0.7rem', color: isToday ? '#F59E0B' : isSelected ? '#F59E0B' : '#9CA3AF', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                          {dayTasks.slice(0, 3).map(t => (
+                          {dayTasks.slice(0, 2).map(t => (
                             <div key={t.id} style={{
                               fontSize: '0.58rem', lineHeight: 1.3, padding: '1px 4px', borderRadius: 3,
                               background: t.done ? '#1a1a1a' : `${CAT_COLORS[t.category]}22`,
@@ -135,7 +150,15 @@ export default function PlannerTab() {
                               borderLeft: `2px solid ${t.done ? '#333' : CAT_COLORS[t.category]}`,
                             }}>{t.text}</div>
                           ))}
-                          {dayTasks.length > 3 && <span style={{ fontSize: '0.55rem', color: '#4B5563', paddingLeft: 4 }}>+{dayTasks.length - 3} more</span>}
+                          {dayContent.slice(0, 2).map(c => (
+                            <div key={c.id} style={{
+                              fontSize: '0.58rem', lineHeight: 1.3, padding: '1px 4px', borderRadius: 3,
+                              background: 'rgba(236,72,153,0.15)', color: '#EC4899',
+                              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                              borderLeft: '2px solid #EC4899',
+                            }}>🎬 {c.text}</div>
+                          ))}
+                          {(dayTasks.length + dayContent.length) > 4 && <span style={{ fontSize: '0.55rem', color: '#4B5563', paddingLeft: 4 }}>+{dayTasks.length + dayContent.length - 4} more</span>}
                         </div>
                       </button>
                     )
@@ -208,6 +231,26 @@ export default function PlannerTab() {
               </div>
             ))}
           </div>
+
+          {selectedContent.length > 0 && (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                <span style={{ fontSize: '0.6rem', color: '#EC4899', fontWeight: 600, letterSpacing: '0.06em' }}>🎬 CONTENT SCHEDULED</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {selectedContent.map(c => (
+                  <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.3)', borderRadius: 4, padding: '9px 12px' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#EC4899', flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.8rem', color: '#F3F4F6' }}>{c.text}</div>
+                      <div style={{ fontSize: '0.58rem', color: '#9CA3AF' }}>{c.brand}{c.platform && ` · ${c.platform}`} · {c.status}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p style={{ fontSize: '0.58rem', color: '#374151', marginTop: 8 }}>Edit content in the Brand tab. Set a target date on any idea to see it here.</p>
+            </div>
+          )}
         </div>
       </div>
     </PageShell>
