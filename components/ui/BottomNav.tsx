@@ -1,11 +1,12 @@
 'use client'
-import { Home, CalendarDays, TrendingUp, Star, Heart, Dumbbell, Search } from 'lucide-react'
+import { Home, CalendarDays, TrendingUp, Star, Heart, Dumbbell, Gamepad2, Search } from 'lucide-react'
 
-export type TabId = 'main' | 'planner' | 'finances' | 'brand' | 'health' | 'gym' | 'search'
+export type TabId = 'main' | 'planner' | 'projects' | 'finances' | 'brand' | 'health' | 'gym' | 'search'
 
 const TABS: { id: TabId; label: string; Icon: React.ElementType }[] = [
   { id: 'main', label: 'Main', Icon: Home },
   { id: 'planner', label: 'Planner', Icon: CalendarDays },
+  { id: 'projects', label: 'Projects', Icon: Gamepad2 },
   { id: 'finances', label: 'Finances', Icon: TrendingUp },
   { id: 'brand', label: 'Brand', Icon: Star },
   { id: 'health', label: 'Health', Icon: Heart },
@@ -29,8 +30,8 @@ export default function BottomNav({ active, onChange }: Props) {
             flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
             background: 'none', border: 'none', cursor: 'pointer', color: isActive ? '#F59E0B' : '#4B5563', transition: 'color 0.15s',
           }}>
-            <Icon size={17} strokeWidth={isActive ? 2.5 : 1.8} />
-            <span style={{ fontSize: '0.55rem', fontWeight: isActive ? 700 : 500, letterSpacing: '0.03em' }}>{label.toUpperCase()}</span>
+            <Icon size={16} strokeWidth={isActive ? 2.5 : 1.8} />
+            <span style={{ fontSize: '0.5rem', fontWeight: isActive ? 700 : 500, letterSpacing: '0.02em' }}>{label.toUpperCase()}</span>
           </button>
         )
       })}

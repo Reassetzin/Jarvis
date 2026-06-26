@@ -5,6 +5,7 @@ import DesktopLayout from '@/components/ui/DesktopLayout'
 import ErrorBoundary from '@/components/ui/ErrorBoundary'
 import MainTab from '@/components/tabs/MainTab'
 import PlannerTab from '@/components/tabs/PlannerTab'
+import ProjectsTab from '@/components/tabs/ProjectsTab'
 import HealthTab from '@/components/tabs/HealthTab'
 import BrandTab from '@/components/tabs/BrandTab'
 import FinancesTab from '@/components/tabs/FinancesTab'
@@ -17,6 +18,7 @@ function TabContent({ active }: { active: TabId }) {
       <div className="page-enter" style={{ height: '100%' }}>
         {active === 'main' && <MainTab />}
         {active === 'planner' && <PlannerTab />}
+        {active === 'projects' && <ProjectsTab />}
         {active === 'health' && <HealthTab />}
         {active === 'brand' && <BrandTab />}
         {active === 'finances' && <FinancesTab />}

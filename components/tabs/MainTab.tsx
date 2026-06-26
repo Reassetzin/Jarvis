@@ -6,6 +6,7 @@ import OverseerWidget from '@/components/main/OverseerWidget'
 import TodayPlanner from '@/components/main/TodayPlanner'
 import { VitaminsMini, WaterMini } from '@/components/main/QuickGlance'
 import { CashTrendChart, WeightTrendChart } from '@/components/main/DashboardCharts'
+import ProjectsMini from '@/components/main/ProjectsMini'
 import Heatmap from '@/components/ui/Heatmap'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
@@ -97,6 +98,7 @@ export default function MainTab() {
         <CashTrendChart />
         <WeightTrendChart />
         <VitaminsMini />
+        <ProjectsMini />
         <div className="card">
           <Heatmap data={activityHeatmap} color="#EC4899" title="Activity · 12 Weeks" weeks={12} />
         </div>
