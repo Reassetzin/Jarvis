@@ -169,33 +169,33 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
   return (
     <PageShell>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-        <button onClick={onBack} style={{ background: '#181818', border: '1px solid #333', borderRadius: 8, padding: 8, cursor: 'pointer', color: '#9CA3AF', display: 'flex' }}><ChevronLeft size={16} /></button>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <h1 style={{ fontSize: '1.3rem', fontWeight: 800 }}>{project.name}</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+        <button onClick={onBack} style={{ background: '#181818', border: '1px solid #333', borderRadius: 8, padding: 8, cursor: 'pointer', color: '#9CA3AF', display: 'flex', flexShrink: 0 }}><ChevronLeft size={16} /></button>
+        <div style={{ flex: 1, minWidth: 150 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <h1 style={{ fontSize: '1.2rem', fontWeight: 800 }}>{project.name}</h1>
             <select value={project.status} onChange={e => update(p => ({ ...p, status: e.target.value as any }))} style={{ width: 'auto', fontSize: '0.7rem', padding: '3px 8px' }}>
               {Object.entries(STATUS_META).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
           </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: prog >= 100 ? '#22C55E' : '#F59E0B' }}>{prog}%</div>
           <div style={{ fontSize: '0.6rem', color: '#6B7280' }}>overall</div>
         </div>
-        <button onClick={() => { if (confirm(`Delete project "${project.name}"?`)) onDelete() }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={16} /></button>
+        <button onClick={() => { if (confirm(`Delete project "${project.name}"?`)) onDelete() }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151', flexShrink: 0 }}><X size={16} /></button>
       </div>
 
       {/* Sub-tabs */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 4, WebkitOverflowScrolling: 'touch' }}>
         {(['tasks', 'progress', 'docs', 'updates', 'info'] as const).map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{ background: tab === t ? '#1a0a00' : 'transparent', border: `1px solid ${tab === t ? '#92400E' : '#333'}`, borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: tab === t ? '#F59E0B' : '#9CA3AF', fontWeight: tab === t ? 700 : 500, fontSize: '0.78rem', textTransform: 'capitalize' }}>{t}</button>
+          <button key={t} onClick={() => setTab(t)} style={{ flexShrink: 0, background: tab === t ? '#1a0a00' : 'transparent', border: `1px solid ${tab === t ? '#92400E' : '#333'}`, borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: tab === t ? '#F59E0B' : '#9CA3AF', fontWeight: tab === t ? 700 : 500, fontSize: '0.78rem', textTransform: 'capitalize' }}>{t}</button>
         ))}
       </div>
 
       {/* TASKS */}
       {tab === 'tasks' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 16 }}>
+        <div className="split-pane">
           {/* Milestone list */}
           <div className="card" style={{ alignSelf: 'start' }}>
             <div className="section-header">Milestones</div>
@@ -325,7 +325,7 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
 
       {/* DOCS / GDD */}
       {tab === 'docs' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 16 }}>
+        <div className="split-pane">
           {/* Doc list */}
           <div className="card" style={{ alignSelf: 'start' }}>
             <div className="section-header">Documents</div>

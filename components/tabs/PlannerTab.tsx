@@ -115,7 +115,7 @@ export default function PlannerTab() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: view === 'day' ? '1fr' : '2fr 1fr', gap: 16 }}>
+      <div className="planner-split" style={{ display: 'grid', gridTemplateColumns: view === 'day' ? '1fr' : '2fr 1fr', gap: 16 }}>
         {/* Calendar */}
         {view !== 'day' && (
           <div className="card">
@@ -133,13 +133,19 @@ export default function PlannerTab() {
                     const isToday = ds === todayStr
                     const isSelected = ds === selectedDate
                     return (
-                      <button key={i} onClick={() => setSelectedDate(ds)} style={{
+                      <button key={i} onClick={() => setSelectedDate(ds)} className="cal-cell" style={{
                         minHeight: 92, background: isSelected ? '#1a0a00' : isToday ? '#181818' : '#0c0c0c',
                         border: `1px solid ${isSelected ? '#92400E' : isToday ? '#333' : '#1a1a1a'}`,
                         borderRadius: 4, cursor: 'pointer', padding: 5, display: 'flex', flexDirection: 'column', gap: 3, textAlign: 'left', overflow: 'hidden',
                       }}>
                         <span style={{ fontSize: '0.7rem', color: isToday ? '#F59E0B' : isSelected ? '#F59E0B' : '#9CA3AF', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {/* Mobile: colored dots */}
+                        <div className="cal-dots" style={{ gap: 3, flexWrap: 'wrap' }}>
+                          {dayTasks.slice(0, 4).map(t => <div key={t.id} style={{ width: 5, height: 5, borderRadius: '50%', background: t.done ? '#333' : CAT_COLORS[t.category] }} />)}
+                          {dayContent.slice(0, 2).map(c => <div key={c.id} style={{ width: 5, height: 5, borderRadius: '50%', background: '#EC4899' }} />)}
+                        </div>
+                        {/* Desktop: text pills */}
+                        <div className="cal-pill-text" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           {dayTasks.slice(0, 2).map(t => (
                             <div key={t.id} style={{
                               fontSize: '0.58rem', lineHeight: 1.3, padding: '1px 4px', borderRadius: 3,

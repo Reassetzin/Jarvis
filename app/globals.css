@@ -96,6 +96,22 @@ body::before {
 .glow-red { box-shadow: 0 0 24px rgba(239, 68, 68, 0.22); }
 .glow-blue { box-shadow: 0 0 24px rgba(59, 130, 246, 0.22); }
 
+/* Two-pane layouts (sidebar + content) collapse to stacked on mobile */
+.split-pane {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 16px;
+}
+@media (max-width: 768px) {
+  .split-pane { grid-template-columns: 1fr; gap: 12px; }
+  .planner-split { grid-template-columns: 1fr !important; }
+  /* Compact calendar day cells on mobile */
+  .cal-cell { min-height: 56px !important; padding: 3px !important; }
+  .cal-pill-text { display: none !important; }
+  .cal-dots { display: flex !important; }
+}
+.cal-dots { display: none; }
+
 input[type="text"], input[type="number"], input[type="time"], input[type="date"], textarea, select {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -169,6 +185,19 @@ select option:hover {
 
 /* ─── Mobile layout (≤768px) ─────────────────────────────── */
 @media (max-width: 768px) {
+  /* Prevent iOS auto-zoom on input focus (needs >=16px) */
+  input[type="text"], input[type="number"], input[type="time"], input[type="date"], textarea, select {
+    font-size: 16px !important;
+  }
+  /* Cards a touch tighter on mobile */
+  .card { padding: 14px; border-radius: 14px; }
+  .page-shell-inner {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 16px 14px 32px 14px;
+    box-sizing: border-box;
+  }
   .tab-scroll {
     overflow-y: auto;
     height: calc(100dvh - 56px - 56px);
@@ -198,6 +227,13 @@ select option:hover {
 
 /* ─── Desktop layout (>768px) ────────────────────────────── */
 @media (min-width: 769px) {
+  .page-shell-inner {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 40px 48px 40px;
+    box-sizing: border-box;
+  }
   .tab-scroll {
     overflow-y: auto;
     height: calc(100vh - 60px);

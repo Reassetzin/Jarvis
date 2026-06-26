@@ -34,7 +34,7 @@ export default function Home() {
   return (
     <>
       <div className="mobile-layout" style={{ display: 'none' }}>
-        <div style={{ paddingBottom: 56 }}>
+        <div style={{ height: 'calc(100dvh - 56px - env(safe-area-inset-bottom))' }}>
           <TabContent active={activeTab} />
         </div>
         <BottomNav active={activeTab} onChange={setActiveTab} />
