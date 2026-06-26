@@ -14,12 +14,14 @@ const CAT_COLORS: Record<string, string> = {
 interface Task { id: string; text: string; category: Category; done: boolean; assignee?: string }
 interface Milestone { id: string; name: string; tasks: Task[]; targetDate?: string; done: boolean }
 interface Update { id: string; date: string; note: string }
+interface Doc { id: string; emoji: string; title: string; content: string }
 interface Project {
   id: string; name: string; description: string; status: 'planning' | 'active' | 'paused' | 'launched'
   links: { label: string; url: string }[]
   milestones: Milestone[]
   updates: Update[]
   notes: string
+  docs: Doc[]
 }
 
 const STATUS_META = {
@@ -48,7 +50,7 @@ export default function ProjectsTab() {
 
   function createProject() {
     if (!newName.trim()) return
-    const p: Project = { id: Date.now().toString(), name: newName.trim(), description: '', status: 'planning', links: [], milestones: [], updates: [], notes: '' }
+    const p: Project = { id: Date.now().toString(), name: newName.trim(), description: '', status: 'planning', links: [], milestones: [], updates: [], notes: '', docs: [] }
     setProjects(ps => [...ps, p]); setActiveId(p.id); setNewName(''); setCreating(false)
   }
   function updateProject(fn: (p: Project) => Project) {
@@ -109,7 +111,7 @@ export default function ProjectsTab() {
 }
 
 function ProjectDetail({ project, onBack, update, onDelete }: { project: Project; onBack: () => void; update: (fn: (p: Project) => Project) => void; onDelete: () => void }) {
-  const [tab, setTab] = useState<'tasks' | 'progress' | 'updates' | 'info'>('tasks')
+  const [tab, setTab] = useState<'tasks' | 'progress' | 'docs' | 'updates' | 'info'>('tasks')
   const [catFilter, setCatFilter] = useState<Category | 'all'>('all')
   const [taskInput, setTaskInput] = useState('')
   const [taskCat, setTaskCat] = useState<Category>('Scripting')
@@ -118,6 +120,9 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
   const [updateInput, setUpdateInput] = useState('')
   const [editingInfo, setEditingInfo] = useState(false)
   const [linkLabel, setLinkLabel] = useState(''); const [linkUrl, setLinkUrl] = useState('')
+  const [activeDoc, setActiveDoc] = useState<string | null>(project.docs?.[0]?.id || null)
+  const [newDocTitle, setNewDocTitle] = useState('')
+  const [newDocEmoji, setNewDocEmoji] = useState('📄')
 
   const prog = projectProgress(project)
   const ms = project.milestones.find(m => m.id === activeMilestone)
@@ -143,6 +148,15 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
     if (!updateInput.trim()) return
     update(p => ({ ...p, updates: [{ id: Date.now().toString(), date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), note: updateInput.trim() }, ...p.updates] }))
     setUpdateInput('')
+  }
+  function addDoc() {
+    if (!newDocTitle.trim()) return
+    const d: Doc = { id: Date.now().toString(), emoji: newDocEmoji || '📄', title: newDocTitle.trim(), content: '' }
+    update(p => ({ ...p, docs: [...(p.docs || []), d] }))
+    setActiveDoc(d.id); setNewDocTitle(''); setNewDocEmoji('📄')
+  }
+  function updateDoc(id: string, fn: (d: Doc) => Doc) {
+    update(p => ({ ...p, docs: (p.docs || []).map(d => d.id === id ? fn(d) : d) }))
   }
 
   const visibleTasks = ms ? (catFilter === 'all' ? ms.tasks : ms.tasks.filter(t => t.category === catFilter)) : []
@@ -174,7 +188,7 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
 
       {/* Sub-tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-        {(['tasks', 'progress', 'updates', 'info'] as const).map(t => (
+        {(['tasks', 'progress', 'docs', 'updates', 'info'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)} style={{ background: tab === t ? '#1a0a00' : 'transparent', border: `1px solid ${tab === t ? '#92400E' : '#333'}`, borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: tab === t ? '#F59E0B' : '#9CA3AF', fontWeight: tab === t ? 700 : 500, fontSize: '0.78rem', textTransform: 'capitalize' }}>{t}</button>
         ))}
       </div>
@@ -309,6 +323,54 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
         </div>
       )}
 
+      {/* DOCS / GDD */}
+      {tab === 'docs' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 16 }}>
+          {/* Doc list */}
+          <div className="card" style={{ alignSelf: 'start' }}>
+            <div className="section-header">Documents</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {(project.docs || []).map(d => (
+                <button key={d.id} onClick={() => setActiveDoc(d.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', background: activeDoc === d.id ? '#1a0a00' : '#181818', border: `1px solid ${activeDoc === d.id ? '#92400E' : '#222'}`, borderRadius: 6, padding: '8px 10px', cursor: 'pointer' }}>
+                  <span style={{ fontSize: '0.9rem' }}>{d.emoji}</span>
+                  <span style={{ flex: 1, fontSize: '0.76rem', fontWeight: activeDoc === d.id ? 600 : 400, color: activeDoc === d.id ? '#F59E0B' : '#E5E7EB', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.title}</span>
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 5, marginTop: 10 }}>
+              <input type="text" value={newDocEmoji} onChange={e => setNewDocEmoji(e.target.value)} maxLength={2} style={{ width: 44, textAlign: 'center', padding: '7px 4px' }} title="Emoji" />
+              <input type="text" placeholder="New doc title" value={newDocTitle} onChange={e => setNewDocTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && addDoc()} style={{ flex: 1, fontSize: '0.72rem', padding: '7px 8px' }} />
+              <button onClick={addDoc} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 6, padding: '0 11px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+            </div>
+            {(project.docs || []).length === 0 && <p style={{ fontSize: '0.62rem', color: '#374151', marginTop: 8, lineHeight: 1.4 }}>Create a doc per GDD topic (Core Loop, Machines, Monetization, etc.) like your Discord channels.</p>}
+          </div>
+
+          {/* Doc editor */}
+          <div className="card">
+            {(() => {
+              const doc = (project.docs || []).find(d => d.id === activeDoc)
+              if (!doc) return <div style={{ fontSize: '0.8rem', color: '#374151', textAlign: 'center', padding: '40px 0' }}>Select or create a document.</div>
+              return (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                    <input type="text" value={doc.emoji} onChange={e => updateDoc(doc.id, d => ({ ...d, emoji: e.target.value }))} maxLength={2} style={{ width: 48, textAlign: 'center', fontSize: '1.1rem', padding: '6px 4px' }} />
+                    <input type="text" value={doc.title} onChange={e => updateDoc(doc.id, d => ({ ...d, title: e.target.value }))} style={{ flex: 1, fontSize: '1rem', fontWeight: 700 }} />
+                    <button onClick={() => { if (confirm(`Delete "${doc.title}"?`)) { update(p => ({ ...p, docs: (p.docs || []).filter(x => x.id !== doc.id) })); setActiveDoc(null) } }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={16} /></button>
+                  </div>
+                  <textarea
+                    value={doc.content}
+                    onChange={e => updateDoc(doc.id, d => ({ ...d, content: e.target.value }))}
+                    placeholder={"Paste or write your full doc here.\n\nUse arrows, emoji, and line breaks just like Discord:\n\n⚡ CHAOS EVENTS\nRandom mid-session disruptions...\n\n🔴 MACHINE OVERLOAD\n→ One or more machines break down\n→ Player must intervene"}
+                    style={{ width: '100%', minHeight: 460, resize: 'vertical', fontSize: '0.85rem', lineHeight: 1.7, fontFamily: 'inherit', whiteSpace: 'pre-wrap' }}
+                  />
+                  <div style={{ fontSize: '0.6rem', color: '#374151', marginTop: 8 }}>Line breaks and emoji are preserved. Paste straight from your Discord GDD.</div>
+                </>
+              )
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* UPDATES */}
       {tab === 'updates' && (
         <div className="card">
@@ -343,11 +405,6 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
             ) : (
               <p style={{ fontSize: '0.82rem', color: project.description ? '#E5E7EB' : '#374151', lineHeight: 1.6 }}>{project.description || 'No description yet. Click Edit.'}</p>
             )}
-          </div>
-
-          <div className="card">
-            <div className="section-header">Notes / GDD</div>
-            <textarea rows={8} value={project.notes} onChange={e => update(p => ({ ...p, notes: e.target.value }))} placeholder="Game design notes, mechanics, monetization, team assignments, anything..." style={{ resize: 'vertical', fontSize: '0.82rem', lineHeight: 1.6 }} />
           </div>
 
           <div className="card">
