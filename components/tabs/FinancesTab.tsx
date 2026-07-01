@@ -111,7 +111,6 @@ export default function FinancesTab() {
         <div className="card" style={{ padding: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
             <span style={{ fontSize: '0.62rem', color: '#6B7280' }}>Cash Balance</span>
-            <button onClick={() => { setBalanceInput(startBalance.toString()); setEditingBalance(true) }} style={{ background: 'none', border: 'none', color: '#4B5563', fontSize: '0.58rem', cursor: 'pointer' }}>set start</button>
           </div>
           {editingBalance ? (
             <div style={{ display: 'flex', gap: 4 }}>
@@ -119,7 +118,7 @@ export default function FinancesTab() {
               <button onClick={() => { setStartBalance(parseFloat(balanceInput) || 0); setEditingBalance(false) }} style={{ background: '#22C55E', color: '#000', border: 'none', borderRadius: 4, padding: '0 10px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem' }}>✓</button>
             </div>
           ) : (
-            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: cashBalance >= 0 ? '#22C55E' : '#EF4444' }}>${cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <div onDoubleClick={() => { setBalanceInput(startBalance.toString()); setEditingBalance(true) }} title="Double-click to adjust starting balance" style={{ fontSize: '1.3rem', fontWeight: 800, color: cashBalance >= 0 ? '#22C55E' : '#EF4444', cursor: 'default' }}>${cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
           )}
         </div>
         <div className="card" style={{ padding: 14 }}>
