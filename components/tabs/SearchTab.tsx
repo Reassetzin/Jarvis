@@ -25,6 +25,12 @@ export default function SearchTab() {
     search('los_p_goals_tomorrow', 'Goals · Tomorrow', (g: any) => g.text)
     search('los_p_planner_tasks', 'Planner', (t: any) => t.text, (t: any) => `${t.category} · ${t.date}`)
     try {
+      const raw = localStorage.getItem('los_p_planner_events')
+      if (raw) (JSON.parse(raw) || []).forEach((e: any) => {
+        if (e.title?.toLowerCase().includes(q)) found.push({ section: 'Calendar', text: e.title, sub: `${e.type} · ${e.date}${e.time ? ' ' + e.time : ''}` })
+      })
+    } catch {}
+    try {
       const raw = localStorage.getItem('los_p_roblox_projects')
       if (raw) (JSON.parse(raw) || []).forEach((p: any) => {
         if (p.name?.toLowerCase().includes(q)) found.push({ section: 'Projects', text: p.name, sub: p.status })

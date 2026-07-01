@@ -13,9 +13,29 @@ interface Task {
   category: string
 }
 
+interface Event {
+  id: string
+  title: string
+  date: string        // YYYY-MM-DD
+  time: string        // HH:MM or '' for all-day
+  type: string
+  notes?: string
+}
+
 const CATEGORIES = ['Personal', 'Work', 'Brand', 'Health', 'Finance', 'Activity']
 const CAT_COLORS: Record<string, string> = {
   Personal: '#3B82F6', Work: '#F59E0B', Brand: '#8B5CF6', Health: '#22C55E', Finance: '#EF4444', Activity: '#EC4899',
+}
+
+const EVENT_TYPES = ['Appointment', 'Meeting', 'Birthday', 'Reminder', 'Social', 'Travel', 'Other']
+const EVENT_META: Record<string, { color: string; emoji: string }> = {
+  Appointment: { color: '#EF4444', emoji: '🩺' },
+  Meeting: { color: '#3B82F6', emoji: '👥' },
+  Birthday: { color: '#EC4899', emoji: '🎂' },
+  Reminder: { color: '#F59E0B', emoji: '⏰' },
+  Social: { color: '#8B5CF6', emoji: '🎉' },
+  Travel: { color: '#22C55E', emoji: '✈️' },
+  Other: { color: '#6B7280', emoji: '📌' },
 }
 
 function ymd(d: Date) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` }
@@ -25,6 +45,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 
 export default function PlannerTab() {
   const [tasks, setTasks] = usePersistentStore<Task[]>('planner_tasks', [])
+  const [events, setEvents] = usePersistentStore<Event[]>('planner_events', [])
   const [brands] = usePersistentStore<{ id: string; name: string; ideas: { id: string; text: string; status: string; date?: string; platform?: string }[] }[]>('brands', [])
   const [showContent, setShowContent] = useState(true)
   const [view, setView] = useState<'month' | 'week' | 'day'>('month')
@@ -33,10 +54,17 @@ export default function PlannerTab() {
   const [input, setInput] = useState('')
   const [cat, setCat] = useState('Personal')
   const [priority, setPriority] = useState(false)
+  const [addMode, setAddMode] = useState<'task' | 'event'>('task')
+  const [evTitle, setEvTitle] = useState('')
+  const [evTime, setEvTime] = useState('')
+  const [evType, setEvType] = useState('Appointment')
 
   const todayStr = ymd(new Date())
 
   function tasksFor(dateStr: string) { return tasks.filter(t => t.date === dateStr) }
+  function eventsFor(dateStr: string) {
+    return events.filter(e => e.date === dateStr).sort((a, b) => (a.time || '99').localeCompare(b.time || '99'))
+  }
 
   // Brand content scheduled for a given date
   function contentFor(dateStr: string) {
@@ -52,6 +80,12 @@ export default function PlannerTab() {
     setTasks(t => [...t, { id: Date.now().toString(), text: input.trim(), date: selectedDate, done: false, priority, category: cat }])
     setInput(''); setPriority(false)
   }
+  function addEvent() {
+    if (!evTitle.trim()) return
+    setEvents(e => [...e, { id: Date.now().toString(), title: evTitle.trim(), date: selectedDate, time: evTime, type: evType }])
+    setEvTitle(''); setEvTime('')
+  }
+  function removeEvent(id: string) { setEvents(e => e.filter(x => x.id !== id)) }
   function toggle(id: string) { setTasks(t => t.map(x => x.id === id ? { ...x, done: !x.done } : x)) }
   function remove(id: string) { setTasks(t => t.filter(x => x.id !== id)) }
 
@@ -85,6 +119,7 @@ export default function PlannerTab() {
 
   const selectedTasks = tasksFor(selectedDate)
   const selectedContent = contentFor(selectedDate)
+  const selectedEvents = eventsFor(selectedDate)
   const selDateObj = parseYmd(selectedDate)
 
   return (
@@ -132,6 +167,7 @@ export default function PlannerTab() {
                     const ds = ymd(d)
                     const dayTasks = tasksFor(ds)
                     const dayContent = contentFor(ds)
+                    const dayEvents = eventsFor(ds)
                     const isToday = ds === todayStr
                     const isSelected = ds === selectedDate
                     return (
@@ -143,11 +179,20 @@ export default function PlannerTab() {
                         <span style={{ fontSize: '0.7rem', color: isToday ? '#F59E0B' : isSelected ? '#F59E0B' : '#9CA3AF', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
                         {/* Mobile: colored dots */}
                         <div className="cal-dots" style={{ gap: 3, flexWrap: 'wrap' }}>
-                          {dayTasks.slice(0, 4).map(t => <div key={t.id} style={{ width: 5, height: 5, borderRadius: '50%', background: t.done ? '#333' : CAT_COLORS[t.category] }} />)}
-                          {dayContent.slice(0, 2).map(c => <div key={c.id} style={{ width: 5, height: 5, borderRadius: '50%', background: '#EC4899' }} />)}
+                          {dayEvents.slice(0, 3).map(e => <div key={e.id} style={{ width: 5, height: 5, borderRadius: '50%', background: EVENT_META[e.type]?.color || '#6B7280' }} />)}
+                          {dayTasks.slice(0, 3).map(t => <div key={t.id} style={{ width: 5, height: 5, borderRadius: '50%', background: t.done ? '#333' : CAT_COLORS[t.category] }} />)}
+                          {dayContent.slice(0, 1).map(c => <div key={c.id} style={{ width: 5, height: 5, borderRadius: '50%', background: '#EC4899' }} />)}
                         </div>
                         {/* Desktop: text pills */}
                         <div className="cal-pill-text" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          {dayEvents.slice(0, 2).map(e => (
+                            <div key={e.id} style={{
+                              fontSize: '0.58rem', lineHeight: 1.3, padding: '1px 4px', borderRadius: 3,
+                              background: `${EVENT_META[e.type]?.color || '#6B7280'}22`, color: EVENT_META[e.type]?.color || '#9CA3AF',
+                              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                              borderLeft: `2px solid ${EVENT_META[e.type]?.color || '#6B7280'}`, fontWeight: 600,
+                            }}>{EVENT_META[e.type]?.emoji} {e.time && `${e.time} `}{e.title}</div>
+                          ))}
                           {dayTasks.slice(0, 2).map(t => (
                             <div key={t.id} style={{
                               fontSize: '0.58rem', lineHeight: 1.3, padding: '1px 4px', borderRadius: 3,
@@ -166,7 +211,7 @@ export default function PlannerTab() {
                               borderLeft: '2px solid #EC4899',
                             }}>🎬 {c.text}</div>
                           ))}
-                          {(dayTasks.length + dayContent.length) > 4 && <span style={{ fontSize: '0.55rem', color: '#4B5563', paddingLeft: 4 }}>+{dayTasks.length + dayContent.length - 4} more</span>}
+                          {(dayEvents.length + dayTasks.length + dayContent.length) > 4 && <span style={{ fontSize: '0.55rem', color: '#4B5563', paddingLeft: 4 }}>+{dayEvents.length + dayTasks.length + dayContent.length - 4} more</span>}
                         </div>
                       </button>
                     )
@@ -216,17 +261,54 @@ export default function PlannerTab() {
             {view === 'day' ? 'Tasks' : selDateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
           </div>
 
-          <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-            <button onClick={() => setPriority(p => !p)} style={{ background: priority ? '#1a0a00' : 'transparent', border: `1px solid ${priority ? '#F59E0B' : '#374151'}`, borderRadius: 4, padding: '8px 10px', cursor: 'pointer', flexShrink: 0, color: priority ? '#F59E0B' : '#374151', fontWeight: 700 }}>⚡</button>
-            <input type="text" placeholder="Add a task..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} style={{ flex: 1 }} />
-            <button className="glow-orange" onClick={addTask} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+          {/* Add mode toggle */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+            <button onClick={() => setAddMode('task')} style={{ flex: 1, background: addMode === 'task' ? '#1a0a00' : 'transparent', border: `1px solid ${addMode === 'task' ? '#92400E' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'task' ? '#F59E0B' : '#9CA3AF', fontSize: '0.72rem', fontWeight: addMode === 'task' ? 700 : 400 }}>✓ Task</button>
+            <button onClick={() => setAddMode('event')} style={{ flex: 1, background: addMode === 'event' ? '#1a0a2a' : 'transparent', border: `1px solid ${addMode === 'event' ? '#6d28d9' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'event' ? '#a78bfa' : '#9CA3AF', fontSize: '0.72rem', fontWeight: addMode === 'event' ? 700 : 400 }}>📅 Event</button>
           </div>
-          <select value={cat} onChange={e => setCat(e.target.value)} style={{ marginBottom: 12 }}>
-            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-          </select>
+
+          {addMode === 'task' ? (
+            <>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+                <button onClick={() => setPriority(p => !p)} style={{ background: priority ? '#1a0a00' : 'transparent', border: `1px solid ${priority ? '#F59E0B' : '#374151'}`, borderRadius: 4, padding: '8px 10px', cursor: 'pointer', flexShrink: 0, color: priority ? '#F59E0B' : '#374151', fontWeight: 700 }}>⚡</button>
+                <input type="text" placeholder="Add a task..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} style={{ flex: 1 }} />
+                <button className="glow-orange" onClick={addTask} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              </div>
+              <select value={cat} onChange={e => setCat(e.target.value)} style={{ marginBottom: 12 }}>
+                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+              </select>
+            </>
+          ) : (
+            <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <input type="text" placeholder="Event title (e.g. Dentist, Mom's birthday)" value={evTitle} onChange={e => setEvTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && addEvent()} />
+              <div style={{ display: 'flex', gap: 6 }}>
+                <select value={evType} onChange={e => setEvType(e.target.value)} style={{ flex: 1 }}>
+                  {EVENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                </select>
+                <input type="time" value={evTime} onChange={e => setEvTime(e.target.value)} style={{ width: 110 }} title="Time (optional)" />
+                <button onClick={addEvent} style={{ background: '#8B5CF6', color: '#fff', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              </div>
+            </div>
+          )}
+
+          {/* Events for this day */}
+          {selectedEvents.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+              {selectedEvents.map(e => (
+                <div key={e.id} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 10, background: `${EVENT_META[e.type]?.color || '#6B7280'}12`, border: `1px solid ${EVENT_META[e.type]?.color || '#6B7280'}40`, borderRadius: 6, padding: '9px 12px' }}>
+                  <span style={{ fontSize: '1rem' }}>{EVENT_META[e.type]?.emoji || '📌'}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.82rem', color: '#F3F4F6', fontWeight: 600 }}>{e.title}</div>
+                    <div style={{ fontSize: '0.6rem', color: EVENT_META[e.type]?.color || '#9CA3AF' }}>{e.type}{e.time && ` · ${e.time}`}</div>
+                  </div>
+                  <button onClick={() => removeEvent(e.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={13} /></button>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {selectedTasks.length === 0 && <div style={{ fontSize: '0.78rem', color: '#374151', textAlign: 'center', padding: '16px 0' }}>Nothing planned. Add a task above.</div>}
+            {selectedTasks.length === 0 && selectedEvents.length === 0 && <div style={{ fontSize: '0.78rem', color: '#374151', textAlign: 'center', padding: '16px 0' }}>Nothing planned. Add a task or event above.</div>}
             {[...selectedTasks].sort((a, b) => Number(b.priority) - Number(a.priority)).map(t => (
               <div key={t.id} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 8, background: t.done ? '#0d1a0d' : '#181818', border: `1px solid ${t.done ? '#15391590' : '#222'}`, borderRadius: 4, padding: '10px 12px' }}>
                 <button onClick={() => toggle(t.id)} className={t.done ? 'check-pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${t.done ? '#22C55E' : '#374151'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
