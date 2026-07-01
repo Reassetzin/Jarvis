@@ -1,7 +1,8 @@
 'use client'
 import { usePersistentStore, useDailyStore } from '@/hooks/useStore'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Plus, Check, Clock, AlertTriangle } from 'lucide-react'
+import { markComplete } from '@/lib/streaks'
 
 interface Vitamin {
   id: string
@@ -41,6 +42,8 @@ export default function VitaminSchedule() {
   const groups = SLOTS.map(s => ({ slot: s, items: scheduledToday.filter(v => v.slot === s).sort((a, b) => a.time.localeCompare(b.time)) })).filter(g => g.items.length > 0)
   const takenCount = taken.filter(id => scheduledToday.some(v => v.id === id)).length
   const totalToday = scheduledToday.length
+
+  useEffect(() => { if (totalToday > 0 && takenCount >= totalToday) markComplete('vitamins') }, [takenCount, totalToday])
 
   function fmt(t: string) {
     const [h, m] = t.split(':').map(Number)

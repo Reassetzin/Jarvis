@@ -5,6 +5,7 @@ import { X, ChevronDown, ChevronUp, Plus, Activity } from 'lucide-react'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
 import Heatmap from '@/components/ui/Heatmap'
+import { markComplete } from '@/lib/streaks'
 
 type ActivityType = 'Soccer' | 'Volleyball' | 'Pickleball' | 'Run' | 'Climbing' | 'Calisthenics' | 'Home Workout'
 
@@ -63,6 +64,7 @@ export default function GymTab() {
     if (meta.metric === 'grade') session.grade = grade
     if (isStrength) session.exercises = exercises
     setHistory(h => [session, ...h.slice(0, 49)])
+    markComplete('activity')
     setDuration(''); setDistance(''); setGrade(''); setNotes(''); setExercises([])
     alert('Session logged!')
   }

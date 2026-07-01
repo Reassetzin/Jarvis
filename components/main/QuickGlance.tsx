@@ -1,7 +1,8 @@
 'use client'
 import { usePersistentStore, useDailyStore } from '@/hooks/useStore'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Check, Plus, Minus } from 'lucide-react'
+import { markComplete } from '@/lib/streaks'
 
 interface Vitamin { id: string; name: string; slot: string }
 
@@ -48,6 +49,8 @@ export function WaterMini() {
   const [goalInput, setGoalInput] = useState('')
   const pct = Math.min(100, (ml / goal) * 100)
   const color = ml >= goal ? '#22C55E' : ml >= goal * 0.66 ? '#3B82F6' : ml >= goal * 0.33 ? '#F59E0B' : '#EF4444'
+
+  useEffect(() => { if (ml >= goal && goal > 0) markComplete('water') }, [ml, goal])
 
   function addCustom() {
     const amt = parseInt(custom)
