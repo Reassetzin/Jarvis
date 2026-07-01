@@ -34,6 +34,9 @@ export default function FinancesTab() {
   const [goals, setGoals] = usePersistentStore<Goal[]>('savings_goals', [])
   const [subs, setSubs] = usePersistentStore<Subscription[]>('subscriptions', [])
   const [assets, setAssets] = usePersistentStore<Asset[]>('assets', [])
+  const [startBalance, setStartBalance] = usePersistentStore('starting_balance', 0)
+  const [editingBalance, setEditingBalance] = useState(false)
+  const [balanceInput, setBalanceInput] = useState('')
 
   const [txnForm, setTxnForm] = useState({ type: 'expense' as 'income' | 'expense', amount: '', category: 'Food', label: '' })
   const [budgetForm, setBudgetForm] = useState({ category: 'Food', limit: '' })
@@ -64,7 +67,11 @@ export default function FinancesTab() {
     return map
   }, [monthTxns])
 
-  const netWorth = assets.reduce((a, x) => a + x.amount, 0)
+  // All-time cash flow → cash balance
+  const allTimeIncome = useMemo(() => txns.filter(t => t.type === 'income').reduce((a, t) => a + t.amount, 0), [txns])
+  const allTimeExpenses = useMemo(() => txns.filter(t => t.type === 'expense').reduce((a, t) => a + t.amount, 0), [txns])
+  const cashBalance = startBalance + allTimeIncome - allTimeExpenses
+  const netWorth = cashBalance + assets.reduce((a, x) => a + x.amount, 0)
   const monthlyBurn = subs.reduce((a, s) => a + (s.period === 'monthly' ? s.amount : s.amount / 12), 0)
 
   const filteredTxns = useMemo(() => {
@@ -99,11 +106,25 @@ export default function FinancesTab() {
         </div>
         <div className="card" style={{ padding: 14 }}>
           <div style={{ fontSize: '0.62rem', color: '#6B7280', marginBottom: 4 }}>Net (mo)</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: net >= 0 ? '#22C55E' : '#EF4444' }}>{net >= 0 ? '+' : ''}${net.toLocaleString()}</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: net >= 0 ? '#22C55E' : '#EF4444' }}>{net >= 0 ? '+' : ''}${net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+        </div>
+        <div className="card" style={{ padding: 14 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <span style={{ fontSize: '0.62rem', color: '#6B7280' }}>Cash Balance</span>
+            <button onClick={() => { setBalanceInput(startBalance.toString()); setEditingBalance(true) }} style={{ background: 'none', border: 'none', color: '#4B5563', fontSize: '0.58rem', cursor: 'pointer' }}>set start</button>
+          </div>
+          {editingBalance ? (
+            <div style={{ display: 'flex', gap: 4 }}>
+              <input type="number" step="0.01" value={balanceInput} onChange={e => setBalanceInput(e.target.value)} autoFocus onKeyDown={e => e.key === 'Enter' && (setStartBalance(parseFloat(balanceInput) || 0), setEditingBalance(false))} style={{ flex: 1, fontSize: '0.85rem', padding: '4px 8px' }} placeholder="Starting $" />
+              <button onClick={() => { setStartBalance(parseFloat(balanceInput) || 0); setEditingBalance(false) }} style={{ background: '#22C55E', color: '#000', border: 'none', borderRadius: 4, padding: '0 10px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem' }}>✓</button>
+            </div>
+          ) : (
+            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: cashBalance >= 0 ? '#22C55E' : '#EF4444' }}>${cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          )}
         </div>
         <div className="card" style={{ padding: 14 }}>
           <div style={{ fontSize: '0.62rem', color: '#6B7280', marginBottom: 4 }}>Net Worth</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#F59E0B' }}>${netWorth.toLocaleString()}</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#F59E0B' }}>${netWorth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
         </div>
       </div>
 
