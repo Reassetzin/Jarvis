@@ -3,6 +3,7 @@ import { useState } from 'react'
 import BottomNav, { TabId } from '@/components/ui/BottomNav'
 import DesktopLayout from '@/components/ui/DesktopLayout'
 import ErrorBoundary from '@/components/ui/ErrorBoundary'
+import SyncProvider from '@/components/SyncProvider'
 import MainTab from '@/components/tabs/MainTab'
 import PlannerTab from '@/components/tabs/PlannerTab'
 import ProjectsTab from '@/components/tabs/ProjectsTab'
@@ -32,7 +33,7 @@ function TabContent({ active }: { active: TabId }) {
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>('main')
   return (
-    <>
+    <SyncProvider>
       <div className="mobile-layout" style={{ display: 'none' }}>
         <div style={{ height: 'calc(100dvh - 56px - env(safe-area-inset-bottom))' }}>
           <TabContent active={activeTab} />
@@ -44,6 +45,6 @@ export default function Home() {
           <TabContent active={activeTab} />
         </DesktopLayout>
       </div>
-    </>
+    </SyncProvider>
   )
 }
