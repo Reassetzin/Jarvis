@@ -8,6 +8,8 @@ import { VitaminsMini, WaterMini } from '@/components/main/QuickGlance'
 import { CashTrendChart, WeightTrendChart } from '@/components/main/DashboardCharts'
 import ProjectsMini from '@/components/main/ProjectsMini'
 import StreaksWidget from '@/components/main/StreaksWidget'
+import WeeklyReview from '@/components/main/WeeklyReview'
+import NotificationSettings from '@/components/main/NotificationSettings'
 import Heatmap from '@/components/ui/Heatmap'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
@@ -98,6 +100,7 @@ export default function MainTab() {
         <Goalmaxxing />
         <TodayPlanner />
         <CashTrendChart />
+        <WeeklyReview />
         <WeightTrendChart />
         <VitaminsMini />
         <StreaksWidget />
@@ -106,6 +109,7 @@ export default function MainTab() {
           <Heatmap data={activityHeatmap} color="#EC4899" title="Activity · 12 Weeks" weeks={12} />
         </div>
         <WaterMini />
+        <NotificationSettings />
         <OverseerWidget />
       </DesktopGrid>
     </PageShell>

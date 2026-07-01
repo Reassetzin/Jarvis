@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { initSync, isConfigured } from '@/lib/sync'
+import { checkReminders } from '@/lib/notifications'
 import SyncIndicator from '@/components/ui/SyncIndicator'
 import SyncDebug from '@/components/ui/SyncDebug'
 
@@ -10,11 +11,16 @@ export default function SyncProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     let cancelled = false
     // If Supabase isn't configured, render immediately (pure localStorage mode)
-    if (!isConfigured()) { setReady(true); return }
-    initSync(() => { if (!cancelled) setReady(true) })
-    // Safety: never block the UI more than 3s even if network is slow
-    const t = setTimeout(() => { if (!cancelled) setReady(true) }, 3000)
-    return () => { cancelled = true; clearTimeout(t) }
+    if (!isConfigured()) { setReady(true) }
+    else {
+      initSync(() => { if (!cancelled) setReady(true) })
+      // Safety: never block the UI more than 3s even if network is slow
+      const t = setTimeout(() => { if (!cancelled) setReady(true) }, 3000)
+    }
+    // Reminder checker — runs every minute while app is open
+    checkReminders()
+    const reminderTimer = setInterval(checkReminders, 60000)
+    return () => { cancelled = true; clearInterval(reminderTimer) }
   }, [])
 
   if (!ready) {
