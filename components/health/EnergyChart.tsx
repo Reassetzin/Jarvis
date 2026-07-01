@@ -43,7 +43,7 @@ export default function EnergyChart() {
   const currentHour = now.getHours() + now.getMinutes() / 60
   const hasData = logs.length > 0
   const currentLevel = logs.length > 0 ? logs[logs.length - 1].level : 0
-  const zone = currentLevel >= 7 ? { label: 'Peak', color: '#22C55E' } : currentLevel >= 4 ? { label: 'Steady', color: '#F59E0B' } : currentLevel > 0 ? { label: 'Low', color: '#EF4444' } : { label: 'Not logged', color: '#6B7280' }
+  const zone = currentLevel >= 7 ? { label: 'Peak', color: '#22C55E' } : currentLevel >= 4 ? { label: 'Steady', color: 'var(--accent)' } : currentLevel > 0 ? { label: 'Low', color: '#EF4444' } : { label: 'Not logged', color: '#6B7280' }
 
   return (
     <div className="card">
@@ -60,15 +60,15 @@ export default function EnergyChart() {
           <AreaChart data={filled} margin={{ top: 4, right: 4, left: -30, bottom: 0 }}>
             <defs>
               <linearGradient id="energyGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.02} />
+                <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.02} />
               </linearGradient>
             </defs>
             <XAxis dataKey="time" tick={{ fontSize: 9, fill: '#4B5563' }} tickLine={false} axisLine={false} interval={3} />
             <YAxis hide domain={[0, 10]} />
-            <Tooltip contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: 4, fontSize: '0.75rem' }} labelStyle={{ color: '#9CA3AF' }} itemStyle={{ color: '#F59E0B' }} />
-            <ReferenceLine x={currentHour < 12 ? `${Math.round(currentHour)}A` : `${Math.round(currentHour) - 12 || 12}P`} stroke="#F59E0B" strokeDasharray="3 3" strokeWidth={1.5} />
-            <Area type="monotone" dataKey="level" stroke="#F59E0B" strokeWidth={2} fill="url(#energyGrad)" connectNulls dot={{ r: 3, fill: '#F59E0B' }} />
+            <Tooltip contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: 4, fontSize: '0.75rem' }} labelStyle={{ color: '#9CA3AF' }} itemStyle={{ color: 'var(--accent)' }} />
+            <ReferenceLine x={currentHour < 12 ? `${Math.round(currentHour)}A` : `${Math.round(currentHour) - 12 || 12}P`} stroke="var(--accent)" strokeDasharray="3 3" strokeWidth={1.5} />
+            <Area type="monotone" dataKey="level" stroke="var(--accent)" strokeWidth={2} fill="url(#energyGrad)" connectNulls dot={{ r: 3, fill: 'var(--accent)' }} />
           </AreaChart>
         </ResponsiveContainer>
       ) : (
@@ -79,7 +79,7 @@ export default function EnergyChart() {
 
       <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
         <button onClick={() => logEnergy(8)} style={{ flex: 1, background: '#0d1a0d', border: '1px solid #166534', borderRadius: 4, padding: '10px', cursor: 'pointer', color: '#22C55E', fontSize: '0.78rem', fontWeight: 700 }}>High ⚡</button>
-        <button onClick={() => logEnergy(5)} style={{ flex: 1, background: '#1a0e00', border: '1px solid #92400E', borderRadius: 4, padding: '10px', cursor: 'pointer', color: '#F59E0B', fontSize: '0.78rem', fontWeight: 700 }}>Medium</button>
+        <button onClick={() => logEnergy(5)} style={{ flex: 1, background: '#1a0e00', border: '1px solid var(--accent-dim)', borderRadius: 4, padding: '10px', cursor: 'pointer', color: 'var(--accent)', fontSize: '0.78rem', fontWeight: 700 }}>Medium</button>
         <button onClick={() => logEnergy(2)} style={{ flex: 1, background: '#1a0000', border: '1px solid #7f1d1d', borderRadius: 4, padding: '10px', cursor: 'pointer', color: '#EF4444', fontSize: '0.78rem', fontWeight: 700 }}>Low 🔋</button>
       </div>
     </div>

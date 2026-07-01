@@ -3,7 +3,7 @@ import { usePersistentStore } from '@/hooks/useStore'
 import { useState, useEffect } from 'react'
 
 function getPhase(hour: number): { label: string; color: string } {
-  if (hour < 10) return { label: 'Morning', color: '#F59E0B' }
+  if (hour < 10) return { label: 'Morning', color: 'var(--accent)' }
   if (hour < 13) return { label: 'Midday', color: '#22C55E' }
   if (hour < 17) return { label: 'Afternoon', color: '#3B82F6' }
   return { label: 'Evening', color: '#8B5CF6' }

@@ -84,7 +84,7 @@ export default function CaffeineTracker() {
           onChange={e => setCustom(e.target.value)} disabled={isPastCutoff}
           style={{ flex: 1, opacity: isPastCutoff ? 0.3 : 1 }} />
         <button onClick={addCustom} disabled={isPastCutoff} style={{
-          background: isPastCutoff ? '#1f1f1f' : '#F59E0B', color: '#000', fontWeight: 700,
+          background: isPastCutoff ? '#1f1f1f' : 'var(--accent)', color: '#000', fontWeight: 700,
           borderRadius: 4, padding: '0 14px', border: 'none', cursor: 'pointer',
           opacity: isPastCutoff ? 0.3 : 1,
         }}>+</button>
@@ -94,7 +94,7 @@ export default function CaffeineTracker() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {log.map(e => (
             <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.75rem', color: '#9CA3AF' }}>
-              <span style={{ color: '#F59E0B', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{e.mg}mg</span>
+              <span style={{ color: 'var(--accent)', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{e.mg}mg</span>
               <span style={{ flex: 1 }}>{e.label}</span>
               <span style={{ color: '#4B5563' }}>{e.time}</span>
               <button onClick={() => setLog(l => l.filter(x => x.id !== e.id))}

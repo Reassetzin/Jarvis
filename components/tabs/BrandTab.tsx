@@ -14,14 +14,14 @@ interface Brand {
 }
 
 const PLATFORMS = ['TikTok', 'Instagram', 'YouTube', 'X', 'LinkedIn', 'Other']
-const STATUS_META = { idea: { label: 'Idea', color: '#6B7280' }, planned: { label: 'Planned', color: '#F59E0B' }, shipped: { label: 'Shipped', color: '#22C55E' } }
+const STATUS_META = { idea: { label: 'Idea', color: '#6B7280' }, planned: { label: 'Planned', color: 'var(--accent)' }, shipped: { label: 'Shipped', color: '#22C55E' } }
 
 function Sparkline({ data }: { data: number[] }) {
   if (data.length < 2) return <div style={{ width: 50, height: 20, background: '#1a1a1a', borderRadius: 3 }} />
   const min = Math.min(...data); const max = Math.max(...data); const range = max - min || 1
   const w = 50, h = 20
   const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * (h - 4) - 2}`)
-  return <svg width={w} height={h}><polyline points={pts.join(' ')} fill="none" stroke="#F59E0B" strokeWidth="1.5" /></svg>
+  return <svg width={w} height={h}><polyline points={pts.join(' ')} fill="none" stroke="var(--accent)" strokeWidth="1.5" /></svg>
 }
 
 export default function BrandTab() {
@@ -92,15 +92,15 @@ export default function BrandTab() {
         {brands.map(b => (
           <button key={b.id} onClick={() => setActiveBrandId(b.id)} style={{
             background: active?.id === b.id ? '#1a0a00' : '#111',
-            border: `1px solid ${active?.id === b.id ? '#92400E' : '#222'}`,
+            border: `1px solid ${active?.id === b.id ? 'var(--accent-dim)' : '#222'}`,
             borderRadius: 6, padding: '8px 16px', cursor: 'pointer',
-            color: active?.id === b.id ? '#F59E0B' : '#9CA3AF', fontWeight: active?.id === b.id ? 700 : 500, fontSize: '0.85rem',
+            color: active?.id === b.id ? 'var(--accent)' : '#9CA3AF', fontWeight: active?.id === b.id ? 700 : 500, fontSize: '0.85rem',
           }}>{b.name}</button>
         ))}
         {addingBrand ? (
           <div style={{ display: 'flex', gap: 6 }}>
             <input type="text" placeholder="Brand name" value={newBrandName} onChange={e => setNewBrandName(e.target.value)} onKeyDown={e => e.key === 'Enter' && addBrand()} style={{ width: 160 }} autoFocus />
-            <button className="glow-orange" onClick={addBrand} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>✓</button>
+            <button className="glow-orange" onClick={addBrand} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>✓</button>
           </div>
         ) : (
           <button onClick={() => setAddingBrand(true)} className="btn-ghost" style={{ padding: '8px 14px' }}><Plus size={13} style={{ display: 'inline' }} /> Brand</button>
@@ -124,7 +124,7 @@ export default function BrandTab() {
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '0.62rem', color: '#6B7280' }}>Total reach</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#F59E0B' }}>{totalFollowers.toLocaleString()}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent)' }}>{totalFollowers.toLocaleString()}</div>
             </div>
             <button onClick={() => { if (confirm(`Delete brand "${active.name}"?`)) { setBrands(bs => bs.filter(b => b.id !== active.id)); setActiveBrandId(null) } }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={16} /></button>
           </div>
@@ -153,7 +153,7 @@ export default function BrandTab() {
                       {editingFollowers === a.id ? (
                         <div style={{ display: 'flex', gap: 4 }}>
                           <input type="number" value={followerInput} onChange={e => setFollowerInput(e.target.value)} style={{ width: 70 }} autoFocus onKeyDown={e => e.key === 'Enter' && updateFollowers(a.id)} />
-                          <button className="glow-orange" onClick={() => updateFollowers(a.id)} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '6px 8px', cursor: 'pointer', fontWeight: 700 }}>✓</button>
+                          <button className="glow-orange" onClick={() => updateFollowers(a.id)} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '6px 8px', cursor: 'pointer', fontWeight: 700 }}>✓</button>
                         </div>
                       ) : (
                         <button onClick={() => { setEditingFollowers(a.id); setFollowerInput(a.followers.toString()) }} className="btn-ghost" style={{ fontSize: '0.65rem', padding: '5px 8px' }}>Update</button>
@@ -167,7 +167,7 @@ export default function BrandTab() {
                 <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
                   <select value={acctForm.platform} onChange={e => setAcctForm(f => ({ ...f, platform: e.target.value }))} style={{ flex: 1 }}>{PLATFORMS.map(p => <option key={p}>{p}</option>)}</select>
                   <input type="text" placeholder="@handle" value={acctForm.handle} onChange={e => setAcctForm(f => ({ ...f, handle: e.target.value }))} style={{ flex: 1 }} />
-                  <button className="glow-orange" onClick={addAccount} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+                  <button className="glow-orange" onClick={addAccount} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
                 </div>
               ) : (
                 <button onClick={() => setAddingAcct(true)} className="btn-ghost" style={{ width: '100%', marginTop: 10 }}>+ Add Account</button>
@@ -179,7 +179,7 @@ export default function BrandTab() {
               <div className="section-header">Content Pipeline</div>
               <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
                 <input type="text" placeholder="New content idea..." value={ideaInput} onChange={e => setIdeaInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addIdea()} style={{ flex: 1 }} />
-                <button className="glow-orange" onClick={addIdea} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+                <button className="glow-orange" onClick={addIdea} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
               </div>
               {(['idea', 'planned', 'shipped'] as const).map(status => (
                 <div key={status} style={{ marginBottom: 12 }}>

@@ -34,8 +34,8 @@ export default function StreaksWidget() {
               <span style={{ flex: 1, fontSize: '0.82rem', color: '#E5E7EB' }}>{label}</span>
               {best > 0 && <span style={{ fontSize: '0.58rem', color: '#4B5563' }}>best {best}</span>}
               <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                <Flame size={15} color={streak > 0 ? (doneToday ? '#F59E0B' : '#92400E') : '#374151'} fill={streak > 0 && doneToday ? '#F59E0B' : 'none'} />
-                <span style={{ fontSize: '1rem', fontWeight: 800, color: streak > 0 ? '#F59E0B' : '#374151' }}>{streak}</span>
+                <Flame size={15} color={streak > 0 ? (doneToday ? 'var(--accent)' : 'var(--accent-dim)') : '#374151'} fill={streak > 0 && doneToday ? 'var(--accent)' : 'none'} />
+                <span style={{ fontSize: '1rem', fontWeight: 800, color: streak > 0 ? 'var(--accent)' : '#374151' }}>{streak}</span>
               </div>
             </div>
           )

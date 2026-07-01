@@ -17,7 +17,7 @@ interface Vitamin {
 
 const SLOTS = ['Morning', 'Afternoon', 'Evening', 'Night'] as const
 const SLOT_TIMES = { Morning: '6–11 AM', Afternoon: '11 AM–4 PM', Evening: '4–8 PM', Night: '8 PM+' }
-const SLOT_COLORS = { Morning: '#F59E0B', Afternoon: '#22C55E', Evening: '#8B5CF6', Night: '#3B82F6' }
+const SLOT_COLORS = { Morning: 'var(--accent)', Afternoon: '#22C55E', Evening: '#8B5CF6', Night: '#3B82F6' }
 const DOW = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 export default function VitaminSchedule() {
@@ -119,8 +119,8 @@ export default function VitaminSchedule() {
                 return (
                   <button key={i} type="button" onClick={() => setForm(f => ({ ...f, days: on ? f.days.filter(x => x !== i) : [...f.days, i] }))} style={{
                     flex: 1, aspectRatio: '1', borderRadius: 4, cursor: 'pointer',
-                    background: on ? '#1a0a00' : '#181818', border: `1px solid ${on ? '#F59E0B' : '#333'}`,
-                    color: on ? '#F59E0B' : '#6B7280', fontWeight: on ? 700 : 400, fontSize: '0.72rem',
+                    background: on ? '#1a0a00' : '#181818', border: `1px solid ${on ? 'var(--accent)' : '#333'}`,
+                    color: on ? 'var(--accent)' : '#6B7280', fontWeight: on ? 700 : 400, fontSize: '0.72rem',
                   }}>{d}</button>
                 )
               })}

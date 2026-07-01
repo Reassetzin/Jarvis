@@ -17,7 +17,7 @@ export default function HealthTab() {
   return (
     <PageShell>
       <div className="card" style={{ marginBottom: 16 }}>
-        <Heatmap data={weighInData} color="#F59E0B" title="Weigh-in Consistency · Last 17 Weeks" weeks={17} maxValue={1} />
+        <Heatmap data={weighInData} color="var(--accent)" title="Weigh-in Consistency · Last 17 Weeks" weeks={17} maxValue={1} />
       </div>
       <DesktopGrid columns={2}>
         <WeightTracker />

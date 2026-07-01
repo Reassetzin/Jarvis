@@ -11,6 +11,7 @@ import StreaksWidget from '@/components/main/StreaksWidget'
 import WeeklyReview from '@/components/main/WeeklyReview'
 import MonthlyReview from '@/components/main/MonthlyReview'
 import NotificationSettings from '@/components/main/NotificationSettings'
+import ThemePicker from '@/components/main/ThemePicker'
 import Heatmap from '@/components/ui/Heatmap'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
@@ -63,7 +64,7 @@ export default function MainTab() {
   })
 
   const stats = [
-    { icon: Zap, label: 'Goals', value: `${goalsDone}/${goals.length}`, color: '#F59E0B', done: goals.length > 0 && goalsDone === goals.length },
+    { icon: Zap, label: 'Goals', value: `${goalsDone}/${goals.length}`, color: 'var(--accent)', done: goals.length > 0 && goalsDone === goals.length },
     { icon: CalendarDays, label: 'Tasks', value: `${tasksDone}/${todayTasks.length}`, color: '#3B82F6', done: todayTasks.length > 0 && tasksDone === todayTasks.length },
     { icon: Pill, label: 'Vitamins', value: `${vitsTakenCount}/${vits.length}`, color: '#22C55E', done: vits.length > 0 && vitsTakenCount === vits.length },
     { icon: Droplet, label: 'Water', value: `${(water / 1000).toFixed(1)}L`, color: '#3B82F6', done: water >= waterGoal },
@@ -91,7 +92,7 @@ export default function MainTab() {
 
       {topGoal && (
         <div className="card" style={{ marginBottom: 16, display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: '0.6rem', color: '#F59E0B', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Top Goal</span>
+          <span style={{ fontSize: '0.6rem', color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Top Goal</span>
           <span style={{ fontSize: '0.85rem' }}>{topGoal.text}</span>
         </div>
       )}
@@ -112,6 +113,7 @@ export default function MainTab() {
         </div>
         <WaterMini />
         <NotificationSettings />
+        <ThemePicker />
         <OverseerWidget />
       </DesktopGrid>
     </PageShell>

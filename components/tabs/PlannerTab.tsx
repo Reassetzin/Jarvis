@@ -24,7 +24,7 @@ interface Event {
 
 const CATEGORIES = ['Personal', 'Work', 'Brand', 'Health', 'Finance', 'Activity']
 const CAT_COLORS: Record<string, string> = {
-  Personal: '#3B82F6', Work: '#F59E0B', Brand: '#8B5CF6', Health: '#22C55E', Finance: '#EF4444', Activity: '#EC4899',
+  Personal: '#3B82F6', Work: 'var(--accent)', Brand: '#8B5CF6', Health: '#22C55E', Finance: '#EF4444', Activity: '#EC4899',
 }
 
 const EVENT_TYPES = ['Appointment', 'Meeting', 'Birthday', 'Reminder', 'Social', 'Travel', 'Other']
@@ -32,7 +32,7 @@ const EVENT_META: Record<string, { color: string; emoji: string }> = {
   Appointment: { color: '#EF4444', emoji: '🩺' },
   Meeting: { color: '#3B82F6', emoji: '👥' },
   Birthday: { color: '#EC4899', emoji: '🎂' },
-  Reminder: { color: '#F59E0B', emoji: '⏰' },
+  Reminder: { color: 'var(--accent)', emoji: '⏰' },
   Social: { color: '#8B5CF6', emoji: '🎉' },
   Travel: { color: '#22C55E', emoji: '✈️' },
   Other: { color: '#6B7280', emoji: '📌' },
@@ -152,14 +152,14 @@ export default function PlannerTab() {
       {/* Header / nav */}
       <div className="card planner-header" style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
-          <CalIcon size={18} color="#F59E0B" style={{ flexShrink: 0 }} />
+          <CalIcon size={18} color="var(--accent)" style={{ flexShrink: 0 }} />
           <div style={{ display: 'flex', gap: 4 }}>
             {(['month', 'week', 'day'] as const).map(v => (
               <button key={v} onClick={() => setView(v)} style={{
                 background: view === v ? '#1a0a00' : 'transparent',
-                border: `1px solid ${view === v ? '#92400E' : '#333'}`,
+                border: `1px solid ${view === v ? 'var(--accent-dim)' : '#333'}`,
                 borderRadius: 4, padding: '6px 14px', cursor: 'pointer',
-                color: view === v ? '#F59E0B' : '#9CA3AF', fontWeight: view === v ? 700 : 500, fontSize: '0.78rem', textTransform: 'capitalize',
+                color: view === v ? 'var(--accent)' : '#9CA3AF', fontWeight: view === v ? 700 : 500, fontSize: '0.78rem', textTransform: 'capitalize',
               }}>{v}</button>
             ))}
           </div>
@@ -202,10 +202,10 @@ export default function PlannerTab() {
                         onDrop={(ev) => { ev.preventDefault(); rescheduleTo(ds) }}
                         style={{
                         minHeight: 92, background: dragOverDate === ds ? '#2a1a00' : isSelected ? '#1a0a00' : isToday ? '#181818' : '#0c0c0c',
-                        border: `1px solid ${dragOverDate === ds ? '#F59E0B' : isSelected ? '#92400E' : isToday ? '#333' : '#1a1a1a'}`,
+                        border: `1px solid ${dragOverDate === ds ? 'var(--accent)' : isSelected ? 'var(--accent-dim)' : isToday ? '#333' : '#1a1a1a'}`,
                         borderRadius: 4, cursor: 'pointer', padding: 5, display: 'flex', flexDirection: 'column', gap: 3, textAlign: 'left', overflow: 'hidden',
                       }}>
-                        <span style={{ fontSize: '0.7rem', color: isToday ? '#F59E0B' : isSelected ? '#F59E0B' : '#9CA3AF', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
+                        <span style={{ fontSize: '0.7rem', color: isToday ? 'var(--accent)' : isSelected ? 'var(--accent)' : '#9CA3AF', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
                         {/* Mobile: colored dots */}
                         <div className="cal-dots" style={{ gap: 3, flexWrap: 'wrap' }}>
                           {dayEvents.slice(0, 3).map(e => <div key={e.id} style={{ width: 5, height: 5, borderRadius: '50%', background: EVENT_META[e.type]?.color || '#6B7280' }} />)}
@@ -259,12 +259,12 @@ export default function PlannerTab() {
                     <button key={ds} onClick={() => setSelectedDate(ds)} style={{
                       display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left',
                       background: isSelected ? '#1a0a00' : '#181818',
-                      border: `1px solid ${isSelected ? '#92400E' : '#222'}`,
+                      border: `1px solid ${isSelected ? 'var(--accent-dim)' : '#222'}`,
                       borderRadius: 4, padding: '10px 12px', cursor: 'pointer',
                     }}>
                       <div style={{ minWidth: 44 }}>
                         <div style={{ fontSize: '0.6rem', color: '#6B7280' }}>{DAYS[d.getDay()]}</div>
-                        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: isToday ? '#F59E0B' : '#E5E7EB' }}>{d.getDate()}</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: isToday ? 'var(--accent)' : '#E5E7EB' }}>{d.getDate()}</div>
                       </div>
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         {dayTasks.length === 0 ? <span style={{ fontSize: '0.7rem', color: '#374151' }}>No tasks</span> :
@@ -292,16 +292,16 @@ export default function PlannerTab() {
 
           {/* Add mode toggle */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-            <button onClick={() => setAddMode('task')} style={{ flex: 1, background: addMode === 'task' ? '#1a0a00' : 'transparent', border: `1px solid ${addMode === 'task' ? '#92400E' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'task' ? '#F59E0B' : '#9CA3AF', fontSize: '0.72rem', fontWeight: addMode === 'task' ? 700 : 400 }}>✓ Task</button>
+            <button onClick={() => setAddMode('task')} style={{ flex: 1, background: addMode === 'task' ? '#1a0a00' : 'transparent', border: `1px solid ${addMode === 'task' ? 'var(--accent-dim)' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'task' ? 'var(--accent)' : '#9CA3AF', fontSize: '0.72rem', fontWeight: addMode === 'task' ? 700 : 400 }}>✓ Task</button>
             <button onClick={() => setAddMode('event')} style={{ flex: 1, background: addMode === 'event' ? '#1a0a2a' : 'transparent', border: `1px solid ${addMode === 'event' ? '#6d28d9' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'event' ? '#a78bfa' : '#9CA3AF', fontSize: '0.72rem', fontWeight: addMode === 'event' ? 700 : 400 }}>📅 Event</button>
           </div>
 
           {addMode === 'task' ? (
             <>
               <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-                <button onClick={() => setPriority(p => !p)} style={{ background: priority ? '#1a0a00' : 'transparent', border: `1px solid ${priority ? '#F59E0B' : '#374151'}`, borderRadius: 4, padding: '8px 10px', cursor: 'pointer', flexShrink: 0, color: priority ? '#F59E0B' : '#374151', fontWeight: 700 }}>⚡</button>
+                <button onClick={() => setPriority(p => !p)} style={{ background: priority ? '#1a0a00' : 'transparent', border: `1px solid ${priority ? 'var(--accent)' : '#374151'}`, borderRadius: 4, padding: '8px 10px', cursor: 'pointer', flexShrink: 0, color: priority ? 'var(--accent)' : '#374151', fontWeight: 700 }}>⚡</button>
                 <input type="text" placeholder="Add a task..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} style={{ flex: 1 }} />
-                <button className="glow-orange" onClick={addTask} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+                <button className="glow-orange" onClick={addTask} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
               </div>
               <select value={cat} onChange={e => setCat(e.target.value)} style={{ marginBottom: 12 }}>
                 {CATEGORIES.map(c => <option key={c}>{c}</option>)}
@@ -356,10 +356,10 @@ export default function PlannerTab() {
             {selectedTasks.length === 0 && selectedEvents.length === 0 && <div style={{ fontSize: '0.78rem', color: '#374151', textAlign: 'center', padding: '16px 0' }}>Nothing planned. Add a task or event above.</div>}
             {[...selectedTasks].sort((a, b) => Number(b.priority) - Number(a.priority)).map(t => (
               editingTask === t.id ? (
-                <div key={t.id} style={{ display: 'flex', flexDirection: 'column', gap: 6, background: '#181818', border: '1px solid #92400E', borderRadius: 4, padding: 10 }}>
+                <div key={t.id} style={{ display: 'flex', flexDirection: 'column', gap: 6, background: '#181818', border: '1px solid var(--accent-dim)', borderRadius: 4, padding: 10 }}>
                   <input type="text" value={taskEdit.text} onChange={e => setTaskEdit(f => ({ ...f, text: e.target.value }))} onKeyDown={e => e.key === 'Enter' && saveEditTask()} autoFocus />
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => setTaskEdit(f => ({ ...f, priority: !f.priority }))} style={{ background: taskEdit.priority ? '#1a0a00' : 'transparent', border: `1px solid ${taskEdit.priority ? '#F59E0B' : '#374151'}`, borderRadius: 4, padding: '0 12px', cursor: 'pointer', color: taskEdit.priority ? '#F59E0B' : '#374151', fontWeight: 700 }}>⚡</button>
+                    <button onClick={() => setTaskEdit(f => ({ ...f, priority: !f.priority }))} style={{ background: taskEdit.priority ? '#1a0a00' : 'transparent', border: `1px solid ${taskEdit.priority ? 'var(--accent)' : '#374151'}`, borderRadius: 4, padding: '0 12px', cursor: 'pointer', color: taskEdit.priority ? 'var(--accent)' : '#374151', fontWeight: 700 }}>⚡</button>
                     <select value={taskEdit.category} onChange={e => setTaskEdit(f => ({ ...f, category: e.target.value }))} style={{ flex: 1 }}>
                       {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                     </select>
@@ -374,7 +374,7 @@ export default function PlannerTab() {
                   <button onClick={() => toggle(t.id)} className={t.done ? 'check-pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${t.done ? '#22C55E' : '#374151'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {t.done && <Check size={11} color="#000" strokeWidth={3} />}
                   </button>
-                  {t.priority && <span style={{ color: '#F59E0B' }}>⚡</span>}
+                  {t.priority && <span style={{ color: 'var(--accent)' }}>⚡</span>}
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[t.category], flexShrink: 0 }} />
                   <button onClick={() => startEditTask(t)} style={{ flex: 1, minWidth: 0, background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', padding: 0, fontSize: '0.82rem', color: t.done ? '#4B5563' : '#F3F4F6', textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</button>
                   <button onClick={() => remove(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={13} /></button>

@@ -62,7 +62,7 @@ export function WeightTrendChart() {
             <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#6B7280' }} tickLine={false} axisLine={false} />
             <YAxis domain={['dataMin - 2', 'dataMax + 2']} tick={{ fontSize: 8, fill: '#4B5563' }} tickLine={false} axisLine={false} />
             <Tooltip contentStyle={{ background: 'rgba(17,17,17,0.95)', border: '1px solid #333', borderRadius: 6, fontSize: '0.75rem' }} formatter={(v: any) => [`${v} ${unit}`, 'Weight']} />
-            <Line type="monotone" dataKey="weight" stroke="#F59E0B" strokeWidth={2} dot={{ r: 2, fill: '#F59E0B' }} isAnimationActive animationDuration={800} animationEasing="ease-out" />
+            <Line type="monotone" dataKey="weight" stroke="var(--accent)" strokeWidth={2} dot={{ r: 2, fill: 'var(--accent)' }} isAnimationActive animationDuration={800} animationEasing="ease-out" />
           </LineChart>
         </ResponsiveContainer>
       ) : (

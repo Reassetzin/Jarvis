@@ -35,7 +35,7 @@ export default function NotificationSettings() {
       {perm !== 'granted' ? (
         <div>
           <p style={{ fontSize: '0.74rem', color: '#9CA3AF', marginBottom: 10, lineHeight: 1.4 }}>Enable notifications to get reminders for water, vitamins, and your daily plan.</p>
-          <button onClick={enable} className="glow-orange" style={{ width: '100%', background: '#F59E0B', color: '#000', border: 'none', borderRadius: 8, padding: '10px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <button onClick={enable} className="glow-orange" style={{ width: '100%', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 8, padding: '10px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <Bell size={14} /> Enable Notifications
           </button>
           {perm === 'denied' && <p style={{ fontSize: '0.6rem', color: '#EF4444', marginTop: 8 }}>Blocked. Enable in your browser/device settings for this site.</p>}

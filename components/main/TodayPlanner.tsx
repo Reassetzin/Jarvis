@@ -3,7 +3,7 @@ import { usePersistentStore } from '@/hooks/useStore'
 import { Check } from 'lucide-react'
 
 interface Task { id: string; text: string; date: string; done: boolean; priority: boolean; category: string }
-const CAT_COLORS: Record<string, string> = { Personal: '#3B82F6', Work: '#F59E0B', Brand: '#8B5CF6', Health: '#22C55E', Finance: '#EF4444', Activity: '#EC4899' }
+const CAT_COLORS: Record<string, string> = { Personal: '#3B82F6', Work: 'var(--accent)', Brand: '#8B5CF6', Health: '#22C55E', Finance: '#EF4444', Activity: '#EC4899' }
 
 function ymd(d: Date) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` }
 
@@ -32,7 +32,7 @@ export default function TodayPlanner() {
               <button onClick={() => toggle(t.id)} style={{ width: 16, height: 16, borderRadius: 4, border: `1.5px solid ${t.done ? '#22C55E' : '#374151'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 {t.done && <Check size={10} color="#000" strokeWidth={3} />}
               </button>
-              {t.priority && <span style={{ color: '#F59E0B', fontSize: '0.7rem' }}>⚡</span>}
+              {t.priority && <span style={{ color: 'var(--accent)', fontSize: '0.7rem' }}>⚡</span>}
               <div style={{ width: 5, height: 5, borderRadius: '50%', background: CAT_COLORS[t.category] || '#6B7280', flexShrink: 0 }} />
               <span style={{ flex: 1, fontSize: '0.78rem', color: t.done ? '#4B5563' : '#E5E7EB', textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</span>
             </div>

@@ -6,7 +6,7 @@ interface Txn { id: string; type: 'income' | 'expense'; amount: number; category
 
 const CAT_COLORS: Record<string, string> = {
   'Web Design': '#22C55E', 'Real Estate': '#3B82F6', 'YouTube': '#EF4444', 'Digital Products': '#8B5CF6', 'Roblox': '#EC4899',
-  'Food': '#F59E0B', 'Subscriptions': '#EF4444', 'Shopping': '#EC4899', 'Transport': '#3B82F6', 'Tools/Software': '#8B5CF6', 'Entertainment': '#EAB308', 'Health': '#22C55E', 'Other': '#6B7280',
+  'Food': 'var(--accent)', 'Subscriptions': '#EF4444', 'Shopping': '#EC4899', 'Transport': '#3B82F6', 'Tools/Software': '#8B5CF6', 'Entertainment': '#EAB308', 'Health': '#22C55E', 'Other': '#6B7280',
 }
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -51,8 +51,8 @@ export default function TransactionExplorer({ txns, onDelete, onClose }: { txns:
         <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
           {(['month', 'year', 'category'] as const).map(g => (
             <button key={g} onClick={() => { setGroupBy(g); setOpenGroup(null) }} style={{
-              background: groupBy === g ? '#1a0a00' : 'transparent', border: `1px solid ${groupBy === g ? '#92400E' : '#333'}`,
-              borderRadius: 4, padding: '5px 12px', cursor: 'pointer', color: groupBy === g ? '#F59E0B' : '#9CA3AF',
+              background: groupBy === g ? '#1a0a00' : 'transparent', border: `1px solid ${groupBy === g ? 'var(--accent-dim)' : '#333'}`,
+              borderRadius: 4, padding: '5px 12px', cursor: 'pointer', color: groupBy === g ? 'var(--accent)' : '#9CA3AF',
               fontWeight: groupBy === g ? 700 : 400, fontSize: '0.72rem', textTransform: 'capitalize',
             }}>{g}</button>
           ))}

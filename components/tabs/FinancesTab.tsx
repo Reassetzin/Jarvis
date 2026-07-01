@@ -21,7 +21,7 @@ const INCOME_CATS = ['Web Design', 'Real Estate', 'YouTube', 'Digital Products',
 const EXPENSE_CATS = ['Food', 'Subscriptions', 'Shopping', 'Transport', 'Tools/Software', 'Entertainment', 'Health', 'Other']
 const CAT_COLORS: Record<string, string> = {
   'Web Design': '#22C55E', 'Real Estate': '#3B82F6', 'YouTube': '#EF4444', 'Digital Products': '#8B5CF6', 'Roblox': '#EC4899',
-  'Food': '#F59E0B', 'Subscriptions': '#EF4444', 'Shopping': '#EC4899', 'Transport': '#3B82F6', 'Tools/Software': '#8B5CF6', 'Entertainment': '#EAB308', 'Health': '#22C55E', 'Other': '#6B7280',
+  'Food': 'var(--accent)', 'Subscriptions': '#EF4444', 'Shopping': '#EC4899', 'Transport': '#3B82F6', 'Tools/Software': '#8B5CF6', 'Entertainment': '#EAB308', 'Health': '#22C55E', 'Other': '#6B7280',
 }
 
 function thisMonth(dateStr: string) {
@@ -214,7 +214,7 @@ export default function FinancesTab() {
               {EXPENSE_CATS.map(c => <option key={c}>{c}</option>)}
             </select>
             <input type="number" placeholder="Limit" value={budgetForm.limit} onChange={e => setBudgetForm(f => ({ ...f, limit: e.target.value }))} style={{ width: 90 }} />
-            <button className="glow-orange" onClick={() => { if (!budgetForm.limit) return; setBudgets(b => [...b.filter(x => x.category !== budgetForm.category), { category: budgetForm.category, limit: parseFloat(budgetForm.limit) }]); setBudgetForm({ category: 'Food', limit: '' }) }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>Set</button>
+            <button className="glow-orange" onClick={() => { if (!budgetForm.limit) return; setBudgets(b => [...b.filter(x => x.category !== budgetForm.category), { category: budgetForm.category, limit: parseFloat(budgetForm.limit) }]); setBudgetForm({ category: 'Food', limit: '' }) }} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>Set</button>
           </div>
         </div>
 
@@ -248,7 +248,7 @@ export default function FinancesTab() {
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div className="section-header" style={{ marginBottom: 0 }}>Savings Goals</div>
-            <Target size={14} color="#F59E0B" />
+            <Target size={14} color="var(--accent)" />
           </div>
           {goals.map(g => {
             const pct = Math.min(100, (g.saved / g.target) * 100)
@@ -259,7 +259,7 @@ export default function FinancesTab() {
                   <button onClick={() => setGoals(gs => gs.filter(x => x.id !== g.id))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={12} /></button>
                 </div>
                 <div style={{ height: 6, background: '#0a0a0a', borderRadius: 3, overflow: 'hidden', marginBottom: 6 }}>
-                  <div style={{ height: '100%', width: `${pct}%`, background: pct >= 100 ? '#22C55E' : '#F59E0B', borderRadius: 3 }} />
+                  <div style={{ height: '100%', width: `${pct}%`, background: pct >= 100 ? '#22C55E' : 'var(--accent)', borderRadius: 3 }} />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>${g.saved.toLocaleString()} / ${g.target.toLocaleString()}</span>
@@ -275,7 +275,7 @@ export default function FinancesTab() {
             <div style={{ display: 'flex', gap: 6 }}>
               <input type="text" placeholder="Goal name" value={goalForm.name} onChange={e => setGoalForm(f => ({ ...f, name: e.target.value }))} style={{ flex: 2 }} />
               <input type="number" placeholder="Target $" value={goalForm.target} onChange={e => setGoalForm(f => ({ ...f, target: e.target.value }))} style={{ flex: 1 }} />
-              <button className="glow-orange" onClick={() => { if (!goalForm.name || !goalForm.target) return; setGoals(g => [...g, { id: Date.now().toString(), name: goalForm.name, target: parseFloat(goalForm.target), saved: 0 }]); setGoalForm({ name: '', target: '' }); setAddingGoal(false) }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              <button className="glow-orange" onClick={() => { if (!goalForm.name || !goalForm.target) return; setGoals(g => [...g, { id: Date.now().toString(), name: goalForm.name, target: parseFloat(goalForm.target), saved: 0 }]); setGoalForm({ name: '', target: '' }); setAddingGoal(false) }} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
             </div>
           ) : (
             <button onClick={() => setAddingGoal(true)} className="btn-ghost" style={{ width: '100%' }}>+ Add Savings Goal</button>
@@ -297,7 +297,7 @@ export default function FinancesTab() {
                 <div style={{ fontSize: '0.8rem' }}>{s.name}</div>
                 {s.renewal && <div style={{ fontSize: '0.6rem', color: '#4B5563' }}>Renews {s.renewal}</div>}
               </div>
-              <span style={{ fontSize: '0.78rem', color: '#F59E0B', fontWeight: 600 }}>${s.amount}/{s.period === 'monthly' ? 'mo' : 'yr'}</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 600 }}>${s.amount}/{s.period === 'monthly' ? 'mo' : 'yr'}</span>
               <button onClick={() => setSubs(ss => ss.filter(x => x.id !== s.id))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={12} /></button>
             </div>
           ))}
@@ -323,7 +323,7 @@ export default function FinancesTab() {
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div className="section-header" style={{ marginBottom: 0 }}>Assets</div>
-            <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#F59E0B' }}>${netWorth.toLocaleString()}</span>
+            <span style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--accent)' }}>${netWorth.toLocaleString()}</span>
           </div>
           {assets.map(a => (
             <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #111' }}>
@@ -336,7 +336,7 @@ export default function FinancesTab() {
             <div style={{ marginTop: 10, display: 'flex', gap: 6 }}>
               <input type="text" placeholder="e.g. Coinbase, Savings" value={assetForm.label} onChange={e => setAssetForm(a => ({ ...a, label: e.target.value }))} style={{ flex: 2 }} />
               <input type="number" placeholder="$" value={assetForm.amount} onChange={e => setAssetForm(a => ({ ...a, amount: e.target.value }))} style={{ flex: 1 }} />
-              <button className="glow-orange" onClick={() => { if (!assetForm.label || !assetForm.amount) return; setAssets(as => [...as, { id: Date.now().toString(), label: assetForm.label, amount: parseFloat(assetForm.amount) }]); setAssetForm({ label: '', amount: '' }); setAddingAsset(false) }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              <button className="glow-orange" onClick={() => { if (!assetForm.label || !assetForm.amount) return; setAssets(as => [...as, { id: Date.now().toString(), label: assetForm.label, amount: parseFloat(assetForm.amount) }]); setAssetForm({ label: '', amount: '' }); setAddingAsset(false) }} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
             </div>
           ) : (
             <button onClick={() => setAddingAsset(true)} className="btn-ghost" style={{ width: '100%', marginTop: 8 }}>+ Add Asset</button>

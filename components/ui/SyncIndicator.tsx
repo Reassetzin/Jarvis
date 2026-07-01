@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { onSyncStatus, isConfigured } from '@/lib/sync'
 import { Cloud, CloudOff, RefreshCw, Check, AlertCircle } from 'lucide-react'
 
-export const APP_VERSION = '1.6.0'
+export const APP_VERSION = '1.7.0'
 
 export default function SyncIndicator() {
   const [status, setStatus] = useState<string>('idle')
@@ -17,7 +17,7 @@ export default function SyncIndicator() {
 
   const meta: Record<string, { icon: any; color: string; label: string }> = {
     idle: { icon: Cloud, color: '#4B5563', label: 'Cloud' },
-    syncing: { icon: RefreshCw, color: '#F59E0B', label: 'Syncing' },
+    syncing: { icon: RefreshCw, color: 'var(--accent)', label: 'Syncing' },
     synced: { icon: Check, color: '#22C55E', label: 'Synced' },
     offline: { icon: CloudOff, color: '#6B7280', label: 'Offline' },
     error: { icon: AlertCircle, color: '#EF4444', label: 'Sync error' },

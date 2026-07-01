@@ -7,7 +7,7 @@ import PageShell from '@/components/ui/PageShell'
 const CATEGORIES = ['Building', '3D Modeling', 'UI', 'Scripting', 'Audio', 'Game Design'] as const
 type Category = typeof CATEGORIES[number]
 const CAT_COLORS: Record<string, string> = {
-  'Building': '#F59E0B', '3D Modeling': '#8B5CF6', 'UI': '#3B82F6',
+  'Building': 'var(--accent)', '3D Modeling': '#8B5CF6', 'UI': '#3B82F6',
   'Scripting': '#22C55E', 'Audio': '#EC4899', 'Game Design': '#EAB308',
 }
 
@@ -27,7 +27,7 @@ interface Project {
 const STATUS_META = {
   planning: { label: 'Planning', color: '#6B7280' },
   active: { label: 'Active', color: '#22C55E' },
-  paused: { label: 'Paused', color: '#F59E0B' },
+  paused: { label: 'Paused', color: 'var(--accent)' },
   launched: { label: 'Launched', color: '#8B5CF6' },
 }
 
@@ -62,7 +62,7 @@ export default function ProjectsTab() {
       <PageShell>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Gamepad2 size={22} color="#F59E0B" />
+            <Gamepad2 size={22} color="var(--accent)" />
             <h1 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Projects</h1>
           </div>
           {!creating && <button onClick={() => setCreating(true)} className="btn-amber" style={{ width: 'auto', padding: '8px 16px' }}><Plus size={14} style={{ display: 'inline', marginRight: 4 }} />New Project</button>}
@@ -93,7 +93,7 @@ export default function ProjectsTab() {
                 </div>
                 {p.description && <p style={{ fontSize: '0.72rem', color: '#6B7280', marginBottom: 10, lineHeight: 1.4 }}>{p.description.slice(0, 80)}{p.description.length > 80 ? '…' : ''}</p>}
                 <div style={{ height: 8, background: '#1f1f1f', borderRadius: 4, overflow: 'hidden', marginBottom: 6 }}>
-                  <div style={{ height: '100%', width: `${prog}%`, background: prog >= 100 ? '#22C55E' : '#F59E0B', borderRadius: 4, transition: 'width 0.5s', boxShadow: `0 0 8px ${prog >= 100 ? '#22C55E' : '#F59E0B'}80` }} />
+                  <div style={{ height: '100%', width: `${prog}%`, background: prog >= 100 ? '#22C55E' : 'var(--accent)', borderRadius: 4, transition: 'width 0.5s', boxShadow: `0 0 8px ${prog >= 100 ? '#22C55E' : 'var(--accent)'}80` }} />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: '#6B7280' }}>
                   <span>{prog}% complete</span>
@@ -180,7 +180,7 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
           </div>
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: prog >= 100 ? '#22C55E' : '#F59E0B' }}>{prog}%</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: prog >= 100 ? '#22C55E' : 'var(--accent)' }}>{prog}%</div>
           <div style={{ fontSize: '0.6rem', color: '#6B7280' }}>overall</div>
         </div>
         <button onClick={() => { if (confirm(`Delete project "${project.name}"?`)) onDelete() }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151', flexShrink: 0 }}><X size={16} /></button>
@@ -189,7 +189,7 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
       {/* Sub-tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 4, WebkitOverflowScrolling: 'touch' }}>
         {(['tasks', 'progress', 'docs', 'updates', 'info'] as const).map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{ flexShrink: 0, background: tab === t ? '#1a0a00' : 'transparent', border: `1px solid ${tab === t ? '#92400E' : '#333'}`, borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: tab === t ? '#F59E0B' : '#9CA3AF', fontWeight: tab === t ? 700 : 500, fontSize: '0.78rem', textTransform: 'capitalize' }}>{t}</button>
+          <button key={t} onClick={() => setTab(t)} style={{ flexShrink: 0, background: tab === t ? '#1a0a00' : 'transparent', border: `1px solid ${tab === t ? 'var(--accent-dim)' : '#333'}`, borderRadius: 8, padding: '7px 16px', cursor: 'pointer', color: tab === t ? 'var(--accent)' : '#9CA3AF', fontWeight: tab === t ? 700 : 500, fontSize: '0.78rem', textTransform: 'capitalize' }}>{t}</button>
         ))}
       </div>
 
@@ -203,13 +203,13 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
               {project.milestones.map(m => {
                 const mp = milestoneProgress(m)
                 return (
-                  <button key={m.id} onClick={() => setActiveMilestone(m.id)} style={{ textAlign: 'left', background: activeMilestone === m.id ? '#1a0a00' : '#181818', border: `1px solid ${activeMilestone === m.id ? '#92400E' : '#222'}`, borderRadius: 6, padding: '8px 10px', cursor: 'pointer' }}>
+                  <button key={m.id} onClick={() => setActiveMilestone(m.id)} style={{ textAlign: 'left', background: activeMilestone === m.id ? '#1a0a00' : '#181818', border: `1px solid ${activeMilestone === m.id ? 'var(--accent-dim)' : '#222'}`, borderRadius: 6, padding: '8px 10px', cursor: 'pointer' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: activeMilestone === m.id ? '#F59E0B' : '#E5E7EB' }}>{m.name}</span>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: activeMilestone === m.id ? 'var(--accent)' : '#E5E7EB' }}>{m.name}</span>
                       <span style={{ fontSize: '0.62rem', color: mp >= 100 ? '#22C55E' : '#6B7280', fontWeight: 700 }}>{mp}%</span>
                     </div>
                     <div style={{ height: 4, background: '#0a0a0a', borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${mp}%`, background: mp >= 100 ? '#22C55E' : '#F59E0B', borderRadius: 2 }} />
+                      <div style={{ height: '100%', width: `${mp}%`, background: mp >= 100 ? '#22C55E' : 'var(--accent)', borderRadius: 2 }} />
                     </div>
                   </button>
                 )
@@ -217,7 +217,7 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
             </div>
             <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
               <input type="text" placeholder="New milestone" value={msInput} onChange={e => setMsInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addMilestone()} style={{ flex: 1, fontSize: '0.75rem', padding: '7px 9px' }} />
-              <button onClick={addMilestone} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 6, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              <button onClick={addMilestone} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 6, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}>+</button>
             </div>
           </div>
 
@@ -257,7 +257,7 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
                     {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </select>
                   <input type="text" placeholder="Add task..." value={taskInput} onChange={e => setTaskInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} style={{ flex: 1 }} />
-                  <button onClick={addTask} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 6, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+                  <button onClick={addTask} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 6, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
                 </div>
               </>
             ) : (
@@ -273,10 +273,10 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
           <div className="card">
             <div className="section-header">Overall Progress</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{ fontSize: '2.5rem', fontWeight: 800, color: prog >= 100 ? '#22C55E' : '#F59E0B' }}>{prog}%</div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 800, color: prog >= 100 ? '#22C55E' : 'var(--accent)' }}>{prog}%</div>
               <div style={{ flex: 1 }}>
                 <div style={{ height: 12, background: '#1f1f1f', borderRadius: 6, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${prog}%`, background: prog >= 100 ? '#22C55E' : '#F59E0B', borderRadius: 6, transition: 'width 0.6s', boxShadow: `0 0 12px ${prog >= 100 ? '#22C55E' : '#F59E0B'}80` }} />
+                  <div style={{ height: '100%', width: `${prog}%`, background: prog >= 100 ? '#22C55E' : 'var(--accent)', borderRadius: 6, transition: 'width 0.6s', boxShadow: `0 0 12px ${prog >= 100 ? '#22C55E' : 'var(--accent)'}80` }} />
                 </div>
               </div>
             </div>
@@ -293,7 +293,7 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
                     <span style={{ fontSize: '0.72rem', color: mp >= 100 ? '#22C55E' : '#9CA3AF', fontWeight: 700 }}>{mp}% · {m.tasks.filter(t => t.done).length}/{m.tasks.length}</span>
                   </div>
                   <div style={{ height: 8, background: '#1f1f1f', borderRadius: 4, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${mp}%`, background: mp >= 100 ? '#22C55E' : '#F59E0B', borderRadius: 4, transition: 'width 0.6s' }} />
+                    <div style={{ height: '100%', width: `${mp}%`, background: mp >= 100 ? '#22C55E' : 'var(--accent)', borderRadius: 4, transition: 'width 0.6s' }} />
                   </div>
                 </div>
               )
@@ -331,16 +331,16 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
             <div className="section-header">Documents</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {(project.docs || []).map(d => (
-                <button key={d.id} onClick={() => setActiveDoc(d.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', background: activeDoc === d.id ? '#1a0a00' : '#181818', border: `1px solid ${activeDoc === d.id ? '#92400E' : '#222'}`, borderRadius: 6, padding: '8px 10px', cursor: 'pointer' }}>
+                <button key={d.id} onClick={() => setActiveDoc(d.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', background: activeDoc === d.id ? '#1a0a00' : '#181818', border: `1px solid ${activeDoc === d.id ? 'var(--accent-dim)' : '#222'}`, borderRadius: 6, padding: '8px 10px', cursor: 'pointer' }}>
                   <span style={{ fontSize: '0.9rem' }}>{d.emoji}</span>
-                  <span style={{ flex: 1, fontSize: '0.76rem', fontWeight: activeDoc === d.id ? 600 : 400, color: activeDoc === d.id ? '#F59E0B' : '#E5E7EB', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.title}</span>
+                  <span style={{ flex: 1, fontSize: '0.76rem', fontWeight: activeDoc === d.id ? 600 : 400, color: activeDoc === d.id ? 'var(--accent)' : '#E5E7EB', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.title}</span>
                 </button>
               ))}
             </div>
             <div style={{ display: 'flex', gap: 5, marginTop: 10 }}>
               <input type="text" value={newDocEmoji} onChange={e => setNewDocEmoji(e.target.value)} maxLength={2} style={{ width: 44, textAlign: 'center', padding: '7px 4px' }} title="Emoji" />
               <input type="text" placeholder="New doc title" value={newDocTitle} onChange={e => setNewDocTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && addDoc()} style={{ flex: 1, fontSize: '0.72rem', padding: '7px 8px' }} />
-              <button onClick={addDoc} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 6, padding: '0 11px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              <button onClick={addDoc} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 6, padding: '0 11px', cursor: 'pointer', fontWeight: 700 }}>+</button>
             </div>
             {(project.docs || []).length === 0 && <p style={{ fontSize: '0.62rem', color: '#374151', marginTop: 8, lineHeight: 1.4 }}>Create a doc per GDD topic (Core Loop, Machines, Monetization, etc.) like your Discord channels.</p>}
           </div>
@@ -383,7 +383,7 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
             {project.updates.length === 0 && <div style={{ fontSize: '0.78rem', color: '#374151', textAlign: 'center', padding: '12px 0' }}>No updates logged yet.</div>}
             {project.updates.map(u => (
               <div key={u.id} className="item-enter" style={{ display: 'flex', gap: 10, background: '#181818', border: '1px solid #222', borderRadius: 6, padding: '10px 12px' }}>
-                <div style={{ fontSize: '0.6rem', color: '#F59E0B', fontWeight: 600, minWidth: 56, paddingTop: 2 }}>{u.date}</div>
+                <div style={{ fontSize: '0.6rem', color: 'var(--accent)', fontWeight: 600, minWidth: 56, paddingTop: 2 }}>{u.date}</div>
                 <div style={{ flex: 1, fontSize: '0.8rem', color: '#E5E7EB', lineHeight: 1.5 }}>{u.note}</div>
                 <button onClick={() => update(p => ({ ...p, updates: p.updates.filter(x => x.id !== u.id) }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={12} /></button>
               </div>
@@ -419,7 +419,7 @@ function ProjectDetail({ project, onBack, update, onDelete }: { project: Project
             <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
               <input type="text" placeholder="Label (e.g. Discord)" value={linkLabel} onChange={e => setLinkLabel(e.target.value)} style={{ flex: 1 }} />
               <input type="text" placeholder="URL" value={linkUrl} onChange={e => setLinkUrl(e.target.value)} style={{ flex: 2 }} />
-              <button onClick={() => { if (!linkLabel.trim() || !linkUrl.trim()) return; update(p => ({ ...p, links: [...p.links, { label: linkLabel.trim(), url: linkUrl.trim() }] })); setLinkLabel(''); setLinkUrl('') }} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 6, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+              <button onClick={() => { if (!linkLabel.trim() || !linkUrl.trim()) return; update(p => ({ ...p, links: [...p.links, { label: linkLabel.trim(), url: linkUrl.trim() }] })); setLinkLabel(''); setLinkUrl('') }} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 6, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
             </div>
           </div>
         </div>

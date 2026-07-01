@@ -12,7 +12,7 @@ interface WhoopData {
 const DEFAULT: WhoopData = { recovery: 0, sleep: 0, strain: 0, hrv: 0, rhr: 0, skinTemp: 0, bloodO2: 0, respRate: 0, lastUpdated: null }
 
 function RecoveryRing({ pct }: { pct: number }) {
-  const color = pct >= 67 ? '#22C55E' : pct >= 34 ? '#F59E0B' : '#EF4444'
+  const color = pct >= 67 ? '#22C55E' : pct >= 34 ? 'var(--accent)' : '#EF4444'
   const r = 44
   const circ = 2 * Math.PI * r
   const offset = circ * (1 - pct / 100)
@@ -56,8 +56,8 @@ export default function WhoopSection() {
     }
   }
 
-  const color = data.recovery >= 67 ? '#22C55E' : data.recovery >= 34 ? '#F59E0B' : '#EF4444'
-  const levelColor = aiCall?.level === 'GREEN' ? '#22C55E' : aiCall?.level === 'RED' ? '#EF4444' : '#F59E0B'
+  const color = data.recovery >= 67 ? '#22C55E' : data.recovery >= 34 ? 'var(--accent)' : '#EF4444'
+  const levelColor = aiCall?.level === 'GREEN' ? '#22C55E' : aiCall?.level === 'RED' ? '#EF4444' : 'var(--accent)'
 
   const fields = [
     { key: 'recovery', label: 'Recovery %', max: 100 },

@@ -81,7 +81,7 @@ export default function Goalmaxxing() {
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <span style={{ fontSize: '0.7rem', color: '#6B7280' }}>{done}/{total} done</span>
             {streak > 0 && (
-              <span style={{ fontSize: '0.65rem', background: '#1a0a00', border: '1px solid #92400E', borderRadius: 4, padding: '2px 7px', color: '#F59E0B', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.65rem', background: '#1a0a00', border: '1px solid var(--accent-dim)', borderRadius: 4, padding: '2px 7px', color: 'var(--accent)', fontWeight: 700 }}>
                 🔥 {streak}d
               </span>
             )}
@@ -108,7 +108,7 @@ export default function Goalmaxxing() {
               }}>
                 {g.done && <Check size={11} color="#000" strokeWidth={3} />}
               </button>
-              {g.priority && <Zap size={13} color="#F59E0B" fill="#F59E0B" />}
+              {g.priority && <Zap size={13} color="var(--accent)" fill="var(--accent)" />}
               <span style={{
                 flex: 1, fontSize: '0.82rem', color: g.done ? '#4B5563' : '#F3F4F6',
                 textDecoration: g.done ? 'line-through' : 'none',
@@ -123,10 +123,10 @@ export default function Goalmaxxing() {
         <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
           <button onClick={() => setPriority(p => !p)} style={{
             background: priority ? '#1a0a00' : 'transparent',
-            border: `1px solid ${priority ? '#F59E0B' : '#374151'}`,
+            border: `1px solid ${priority ? 'var(--accent)' : '#374151'}`,
             borderRadius: 4, padding: '8px 10px', cursor: 'pointer', flexShrink: 0,
           }}>
-            <Zap size={14} color={priority ? '#F59E0B' : '#374151'} fill={priority ? '#F59E0B' : 'none'} />
+            <Zap size={14} color={priority ? 'var(--accent)' : '#374151'} fill={priority ? 'var(--accent)' : 'none'} />
           </button>
           <input
             type="text" placeholder="Add today's goal..."
@@ -135,7 +135,7 @@ export default function Goalmaxxing() {
             style={{ flex: 1 }}
           />
           <button className="glow-orange" onClick={addGoal} style={{
-            background: '#F59E0B', color: '#000', fontWeight: 700, borderRadius: 4,
+            background: 'var(--accent)', color: '#000', fontWeight: 700, borderRadius: 4,
             padding: '8px 14px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', flexShrink: 0,
           }}>+</button>
         </div>
@@ -175,7 +175,7 @@ export default function Goalmaxxing() {
             onKeyDown={e => e.key === 'Enter' && addTomorrow()}
             style={{ flex: 1 }} disabled={!isPast9} />
           <button className="glow-orange" onClick={addTomorrow} disabled={!isPast9} style={{
-            background: '#F59E0B', color: '#000', fontWeight: 700, borderRadius: 4,
+            background: 'var(--accent)', color: '#000', fontWeight: 700, borderRadius: 4,
             padding: '8px 14px', border: 'none', cursor: 'pointer', fontSize: '0.8rem',
             opacity: isPast9 ? 1 : 0.5,
           }}>+</button>

@@ -11,7 +11,7 @@ export function WaterTracker() {
   const [custom, setCustom] = useState('')
   const pct = Math.min(100, (ml / goal) * 100)
   const status = ml >= goal ? '✅ Goal reached!' : ml >= goal * 0.66 ? 'Healthy zone' : ml >= goal * 0.33 ? 'Drink more' : '⚠️ Dehydrated'
-  const barColor = ml >= goal ? '#22C55E' : ml >= goal * 0.66 ? '#3B82F6' : ml >= goal * 0.33 ? '#F59E0B' : '#EF4444'
+  const barColor = ml >= goal ? '#22C55E' : ml >= goal * 0.66 ? '#3B82F6' : ml >= goal * 0.33 ? 'var(--accent)' : '#EF4444'
   function addCustom() { const amt = parseInt(custom); if (!isNaN(amt) && amt > 0) { setMl(m => m + amt); setCustom('') } }
   return (
     <div className="card">
@@ -58,7 +58,7 @@ export function AnxietyTracker() {
 }
 
 const WIN_CATS = ['Mental', 'Physical', 'Work', 'Relationships', 'Habits', 'Self', 'Other']
-const CAT_COLORS = ['#3B82F6', '#22C55E', '#F59E0B', '#EC4899', '#8B5CF6', '#F97316', '#6B7280']
+const CAT_COLORS = ['#3B82F6', '#22C55E', 'var(--accent)', '#EC4899', '#8B5CF6', '#F97316', '#6B7280']
 interface Win { id: string; text: string; category: string; time: string }
 
 export function WinsTracker() {

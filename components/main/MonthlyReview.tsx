@@ -84,7 +84,7 @@ export default function MonthlyReview() {
 
       {stats.topCat && (
         <div style={{ marginTop: 10, fontSize: '0.68rem', color: '#9CA3AF', textAlign: 'center' }}>
-          Top spend: <span style={{ color: '#F59E0B', fontWeight: 600 }}>{stats.topCat[0]}</span> (${stats.topCat[1].toLocaleString()})
+          Top spend: <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{stats.topCat[0]}</span> (${stats.topCat[1].toLocaleString()})
         </div>
       )}
     </div>

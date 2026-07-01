@@ -34,9 +34,9 @@ export default function OverseerWidget() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <div style={{
           width: 28, height: 28, borderRadius: 6, background: '#1a0a00',
-          border: '1px solid #92400E', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          border: '1px solid var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Bot size={15} color="#F59E0B" />
+          <Bot size={15} color="var(--accent)" />
         </div>
         <div>
           <div className="section-header" style={{ marginBottom: 0 }}>Overseer AI</div>
@@ -57,9 +57,9 @@ export default function OverseerWidget() {
               <div style={{
                 maxWidth: '85%', padding: '8px 12px', borderRadius: 6,
                 background: m.role === 'user' ? '#1a0a00' : '#111',
-                border: `1px solid ${m.role === 'user' ? '#92400E' : '#222'}`,
+                border: `1px solid ${m.role === 'user' ? 'var(--accent-dim)' : '#222'}`,
                 fontSize: '0.8rem', lineHeight: 1.5,
-                color: m.role === 'user' ? '#F59E0B' : '#E5E7EB',
+                color: m.role === 'user' ? 'var(--accent)' : '#E5E7EB',
               }}>
                 {m.content}
               </div>
@@ -84,7 +84,7 @@ export default function OverseerWidget() {
           style={{ flex: 1, fontSize: '0.82rem' }}
         />
         <button onClick={send} disabled={loading} className={loading ? '' : 'glow-orange'} style={{
-          background: loading ? '#1f1f1f' : '#F59E0B',
+          background: loading ? '#1f1f1f' : 'var(--accent)',
           color: loading ? '#4B5563' : '#000',
           border: 'none', borderRadius: 4,
           padding: '0 14px', cursor: loading ? 'not-allowed' : 'pointer',

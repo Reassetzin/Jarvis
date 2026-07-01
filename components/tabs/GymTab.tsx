@@ -11,7 +11,7 @@ type ActivityType = 'Soccer' | 'Volleyball' | 'Pickleball' | 'Run' | 'Climbing' 
 
 const ACTIVITY_META: Record<ActivityType, { color: string; emoji: string; metric: string }> = {
   Soccer: { color: '#22C55E', emoji: '⚽', metric: 'duration' },
-  Volleyball: { color: '#F59E0B', emoji: '🏐', metric: 'duration' },
+  Volleyball: { color: 'var(--accent)', emoji: '🏐', metric: 'duration' },
   Pickleball: { color: '#EAB308', emoji: '🎾', metric: 'duration' },
   Run: { color: '#EF4444', emoji: '🏃', metric: 'distance' },
   Climbing: { color: '#8B5CF6', emoji: '🧗', metric: 'grade' },
@@ -90,16 +90,16 @@ export default function GymTab() {
     <PageShell>
       {/* Weekly goal banner */}
       <div className="card" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-        <Activity size={20} color="#F59E0B" />
+        <Activity size={20} color="var(--accent)" />
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: '0.7rem', color: '#6B7280' }}>This week</div>
-          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: thisWeek >= weeklyGoal ? '#22C55E' : '#F59E0B' }}>
+          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: thisWeek >= weeklyGoal ? '#22C55E' : 'var(--accent)' }}>
             {thisWeek} / {weeklyGoal} sessions
           </div>
         </div>
         <div style={{ flex: 2, minWidth: 120 }}>
           <div style={{ height: 8, background: '#1f1f1f', borderRadius: 4, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.min(100, (thisWeek / weeklyGoal) * 100)}%`, background: thisWeek >= weeklyGoal ? '#22C55E' : '#F59E0B', borderRadius: 4, transition: 'width 0.3s' }} />
+            <div style={{ height: '100%', width: `${Math.min(100, (thisWeek / weeklyGoal) * 100)}%`, background: thisWeek >= weeklyGoal ? '#22C55E' : 'var(--accent)', borderRadius: 4, transition: 'width 0.3s' }} />
           </div>
         </div>
         <div>
@@ -185,7 +185,7 @@ export default function GymTab() {
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <input type="text" placeholder="e.g. Pull-ups" value={exInput} onChange={e => setExInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addExercise()} style={{ flex: 1 }} />
-                <button className="glow-orange" onClick={addExercise} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
+                <button className="glow-orange" onClick={addExercise} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>+</button>
               </div>
             </div>
           )}

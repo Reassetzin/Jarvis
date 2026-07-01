@@ -83,7 +83,7 @@ export default function CaloriesTracker() {
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <div className="section-header" style={{ marginBottom: 0 }}>Calories · AI Tracker</div>
-        <button onClick={() => { setTForm(targets); setEditingTargets(e => !e) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: editingTargets ? '#F59E0B' : '#6B7280', display: 'flex' }}><Settings size={15} /></button>
+        <button onClick={() => { setTForm(targets); setEditingTargets(e => !e) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: editingTargets ? 'var(--accent)' : '#6B7280', display: 'flex' }}><Settings size={15} /></button>
       </div>
 
       {editingTargets ? (
@@ -91,7 +91,7 @@ export default function CaloriesTracker() {
           <div style={{ fontSize: '0.65rem', color: '#9CA3AF', fontWeight: 600 }}>Daily Targets</div>
           <div style={{ display: 'flex', gap: 6 }}>
             {(['cut', 'maintain', 'bulk'] as const).map(m => (
-              <button key={m} onClick={() => setTForm(f => ({ ...f, mode: m }))} style={{ flex: 1, background: tForm.mode === m ? '#1a0a00' : 'transparent', border: `1px solid ${tForm.mode === m ? '#F59E0B' : '#333'}`, borderRadius: 4, padding: '6px', cursor: 'pointer', color: tForm.mode === m ? '#F59E0B' : '#6B7280', fontSize: '0.7rem', fontWeight: tForm.mode === m ? 700 : 400, textTransform: 'capitalize' }}>{m}</button>
+              <button key={m} onClick={() => setTForm(f => ({ ...f, mode: m }))} style={{ flex: 1, background: tForm.mode === m ? '#1a0a00' : 'transparent', border: `1px solid ${tForm.mode === m ? 'var(--accent)' : '#333'}`, borderRadius: 4, padding: '6px', cursor: 'pointer', color: tForm.mode === m ? 'var(--accent)' : '#6B7280', fontSize: '0.7rem', fontWeight: tForm.mode === m ? 700 : 400, textTransform: 'capitalize' }}>{m}</button>
             ))}
           </div>
           <button onClick={autoCalc} className="btn-ghost" style={{ fontSize: '0.7rem' }}>⚡ Auto-calc from weight</button>
@@ -110,21 +110,21 @@ export default function CaloriesTracker() {
         </div>
       ) : hasTargets ? (
         <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: 14, padding: '4px 0' }}>
-          <Ring value={total} max={targets.calories} color="#F59E0B" label="Calories" unit="" />
+          <Ring value={total} max={targets.calories} color="var(--accent)" label="Calories" unit="" />
           <Ring value={protein} max={targets.protein} color="#22C55E" label="Protein" unit="g" />
           <Ring value={carbs} max={targets.carbs} color="#EAB308" label="Carbs" unit="g" />
           <Ring value={fat} max={targets.fat} color="#EF4444" label="Fat" unit="g" />
         </div>
       ) : (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, background: '#181818', borderRadius: 8, padding: '10px 12px' }}>
-          <div><div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#F59E0B' }}>{total.toLocaleString()} kcal</div><div style={{ fontSize: '0.6rem', color: '#6B7280' }}>P{Math.round(protein)} · C{Math.round(carbs)} · F{Math.round(fat)}</div></div>
+          <div><div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent)' }}>{total.toLocaleString()} kcal</div><div style={{ fontSize: '0.6rem', color: '#6B7280' }}>P{Math.round(protein)} · C{Math.round(carbs)} · F{Math.round(fat)}</div></div>
           <button onClick={() => { setTForm(targets); setEditingTargets(true) }} className="btn-ghost" style={{ fontSize: '0.7rem' }}>Set targets</button>
         </div>
       )}
 
       <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
         <input type="text" placeholder='e.g. "1 lb grilled chicken + rice"' value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && aiEstimate()} style={{ flex: 1 }} />
-        <button onClick={aiEstimate} disabled={loading} className={loading ? '' : 'glow-orange'} style={{ background: loading ? '#1f1f1f' : '#F59E0B', color: loading ? '#6B7280' : '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5 }}>
+        <button onClick={aiEstimate} disabled={loading} className={loading ? '' : 'glow-orange'} style={{ background: loading ? '#1f1f1f' : 'var(--accent)', color: loading ? '#6B7280' : '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 5 }}>
           {loading ? <Loader size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={14} />}
         </button>
       </div>
@@ -146,7 +146,7 @@ export default function CaloriesTracker() {
             <div style={{ fontSize: '0.78rem', color: '#E5E7EB' }}>{e.name}</div>
             {e.protein != null && <div style={{ fontSize: '0.58rem', color: '#4B5563' }}>P{Math.round(e.protein)} · C{Math.round(e.carbs || 0)} · F{Math.round(e.fat || 0)}</div>}
           </div>
-          <span style={{ fontSize: '0.78rem', color: '#F59E0B', fontWeight: 600 }}>{e.calories}</span>
+          <span style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 600 }}>{e.calories}</span>
           <button onClick={() => setLog(l => l.filter(x => x.id !== e.id))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={12} /></button>
         </div>
       ))}

@@ -87,7 +87,7 @@ export default function WeeklyReview() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
           {insights.map((ins, i) => (
             <div key={i} className="item-enter" style={{ display: 'flex', gap: 8, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 6, padding: '8px 10px' }}>
-              <Sparkles size={12} color="#F59E0B" style={{ flexShrink: 0, marginTop: 2 }} />
+              <Sparkles size={12} color="var(--accent)" style={{ flexShrink: 0, marginTop: 2 }} />
               <span style={{ fontSize: '0.74rem', color: '#E5E7EB', lineHeight: 1.4 }}>{ins}</span>
             </div>
           ))}
@@ -95,7 +95,7 @@ export default function WeeklyReview() {
       )}
 
       <button onClick={getInsights} disabled={loading} className={loading ? '' : 'glow-orange'} style={{
-        width: '100%', background: loading ? '#1f1f1f' : '#F59E0B', color: loading ? '#6B7280' : '#000',
+        width: '100%', background: loading ? '#1f1f1f' : 'var(--accent)', color: loading ? '#6B7280' : '#000',
         border: 'none', borderRadius: 8, padding: '10px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 700,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: '0.8rem',
       }}>

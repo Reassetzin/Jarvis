@@ -51,7 +51,7 @@ export default function WeightTracker() {
       </div>
 
       <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', marginBottom: 4 }}>
-        <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#F59E0B' }}>{latest ? latest.weight : '--'}<span style={{ fontSize: '0.8rem', color: '#6B7280' }}> {unit}</span></div>
+        <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent)' }}>{latest ? latest.weight : '--'}<span style={{ fontSize: '0.8rem', color: '#6B7280' }}> {unit}</span></div>
         {delta !== 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 3, color: delta < 0 ? '#22C55E' : '#EF4444', fontSize: '0.78rem', fontWeight: 600 }}>
             {delta < 0 ? <TrendingDown size={13} /> : <TrendingUp size={13} />}
@@ -73,7 +73,7 @@ export default function WeightTracker() {
             <YAxis domain={[minW, maxW]} tick={{ fontSize: 9, fill: '#4B5563' }} tickLine={false} axisLine={false} />
             <Tooltip contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: 4, fontSize: '0.75rem' }} labelStyle={{ color: '#9CA3AF' }} />
             {goal > 0 && <ReferenceLine y={goal} stroke="#22C55E" strokeDasharray="4 4" label={{ value: `Goal ${goal}`, fontSize: 9, fill: '#22C55E', position: 'insideTopRight' }} />}
-            <Line type="monotone" dataKey="weight" stroke="#F59E0B" strokeWidth={2} dot={{ r: 2, fill: '#F59E0B' }} isAnimationActive animationDuration={800} animationEasing="ease-out" />
+            <Line type="monotone" dataKey="weight" stroke="var(--accent)" strokeWidth={2} dot={{ r: 2, fill: 'var(--accent)' }} isAnimationActive animationDuration={800} animationEasing="ease-out" />
           </LineChart>
         </ResponsiveContainer>
       ) : (
@@ -94,7 +94,7 @@ export default function WeightTracker() {
       <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
         <input type="number" step="0.1" placeholder={`Weight (${unit})`} value={weight} onChange={e => setWeight(e.target.value)} style={{ flex: 2 }} />
         <input type="number" step="0.1" placeholder="BF% (opt)" value={bodyFat} onChange={e => setBodyFat(e.target.value)} style={{ flex: 1 }} />
-        <button className="glow-orange" onClick={logWeight} style={{ background: '#F59E0B', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>Log</button>
+        <button className="glow-orange" onClick={logWeight} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>Log</button>
       </div>
 
       {editingGoal ? (
@@ -118,7 +118,7 @@ export default function WeightTracker() {
             {[...sorted].reverse().map(e => (
               <div key={e.date} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.72rem', color: '#9CA3AF', padding: '4px 0', borderBottom: '1px solid #111' }}>
                 <span style={{ flex: 1 }}>{new Date(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                <span style={{ color: '#F59E0B', fontWeight: 600 }}>{e.weight} {unit}</span>
+                <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{e.weight} {unit}</span>
                 {e.bodyFat != null && <span style={{ color: '#4B5563' }}>{e.bodyFat}%</span>}
                 <button onClick={() => setEntries(es => es.filter(x => x.date !== e.date))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}>✕</button>
               </div>

@@ -4,7 +4,7 @@ import { Pill, Clock } from 'lucide-react'
 
 const PK_STAGES = [
   { label: 'Onset', offsetMin: 0, durationMin: 30, color: '#6B7280', desc: 'Beginning to absorb' },
-  { label: 'Peak', offsetMin: 30, durationMin: 120, color: '#F59E0B', desc: 'Maximum effect' },
+  { label: 'Peak', offsetMin: 30, durationMin: 120, color: 'var(--accent)', desc: 'Maximum effect' },
   { label: 'Plateau', offsetMin: 150, durationMin: 180, color: '#22C55E', desc: 'Sustained release' },
   { label: 'Wearing off', offsetMin: 330, durationMin: 90, color: '#F97316', desc: 'Declining effect' },
   { label: 'Cleared', offsetMin: 420, durationMin: 60, color: '#4B5563', desc: 'System clear' },
@@ -50,7 +50,7 @@ export default function MedicationTracker() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div>
               <div style={{ fontSize: '0.65rem', color: '#6B7280' }}>Taken at</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#F59E0B' }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--accent)' }}>
                 {new Date(lastLog).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
               </div>
             </div>

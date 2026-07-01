@@ -41,7 +41,7 @@ export default function NetWorthChart() {
         <div className="section-header" style={{ marginBottom: 0 }}>Net Worth · 6mo</div>
         {hasData && (
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#F59E0B' }}>${current.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--accent)' }}>${current.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <div style={{ fontSize: '0.6rem', color: change >= 0 ? '#22C55E' : '#EF4444', fontWeight: 600 }}>{change >= 0 ? '↑' : '↓'} ${Math.abs(change).toLocaleString(undefined, { maximumFractionDigits: 0 })} ({pctChange >= 0 ? '+' : ''}{pctChange.toFixed(0)}%)</div>
           </div>
         )}
@@ -51,14 +51,14 @@ export default function NetWorthChart() {
           <AreaChart data={data} margin={{ top: 8, right: 4, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="nwGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.02} />
+                <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.02} />
               </linearGradient>
             </defs>
             <XAxis dataKey="month" tick={{ fontSize: 9, fill: '#6B7280' }} tickLine={false} axisLine={false} />
             <YAxis tick={{ fontSize: 8, fill: '#4B5563' }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
             <Tooltip contentStyle={{ background: 'rgba(17,17,17,0.95)', border: '1px solid #333', borderRadius: 6, fontSize: '0.75rem' }} formatter={(v: any) => [`$${Number(v).toLocaleString()}`, 'Balance']} />
-            <Area type="monotone" dataKey="balance" stroke="#F59E0B" strokeWidth={2} fill="url(#nwGrad)" dot={{ r: 2, fill: '#F59E0B' }} isAnimationActive animationDuration={800} />
+            <Area type="monotone" dataKey="balance" stroke="var(--accent)" strokeWidth={2} fill="url(#nwGrad)" dot={{ r: 2, fill: 'var(--accent)' }} isAnimationActive animationDuration={800} />
           </AreaChart>
         </ResponsiveContainer>
       ) : (

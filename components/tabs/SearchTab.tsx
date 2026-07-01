@@ -78,7 +78,7 @@ export default function SearchTab() {
                 <div style={{ fontSize: '0.85rem' }}>
                   {item.text.split(new RegExp(`(${query})`, 'gi')).map((part, pi) =>
                     part.toLowerCase() === query.toLowerCase()
-                      ? <mark key={pi} style={{ background: '#92400E', color: '#F59E0B', borderRadius: 2, padding: '0 2px' }}>{part}</mark>
+                      ? <mark key={pi} style={{ background: 'var(--accent-dim)', color: 'var(--accent)', borderRadius: 2, padding: '0 2px' }}>{part}</mark>
                       : part
                   )}
                 </div>

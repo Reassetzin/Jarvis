@@ -31,7 +31,7 @@ function generateEnergyData(recovery: number, sleepDebt: number) {
 }
 
 function getZone(energy: number): { label: string; color: string } {
-  if (energy >= 70) return { label: 'Peak', color: '#F59E0B' }
+  if (energy >= 70) return { label: 'Peak', color: 'var(--accent)' }
   if (energy >= 45) return { label: 'Steady', color: '#EAB308' }
   return { label: 'Foggy', color: '#6B7280' }
 }
@@ -73,8 +73,8 @@ export default function PeakWindowChart() {
         <AreaChart data={data} margin={{ top: 4, right: 4, left: -30, bottom: 0 }}>
           <defs>
             <linearGradient id="energyGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.02} />
+              <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <XAxis dataKey="time" tick={{ fontSize: 9, fill: '#4B5563' }} tickLine={false} axisLine={false} interval={3} />
@@ -82,13 +82,13 @@ export default function PeakWindowChart() {
           <Tooltip
             contentStyle={{ background: '#111', border: '1px solid #333', borderRadius: 4, fontSize: '0.75rem' }}
             labelStyle={{ color: '#9CA3AF' }}
-            itemStyle={{ color: '#F59E0B' }}
+            itemStyle={{ color: 'var(--accent)' }}
           />
           <ReferenceLine x={currentHour < 12 ? `${Math.round(currentHour)}A` : `${Math.round(currentHour) - 12}P`}
-            stroke="#F59E0B" strokeDasharray="3 3" strokeWidth={1.5} />
+            stroke="var(--accent)" strokeDasharray="3 3" strokeWidth={1.5} />
           <Area
             type="monotone" dataKey="energy"
-            stroke="#F59E0B" strokeWidth={2}
+            stroke="var(--accent)" strokeWidth={2}
             fill="url(#energyGrad)"
             dot={<CustomDot />}
           />
@@ -96,7 +96,7 @@ export default function PeakWindowChart() {
       </ResponsiveContainer>
 
       <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
-        {[{ label: 'Peak', color: '#F59E0B', range: '70–100%' }, { label: 'Steady', color: '#EAB308', range: '45–70%' }, { label: 'Foggy', color: '#6B7280', range: '0–45%' }].map(z => (
+        {[{ label: 'Peak', color: 'var(--accent)', range: '70–100%' }, { label: 'Steady', color: '#EAB308', range: '45–70%' }, { label: 'Foggy', color: '#6B7280', range: '0–45%' }].map(z => (
           <div key={z.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{ width: 8, height: 8, borderRadius: 2, background: z.color }} />
             <span style={{ fontSize: '0.65rem', color: '#6B7280' }}>{z.label}</span>

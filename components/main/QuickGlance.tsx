@@ -48,7 +48,7 @@ export function WaterMini() {
   const [editingGoal, setEditingGoal] = useState(false)
   const [goalInput, setGoalInput] = useState('')
   const pct = Math.min(100, (ml / goal) * 100)
-  const color = ml >= goal ? '#22C55E' : ml >= goal * 0.66 ? '#3B82F6' : ml >= goal * 0.33 ? '#F59E0B' : '#EF4444'
+  const color = ml >= goal ? '#22C55E' : ml >= goal * 0.66 ? '#3B82F6' : ml >= goal * 0.33 ? 'var(--accent)' : '#EF4444'
 
   useEffect(() => { if (ml >= goal && goal > 0) markComplete('water') }, [ml, goal])
 

@@ -37,7 +37,7 @@ export default function DesktopLayout({ active, onChange, children }: Props) {
         top: 0,
       }}>
         <div style={{ padding: '0 20px 24px', borderBottom: '1px solid #1a1a1a', marginBottom: 16 }}>
-          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#F59E0B', letterSpacing: '-0.02em' }}>JARVIS</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent)', letterSpacing: '-0.02em' }}>JARVIS</div>
           <div style={{ fontSize: '0.6rem', color: '#374151', marginTop: 2, letterSpacing: '0.1em' }}>LIFE OS</div>
         </div>
         <nav style={{ flex: 1, padding: '0 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -47,10 +47,10 @@ export default function DesktopLayout({ active, onChange, children }: Props) {
               <button key={id} onClick={() => onChange(id)} style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 background: isActive ? '#1a0a00' : 'transparent',
-                border: `1px solid ${isActive ? '#92400E' : 'transparent'}`,
+                border: `1px solid ${isActive ? 'var(--accent-dim)' : 'transparent'}`,
                 borderRadius: 6, padding: '10px 12px',
                 cursor: 'pointer', width: '100%',
-                color: isActive ? '#F59E0B' : '#4B5563',
+                color: isActive ? 'var(--accent)' : '#4B5563',
                 transition: 'all 0.15s', textAlign: 'left',
               }}>
                 <Icon size={15} strokeWidth={isActive ? 2.5 : 1.8} />

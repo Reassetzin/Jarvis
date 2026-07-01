@@ -11,7 +11,7 @@ export interface Debt {
 
 const DEBT_TYPES = ['Credit Card', 'Car Loan', 'Student Loan', 'Personal Loan', 'Mortgage', 'Other']
 const TYPE_COLORS: Record<string, string> = {
-  'Credit Card': '#EF4444', 'Car Loan': '#F59E0B', 'Student Loan': '#8B5CF6',
+  'Credit Card': '#EF4444', 'Car Loan': 'var(--accent)', 'Student Loan': '#8B5CF6',
   'Personal Loan': '#EC4899', 'Mortgage': '#3B82F6', 'Other': '#6B7280',
 }
 

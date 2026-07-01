@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 interface Txn { id: string; type: 'income' | 'expense'; amount: number; category: string; label: string; date: string }
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const CAT_COLORS: Record<string, string> = {
-  'Food': '#F59E0B', 'Subscriptions': '#EF4444', 'Shopping': '#EC4899', 'Transport': '#3B82F6', 'Tools/Software': '#8B5CF6', 'Entertainment': '#EAB308', 'Health': '#22C55E', 'Other': '#6B7280',
+  'Food': 'var(--accent)', 'Subscriptions': '#EF4444', 'Shopping': '#EC4899', 'Transport': '#3B82F6', 'Tools/Software': '#8B5CF6', 'Entertainment': '#EAB308', 'Health': '#22C55E', 'Other': '#6B7280',
 }
 
 export default function CashFlowChart({ txns }: { txns: Txn[] }) {

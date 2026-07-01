@@ -4,7 +4,7 @@ import { Home, CalendarDays, TrendingUp, Star, Heart, Dumbbell, Gamepad2, Search
 import { TabId } from './BottomNav'
 
 const TABS: { id: TabId; label: string; Icon: React.ElementType; color: string }[] = [
-  { id: 'main', label: 'Main', Icon: Home, color: '#F59E0B' },
+  { id: 'main', label: 'Main', Icon: Home, color: 'var(--accent)' },
   { id: 'planner', label: 'Planner', Icon: CalendarDays, color: '#3B82F6' },
   { id: 'projects', label: 'Projects', Icon: Gamepad2, color: '#8B5CF6' },
   { id: 'finances', label: 'Finances', Icon: TrendingUp, color: '#22C55E' },
@@ -27,7 +27,7 @@ export default function MobileMenu({ active, onChange }: { active: TabId; onChan
         backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '8px 12px', cursor: 'pointer',
       }}>
-        <Menu size={17} color={activeTab?.color || '#F59E0B'} />
+        <Menu size={17} color={activeTab?.color || 'var(--accent)'} />
         <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#F3F4F6' }}>{activeTab?.label}</span>
       </button>
 

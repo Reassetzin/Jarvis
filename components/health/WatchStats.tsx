@@ -24,7 +24,7 @@ export default function WatchStats() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
         {[
-          { label: 'Steps', value: data.steps.toLocaleString(), color: '#F59E0B', sub: `goal ${stepGoal.toLocaleString()}` },
+          { label: 'Steps', value: data.steps.toLocaleString(), color: 'var(--accent)', sub: `goal ${stepGoal.toLocaleString()}` },
           { label: 'Sleep', value: data.sleep ? `${data.sleep}h` : '--', color: '#8B5CF6', sub: 'last night' },
           { label: 'Resting HR', value: data.restingHR ? `${data.restingHR}` : '--', color: '#22C55E', sub: 'bpm' },
           { label: 'Active Cal', value: data.activeCals ? `${data.activeCals}` : '--', color: '#EF4444', sub: 'burned' },
@@ -40,7 +40,7 @@ export default function WatchStats() {
       {data.steps > 0 && (
         <div style={{ marginBottom: 12 }}>
           <div style={{ height: 6, background: '#1f1f1f', borderRadius: 3, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${stepPct}%`, background: stepPct >= 100 ? '#22C55E' : '#F59E0B', borderRadius: 3, transition: 'width 0.3s' }} />
+            <div style={{ height: '100%', width: `${stepPct}%`, background: stepPct >= 100 ? '#22C55E' : 'var(--accent)', borderRadius: 3, transition: 'width 0.3s' }} />
           </div>
         </div>
       )}
