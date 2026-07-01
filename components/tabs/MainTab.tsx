@@ -9,6 +9,7 @@ import { CashTrendChart, WeightTrendChart } from '@/components/main/DashboardCha
 import ProjectsMini from '@/components/main/ProjectsMini'
 import StreaksWidget from '@/components/main/StreaksWidget'
 import WeeklyReview from '@/components/main/WeeklyReview'
+import MonthlyReview from '@/components/main/MonthlyReview'
 import NotificationSettings from '@/components/main/NotificationSettings'
 import Heatmap from '@/components/ui/Heatmap'
 import DesktopGrid from '@/components/ui/DesktopGrid'
@@ -101,6 +102,7 @@ export default function MainTab() {
         <TodayPlanner />
         <CashTrendChart />
         <WeeklyReview />
+        <MonthlyReview />
         <WeightTrendChart />
         <VitaminsMini />
         <StreaksWidget />
