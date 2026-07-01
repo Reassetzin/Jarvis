@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { shouldReset } from '@/lib/supabase'
-import { onDataChange } from '@/lib/sync'
+import { onDataChange, pushState } from '@/lib/sync'
 
 interface StoredData<T> {
   data: T
@@ -50,6 +50,7 @@ export function useDailyStore<T>(key: string, defaultValue: T) {
       const next = typeof newVal === 'function' ? (newVal as (p: T) => T)(prev) : newVal
       const stored: StoredData<T> = { data: next, lastReset: new Date().toISOString(), date: getTodayStr() }
       localStorage.setItem(`los_${key}`, JSON.stringify(stored))
+      pushState()
       return next
     })
   }, [key])
@@ -80,6 +81,7 @@ export function usePersistentStore<T>(key: string, defaultValue: T) {
     setValue(prev => {
       const next = typeof newVal === 'function' ? (newVal as (p: T) => T)(prev) : newVal
       localStorage.setItem(`los_p_${key}`, JSON.stringify(next))
+      pushState()
       return next
     })
   }, [key])
