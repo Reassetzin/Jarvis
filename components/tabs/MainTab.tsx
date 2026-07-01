@@ -150,17 +150,7 @@ export default function MainTab() {
       )}
 
       {/* Customize toggle */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
-        <button onClick={() => setCustomizing(c => !c)} style={{
-          display: 'flex', alignItems: 'center', gap: 6, background: customizing ? 'var(--accent)' : '#181818',
-          color: customizing ? '#000' : '#9CA3AF', border: `1px solid ${customizing ? 'var(--accent)' : '#333'}`,
-          borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700,
-        }}>
-          <SlidersHorizontal size={13} /> {customizing ? 'Done' : 'Customize'}
-        </button>
-      </div>
-
-      {customizing ? (
+      {customizing && (
         <div className="card" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div className="section-header" style={{ marginBottom: 0 }}>Dashboard Widgets</div>
@@ -185,11 +175,24 @@ export default function MainTab() {
             })}
           </div>
         </div>
-      ) : (
+      )}
+
+      {!customizing && (
         <DesktopGrid columns={3}>
           {visibleWidgets.map(w => <WidgetWrap key={w.id}>{w.node}</WidgetWrap>)}
         </DesktopGrid>
       )}
+
+      {/* Customize toggle — bottom of page */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+        <button onClick={() => setCustomizing(c => !c)} style={{
+          display: 'flex', alignItems: 'center', gap: 6, background: customizing ? 'var(--accent)' : '#181818',
+          color: customizing ? '#000' : '#9CA3AF', border: `1px solid ${customizing ? 'var(--accent)' : '#333'}`,
+          borderRadius: 8, padding: '9px 16px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700,
+        }}>
+          <SlidersHorizontal size={14} /> {customizing ? 'Done Customizing' : 'Customize Dashboard'}
+        </button>
+      </div>
     </PageShell>
   )
 }

@@ -18,11 +18,17 @@ interface Goal { id: string; name: string; target: number; saved: number }
 interface Subscription { id: string; name: string; amount: number; period: 'monthly' | 'yearly'; renewal: string }
 interface Asset { id: string; label: string; amount: number }
 
-const INCOME_CATS = ['Web Design', 'Real Estate', 'YouTube', 'Digital Products', 'Roblox', 'Other']
-const EXPENSE_CATS = ['Food', 'Subscriptions', 'Shopping', 'Transport', 'Tools/Software', 'Entertainment', 'Health', 'Other']
+const INCOME_CATS_BASE = ['Web Design', 'Real Estate', 'YouTube', 'Digital Products', 'Roblox', 'Other']
+const EXPENSE_CATS_BASE = ['Food', 'Subscriptions', 'Shopping', 'Transport', 'Tools/Software', 'Entertainment', 'Health', 'Gaming', 'Roblox', 'Lending', 'Other']
 const CAT_COLORS: Record<string, string> = {
   'Web Design': '#22C55E', 'Real Estate': '#3B82F6', 'YouTube': '#EF4444', 'Digital Products': '#8B5CF6', 'Roblox': '#EC4899',
-  'Food': 'var(--accent)', 'Subscriptions': '#EF4444', 'Shopping': '#EC4899', 'Transport': '#3B82F6', 'Tools/Software': '#8B5CF6', 'Entertainment': '#EAB308', 'Health': '#22C55E', 'Other': '#6B7280',
+  'Food': 'var(--accent)', 'Subscriptions': '#EF4444', 'Shopping': '#EC4899', 'Transport': '#3B82F6', 'Tools/Software': '#8B5CF6', 'Entertainment': '#EAB308', 'Health': '#22C55E', 'Gaming': '#06B6D4', 'Lending': '#F97316', 'Other': '#6B7280',
+}
+const FALLBACK_COLORS = ['#06B6D4', '#F97316', '#84CC16', '#A855F7', '#14B8A6', '#F43F5E', '#EAB308', '#3B82F6']
+function catColor(cat: string, map: Record<string, string>) {
+  if (map[cat]) return map[cat]
+  let h = 0; for (let i = 0; i < cat.length; i++) h = cat.charCodeAt(i) + ((h << 5) - h)
+  return FALLBACK_COLORS[Math.abs(h) % FALLBACK_COLORS.length]
 }
 
 function thisMonth(dateStr: string) {
@@ -38,8 +44,14 @@ export default function FinancesTab() {
   const [subs, setSubs] = usePersistentStore<Subscription[]>('subscriptions', [])
   const [assets, setAssets] = usePersistentStore<Asset[]>('assets', [])
   const [startBalance, setStartBalance] = usePersistentStore('starting_balance', 0)
+  const [customIncomeCats, setCustomIncomeCats] = usePersistentStore<string[]>('custom_income_cats', [])
+  const [customExpenseCats, setCustomExpenseCats] = usePersistentStore<string[]>('custom_expense_cats', [])
   const [editingBalance, setEditingBalance] = useState(false)
   const [balanceInput, setBalanceInput] = useState('')
+  const [newCatInput, setNewCatInput] = useState('')
+
+  const INCOME_CATS = [...INCOME_CATS_BASE.slice(0, -1), ...customIncomeCats, 'Other']
+  const EXPENSE_CATS = [...EXPENSE_CATS_BASE.slice(0, -1), ...customExpenseCats, 'Other']
 
   const [txnForm, setTxnForm] = useState({ type: 'expense' as 'income' | 'expense', amount: '', category: 'Food', label: '' })
   const [budgetForm, setBudgetForm] = useState({ category: 'Food', limit: '' })
@@ -91,6 +103,21 @@ export default function FinancesTab() {
     if (!txnForm.amount || !txnForm.label.trim()) return
     setTxns(t => [{ id: Date.now().toString(), type: txnForm.type, amount: parseFloat(txnForm.amount), category: txnForm.category, label: txnForm.label.trim(), date: new Date().toISOString() }, ...t])
     setTxnForm({ ...txnForm, amount: '', label: '' })
+  }
+
+  function addCategory() {
+    const name = newCatInput.trim()
+    if (!name) return
+    const existing = txnForm.type === 'income' ? INCOME_CATS : EXPENSE_CATS
+    if (existing.some(c => c.toLowerCase() === name.toLowerCase())) { setTxnForm(f => ({ ...f, category: name })); setNewCatInput(''); return }
+    if (txnForm.type === 'income') setCustomIncomeCats(c => [...c, name])
+    else setCustomExpenseCats(c => [...c, name])
+    setTxnForm(f => ({ ...f, category: name }))
+    setNewCatInput('')
+  }
+  function removeCategory(name: string, type: 'income' | 'expense') {
+    if (type === 'income') setCustomIncomeCats(c => c.filter(x => x !== name))
+    else setCustomExpenseCats(c => c.filter(x => x !== name))
   }
 
   const cats = txnForm.type === 'income' ? INCOME_CATS : EXPENSE_CATS
@@ -149,6 +176,22 @@ export default function FinancesTab() {
           </div>
           <button onClick={addTxn} className="btn-amber">Add Transaction</button>
 
+          {/* Add custom category */}
+          <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
+            <input type="text" placeholder={`+ New ${txnForm.type} category`} value={newCatInput} onChange={e => setNewCatInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addCategory()} style={{ flex: 1, fontSize: '0.72rem', padding: '7px 10px' }} />
+            <button onClick={addCategory} className="btn-ghost" style={{ fontSize: '0.72rem', padding: '0 12px' }}>Add</button>
+          </div>
+          {(txnForm.type === 'income' ? customIncomeCats : customExpenseCats).length > 0 && (
+            <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {(txnForm.type === 'income' ? customIncomeCats : customExpenseCats).map(c => (
+                <span key={c} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.62rem', background: '#181818', border: '1px solid #333', borderRadius: 12, padding: '3px 8px', color: '#9CA3AF' }}>
+                  {c}
+                  <button onClick={() => removeCategory(c, txnForm.type)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4B5563', display: 'flex', padding: 0 }}><X size={11} /></button>
+                </span>
+              ))}
+            </div>
+          )}
+
           {monthTxns.length > 0 && (
             <div style={{ marginTop: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -168,7 +211,7 @@ export default function FinancesTab() {
                 {filteredTxns.length === 0 && <div style={{ fontSize: '0.72rem', color: '#374151', textAlign: 'center', padding: '12px 0' }}>No matches.</div>}
                 {filteredTxns.map(t => (
                   <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: '1px solid #111' }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[t.category] || '#6B7280', flexShrink: 0 }} />
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: catColor(t.category, CAT_COLORS), flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: '0.76rem', color: '#E5E7EB', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.label}</div>
                       <div style={{ fontSize: '0.58rem', color: '#4B5563' }}>{t.category} · {new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
@@ -196,7 +239,7 @@ export default function FinancesTab() {
               <div key={cat} style={{ marginBottom: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[cat] }} />
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: catColor(cat, CAT_COLORS) }} />
                     <span style={{ fontSize: '0.75rem', color: '#E5E7EB' }}>{cat}</span>
                   </div>
                   <span style={{ fontSize: '0.72rem', color: over ? '#EF4444' : '#9CA3AF', fontWeight: 600 }}>
@@ -205,7 +248,7 @@ export default function FinancesTab() {
                 </div>
                 {limit > 0 && (
                   <div style={{ height: 5, background: '#1f1f1f', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${pct}%`, background: over ? '#EF4444' : CAT_COLORS[cat], borderRadius: 3 }} />
+                    <div style={{ height: '100%', width: `${pct}%`, background: over ? '#EF4444' : catColor(cat, CAT_COLORS), borderRadius: 3 }} />
                   </div>
                 )}
               </div>
@@ -232,13 +275,13 @@ export default function FinancesTab() {
                 <div key={cat} style={{ marginBottom: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[cat] }} />
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: catColor(cat, CAT_COLORS) }} />
                       <span style={{ fontSize: '0.75rem', color: '#E5E7EB' }}>{cat}</span>
                     </div>
                     <span style={{ fontSize: '0.72rem', color: '#22C55E', fontWeight: 600 }}>${amt.toLocaleString()} · {pct.toFixed(0)}%</span>
                   </div>
                   <div style={{ height: 5, background: '#1f1f1f', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${pct}%`, background: CAT_COLORS[cat], borderRadius: 3 }} />
+                    <div style={{ height: '100%', width: `${pct}%`, background: catColor(cat, CAT_COLORS), borderRadius: 3 }} />
                   </div>
                 </div>
               )
