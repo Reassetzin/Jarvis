@@ -58,6 +58,8 @@ export default function PlannerTab() {
   const [evTitle, setEvTitle] = useState('')
   const [evTime, setEvTime] = useState('')
   const [evType, setEvType] = useState('Appointment')
+  const [editingEvent, setEditingEvent] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({ title: '', time: '', type: 'Appointment' })
 
   const todayStr = ymd(new Date())
 
@@ -86,6 +88,12 @@ export default function PlannerTab() {
     setEvTitle(''); setEvTime('')
   }
   function removeEvent(id: string) { setEvents(e => e.filter(x => x.id !== id)) }
+  function startEditEvent(ev: Event) { setEditingEvent(ev.id); setEditForm({ title: ev.title, time: ev.time, type: ev.type }) }
+  function saveEditEvent() {
+    if (!editForm.title.trim()) return
+    setEvents(es => es.map(x => x.id === editingEvent ? { ...x, title: editForm.title.trim(), time: editForm.time, type: editForm.type } : x))
+    setEditingEvent(null)
+  }
   function toggle(id: string) { setTasks(t => t.map(x => x.id === id ? { ...x, done: !x.done } : x)) }
   function remove(id: string) { setTasks(t => t.filter(x => x.id !== id)) }
 
@@ -295,14 +303,30 @@ export default function PlannerTab() {
           {selectedEvents.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
               {selectedEvents.map(e => (
-                <div key={e.id} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 10, background: `${EVENT_META[e.type]?.color || '#6B7280'}12`, border: `1px solid ${EVENT_META[e.type]?.color || '#6B7280'}40`, borderRadius: 6, padding: '9px 12px' }}>
-                  <span style={{ fontSize: '1rem' }}>{EVENT_META[e.type]?.emoji || '📌'}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.82rem', color: '#F3F4F6', fontWeight: 600 }}>{e.title}</div>
-                    <div style={{ fontSize: '0.6rem', color: EVENT_META[e.type]?.color || '#9CA3AF' }}>{e.type}{e.time && ` · ${e.time}`}</div>
+                editingEvent === e.id ? (
+                  <div key={e.id} style={{ display: 'flex', flexDirection: 'column', gap: 6, background: '#181818', border: '1px solid #6d28d9', borderRadius: 6, padding: 10 }}>
+                    <input type="text" value={editForm.title} onChange={ev => setEditForm(f => ({ ...f, title: ev.target.value }))} onKeyDown={ev => ev.key === 'Enter' && saveEditEvent()} autoFocus />
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <select value={editForm.type} onChange={ev => setEditForm(f => ({ ...f, type: ev.target.value }))} style={{ flex: 1 }}>
+                        {EVENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                      </select>
+                      <input type="time" value={editForm.time} onChange={ev => setEditForm(f => ({ ...f, time: ev.target.value }))} style={{ width: 110 }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={saveEditEvent} style={{ flex: 1, background: '#8B5CF6', color: '#fff', border: 'none', borderRadius: 4, padding: '7px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem' }}>Save</button>
+                      <button onClick={() => setEditingEvent(null)} className="btn-ghost" style={{ flex: 1, fontSize: '0.75rem' }}>Cancel</button>
+                    </div>
                   </div>
-                  <button onClick={() => removeEvent(e.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={13} /></button>
-                </div>
+                ) : (
+                  <div key={e.id} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 10, background: `${EVENT_META[e.type]?.color || '#6B7280'}12`, border: `1px solid ${EVENT_META[e.type]?.color || '#6B7280'}40`, borderRadius: 6, padding: '9px 12px' }}>
+                    <span style={{ fontSize: '1rem' }}>{EVENT_META[e.type]?.emoji || '📌'}</span>
+                    <button onClick={() => startEditEvent(e)} style={{ flex: 1, minWidth: 0, background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', padding: 0 }}>
+                      <div style={{ fontSize: '0.82rem', color: '#F3F4F6', fontWeight: 600 }}>{e.title}</div>
+                      <div style={{ fontSize: '0.6rem', color: EVENT_META[e.type]?.color || '#9CA3AF' }}>{e.type}{e.time && ` · ${e.time}`} · tap to edit</div>
+                    </button>
+                    <button onClick={() => removeEvent(e.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={13} /></button>
+                  </div>
+                )
               ))}
             </div>
           )}
