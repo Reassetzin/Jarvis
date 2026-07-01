@@ -1,5 +1,6 @@
 'use client'
 import { usePersistentStore, useDailyStore } from '@/hooks/useStore'
+import { useState } from 'react'
 import { Check, Plus, Minus } from 'lucide-react'
 
 interface Vitamin { id: string; name: string; slot: string }
@@ -40,25 +41,45 @@ export function VitaminsMini() {
 }
 
 export function WaterMini() {
-  const [count, setCount] = useDailyStore('water_count', 0)
-  const goal = 9
-  const pct = Math.min(100, (count / goal) * 100)
-  const color = count >= goal ? '#22C55E' : count >= 6 ? '#3B82F6' : count >= 3 ? '#F59E0B' : '#EF4444'
+  const [ml, setMl] = useDailyStore('water_ml', 0)
+  const [goal, setGoal] = usePersistentStore('water_goal_ml', 3000)
+  const [custom, setCustom] = useState('')
+  const [editingGoal, setEditingGoal] = useState(false)
+  const [goalInput, setGoalInput] = useState('')
+  const pct = Math.min(100, (ml / goal) * 100)
+  const color = ml >= goal ? '#22C55E' : ml >= goal * 0.66 ? '#3B82F6' : ml >= goal * 0.33 ? '#F59E0B' : '#EF4444'
+
+  function addCustom() {
+    const amt = parseInt(custom)
+    if (!isNaN(amt) && amt > 0) { setMl(m => m + amt); setCustom('') }
+  }
+
   return (
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div className="section-header" style={{ marginBottom: 0 }}>Water</div>
-        </div>
-        <span style={{ fontSize: '0.85rem', color, fontWeight: 700 }}>{count}/{goal}</span>
+        <div className="section-header" style={{ marginBottom: 0 }}>Water</div>
+        <span style={{ fontSize: '0.85rem', color, fontWeight: 700 }}>{(ml / 1000).toFixed(1)}L / {(goal / 1000).toFixed(1)}L</span>
       </div>
       <div style={{ height: 8, background: '#1f1f1f', borderRadius: 4, overflow: 'hidden', marginBottom: 10 }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 4, transition: 'width 0.3s' }} />
+        <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 4, transition: 'width 0.3s', boxShadow: `0 0 8px ${color}80` }} />
+      </div>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+        <button onClick={() => setMl(m => Math.max(0, m - 250))} style={{ flex: 1, background: '#181818', border: '1px solid #333', borderRadius: 4, padding: '9px', cursor: 'pointer', color: '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={14} /></button>
+        <button className="glow-blue" onClick={() => setMl(m => m + 250)} style={{ flex: 1, background: 'transparent', border: '1px solid #3B82F6', borderRadius: 4, padding: '9px', cursor: 'pointer', color: '#3B82F6', fontWeight: 700, fontSize: '0.78rem' }}>+250ml</button>
+        <button className="glow-blue" onClick={() => setMl(m => m + 500)} style={{ flex: 2, background: '#3B82F6', border: 'none', borderRadius: 4, padding: '9px', cursor: 'pointer', color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontSize: '0.82rem' }}><Plus size={14} /> 500ml</button>
       </div>
       <div style={{ display: 'flex', gap: 6 }}>
-        <button onClick={() => setCount(c => Math.max(0, c - 1))} style={{ flex: 1, background: '#181818', border: '1px solid #333', borderRadius: 4, padding: '8px', cursor: 'pointer', color: '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={14} /></button>
-        <button className="glow-blue" onClick={() => setCount(c => c + 1)} style={{ flex: 2, background: '#3B82F6', border: 'none', borderRadius: 4, padding: '8px', cursor: 'pointer', color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}><Plus size={14} /> Bottle</button>
+        <input type="number" placeholder="Custom ml" value={custom} onChange={e => setCustom(e.target.value)} onKeyDown={e => e.key === 'Enter' && addCustom()} style={{ flex: 1, fontSize: '0.78rem', padding: '7px 10px' }} />
+        <button onClick={addCustom} style={{ background: '#333', color: '#fff', border: 'none', borderRadius: 4, padding: '0 14px', cursor: 'pointer', fontWeight: 700 }}>Add</button>
       </div>
+      {editingGoal ? (
+        <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+          <input type="number" placeholder="Goal in ml (e.g. 3000)" value={goalInput} onChange={e => setGoalInput(e.target.value)} style={{ flex: 1, fontSize: '0.72rem', padding: '6px 10px' }} />
+          <button onClick={() => { const g = parseInt(goalInput); if (g > 0) setGoal(g); setEditingGoal(false) }} className="btn-amber" style={{ width: 'auto', padding: '6px 14px' }}>Set</button>
+        </div>
+      ) : (
+        <button onClick={() => { setGoalInput(goal.toString()); setEditingGoal(true) }} style={{ background: 'none', border: 'none', color: '#4B5563', fontSize: '0.65rem', cursor: 'pointer', marginTop: 6, width: '100%', textAlign: 'center' }}>Goal: {(goal / 1000).toFixed(1)}L · edit</button>
+      )}
     </div>
   )
 }

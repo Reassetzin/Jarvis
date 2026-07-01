@@ -22,7 +22,8 @@ function ymd(d: Date) { return `${d.getFullYear()}-${String(d.getMonth() + 1).pa
 
 export default function MainTab() {
   const [goals] = useDailyStore<{ text: string; done: boolean; priority: boolean; id: string }[]>('goals_today', [])
-  const [water] = useDailyStore('water_count', 0)
+  const [water] = useDailyStore('water_ml', 0)
+  const [waterGoal] = usePersistentStore('water_goal_ml', 3000)
   const [vits] = usePersistentStore<{ id: string }[]>('vitamins', [])
   const [vitsTaken] = useDailyStore<string[]>('vitamins_taken', [])
   const [txns] = usePersistentStore<{ type: string; amount: number; date: string }[]>('transactions', [])
@@ -61,7 +62,7 @@ export default function MainTab() {
     { icon: Zap, label: 'Goals', value: `${goalsDone}/${goals.length}`, color: '#F59E0B', done: goals.length > 0 && goalsDone === goals.length },
     { icon: CalendarDays, label: 'Tasks', value: `${tasksDone}/${todayTasks.length}`, color: '#3B82F6', done: todayTasks.length > 0 && tasksDone === todayTasks.length },
     { icon: Pill, label: 'Vitamins', value: `${vitsTakenCount}/${vits.length}`, color: '#22C55E', done: vits.length > 0 && vitsTakenCount === vits.length },
-    { icon: Droplet, label: 'Water', value: `${water}/9`, color: '#3B82F6', done: water >= 9 },
+    { icon: Droplet, label: 'Water', value: `${(water / 1000).toFixed(1)}L`, color: '#3B82F6', done: water >= waterGoal },
     { icon: DollarSign, label: 'Net (mo)', value: `${net >= 0 ? '+' : ''}$${Math.abs(net).toLocaleString()}`, color: net >= 0 ? '#22C55E' : '#EF4444' },
     { icon: Activity, label: 'Activity (wk)', value: `${weekActivity}`, color: '#EC4899' },
   ]

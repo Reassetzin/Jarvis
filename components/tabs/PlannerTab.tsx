@@ -90,28 +90,30 @@ export default function PlannerTab() {
   return (
     <PageShell>
       {/* Header / nav */}
-      <div className="card" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <CalIcon size={18} color="#F59E0B" />
-        <div style={{ display: 'flex', gap: 4 }}>
-          {(['month', 'week', 'day'] as const).map(v => (
-            <button key={v} onClick={() => setView(v)} style={{
-              background: view === v ? '#1a0a00' : 'transparent',
-              border: `1px solid ${view === v ? '#92400E' : '#333'}`,
-              borderRadius: 4, padding: '6px 14px', cursor: 'pointer',
-              color: view === v ? '#F59E0B' : '#9CA3AF', fontWeight: view === v ? 700 : 500, fontSize: '0.78rem', textTransform: 'capitalize',
-            }}>{v}</button>
-          ))}
+      <div className="card planner-header" style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
+          <CalIcon size={18} color="#F59E0B" style={{ flexShrink: 0 }} />
+          <div style={{ display: 'flex', gap: 4 }}>
+            {(['month', 'week', 'day'] as const).map(v => (
+              <button key={v} onClick={() => setView(v)} style={{
+                background: view === v ? '#1a0a00' : 'transparent',
+                border: `1px solid ${view === v ? '#92400E' : '#333'}`,
+                borderRadius: 4, padding: '6px 14px', cursor: 'pointer',
+                color: view === v ? '#F59E0B' : '#9CA3AF', fontWeight: view === v ? 700 : 500, fontSize: '0.78rem', textTransform: 'capitalize',
+              }}>{v}</button>
+            ))}
+          </div>
+          <button onClick={() => setShowContent(s => !s)} className="btn-ghost" style={{ fontSize: '0.72rem', marginLeft: 'auto', color: showContent ? '#EC4899' : '#6B7280', borderColor: showContent ? 'rgba(236,72,153,0.4)' : undefined }}>🎬 Content</button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
-          <button onClick={() => navigate(-1)} style={{ background: '#181818', border: '1px solid #333', borderRadius: 4, padding: 6, cursor: 'pointer', color: '#9CA3AF', display: 'flex' }}><ChevronLeft size={15} /></button>
-          <span style={{ fontSize: '0.85rem', fontWeight: 700, minWidth: 140, textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+          <button onClick={() => navigate(-1)} style={{ background: '#181818', border: '1px solid #333', borderRadius: 4, padding: 6, cursor: 'pointer', color: '#9CA3AF', display: 'flex', flexShrink: 0 }}><ChevronLeft size={15} /></button>
+          <span style={{ fontSize: '0.85rem', fontWeight: 700, flex: 1, textAlign: 'center' }}>
             {view === 'month' && `${MONTHS[cursor.getMonth()]} ${cursor.getFullYear()}`}
             {view === 'week' && `Week of ${weekDays()[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
             {view === 'day' && cursor.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
           </span>
-          <button onClick={() => navigate(1)} style={{ background: '#181818', border: '1px solid #333', borderRadius: 4, padding: 6, cursor: 'pointer', color: '#9CA3AF', display: 'flex' }}><ChevronRight size={15} /></button>
-          <button onClick={() => { setCursor(new Date()); setSelectedDate(todayStr) }} className="btn-ghost" style={{ fontSize: '0.72rem' }}>Today</button>
-          <button onClick={() => setShowContent(s => !s)} className="btn-ghost" style={{ fontSize: '0.72rem', color: showContent ? '#EC4899' : '#6B7280', borderColor: showContent ? 'rgba(236,72,153,0.4)' : undefined }}>🎬 Content</button>
+          <button onClick={() => navigate(1)} style={{ background: '#181818', border: '1px solid #333', borderRadius: 4, padding: 6, cursor: 'pointer', color: '#9CA3AF', display: 'flex', flexShrink: 0 }}><ChevronRight size={15} /></button>
+          <button onClick={() => { setCursor(new Date()); setSelectedDate(todayStr) }} className="btn-ghost" style={{ fontSize: '0.72rem', flexShrink: 0 }}>Today</button>
         </div>
       </div>
 
