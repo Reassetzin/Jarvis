@@ -15,3 +15,7 @@ create policy "allow anon full access"
   on app_state for all
   using (true)
   with check (true);
+
+-- ── REALTIME (run this too, for instant cross-device sync) ──
+-- Enables live push of changes to all your open devices.
+alter publication supabase_realtime add table app_state;

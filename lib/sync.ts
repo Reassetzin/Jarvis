@@ -21,6 +21,15 @@ export function onSyncStatus(fn: (s: SyncStatus) => void) {
 }
 function setStatus(s: SyncStatus) { currentStatus = s; statusListeners.forEach(l => l(s)) }
 
+// Notify components when local storage has been updated from a remote pull,
+// so hooks can re-read their values and re-render.
+let dataChangeListeners: (() => void)[] = []
+export function onDataChange(fn: () => void) {
+  dataChangeListeners.push(fn)
+  return () => { dataChangeListeners = dataChangeListeners.filter(l => l !== fn) }
+}
+function emitDataChange() { dataChangeListeners.forEach(l => l()) }
+
 function collectLocalState(): Record<string, string> {
   const out: Record<string, string> = {}
   for (let i = 0; i < localStorage.length; i++) {
@@ -48,6 +57,7 @@ function applyRemote(remote: Record<string, string>) {
   // Write remote values
   Object.entries(remote).forEach(([k, v]) => { if (typeof v === 'string') set(k, v) })
   lastSyncedSnapshot = JSON.stringify(collectLocalState())
+  emitDataChange()
 }
 
 // Pull remote → local. Only applies if we have NO pending local changes,
@@ -95,16 +105,17 @@ async function doPush() {
 export async function pushState(immediate = false) {
   if (!getSupabase()) return
   pendingLocalChange = true
-  try { localStorage.setItem('los_sync_dirty', '1') } catch {}
+  try { localStorage.setItem('jarvis_sync_dirty', '1') } catch {}
   if (immediate) { if (pushTimer) clearTimeout(pushTimer); await doPush(); return }
   if (pushTimer) clearTimeout(pushTimer)
-  pushTimer = setTimeout(doPush, 1200)
+  pushTimer = setTimeout(doPush, 600)
 }
 
 export function isConfigured(): boolean { return !!getSupabase() }
 
 export async function initSync(onReady?: () => void) {
-  if (!getSupabase()) { onReady?.(); return }
+  const sb = getSupabase()
+  if (!sb) { onReady?.(); return }
 
   // If the last session had un-pushed edits (e.g. deleted then reloaded fast),
   // local storage is the source of truth — push it up BEFORE any pull so the
@@ -153,4 +164,15 @@ export async function initSync(onReady?: () => void) {
     if (pendingLocalChange) pushState(true)
     else pullState()
   })
+
+  // 5. Realtime: get pushed updates from other devices instantly
+  try {
+    sb.channel('app_state_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'app_state', filter: `user_id=eq.${USER_ID}` },
+        () => {
+          // Another device wrote new data — pull it (unless we have local edits pending)
+          if (!pendingLocalChange && !pushInFlight) pullState()
+        })
+      .subscribe()
+  } catch (e) { console.warn('realtime subscribe failed:', e) }
 }

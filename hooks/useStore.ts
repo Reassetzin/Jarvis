@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { shouldReset } from '@/lib/supabase'
+import { onDataChange } from '@/lib/sync'
 
 interface StoredData<T> {
   data: T
@@ -22,13 +23,9 @@ export function useDailyStore<T>(key: string, defaultValue: T) {
   const [value, setValue] = useState<T>(defaultValue)
   const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
+  const readFromStorage = useCallback(() => {
     const raw = localStorage.getItem(`los_${key}`)
-    if (!raw) {
-      setValue(defaultValue)
-      setLoaded(true)
-      return
-    }
+    if (!raw) { setValue(defaultValue); return }
     try {
       const stored: StoredData<T> = JSON.parse(raw)
       if (shouldReset(stored.lastReset) || stored.date !== getTodayStr()) {
@@ -38,11 +35,15 @@ export function useDailyStore<T>(key: string, defaultValue: T) {
       } else {
         setValue(stored.data)
       }
-    } catch {
-      setValue(defaultValue)
-    }
-    setLoaded(true)
+    } catch { setValue(defaultValue) }
   }, [key])
+
+  useEffect(() => {
+    readFromStorage()
+    setLoaded(true)
+    // Re-read when sync pulls remote data
+    return onDataChange(readFromStorage)
+  }, [key, readFromStorage])
 
   const set = useCallback((newVal: T | ((prev: T) => T)) => {
     setValue(prev => {
@@ -60,13 +61,20 @@ export function usePersistentStore<T>(key: string, defaultValue: T) {
   const [value, setValue] = useState<T>(defaultValue)
   const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
+  const readFromStorage = useCallback(() => {
     const raw = localStorage.getItem(`los_p_${key}`)
     if (raw) {
       try { setValue(JSON.parse(raw)) } catch { setValue(defaultValue) }
+    } else {
+      setValue(defaultValue)
     }
-    setLoaded(true)
   }, [key])
+
+  useEffect(() => {
+    readFromStorage()
+    setLoaded(true)
+    return onDataChange(readFromStorage)
+  }, [key, readFromStorage])
 
   const set = useCallback((newVal: T | ((prev: T) => T)) => {
     setValue(prev => {
