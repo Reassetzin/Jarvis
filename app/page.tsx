@@ -36,9 +36,8 @@ export default function Home() {
     <SyncProvider>
       <div className="mobile-layout" style={{ display: 'none' }}>
         <div style={{
-          height: '100dvh',
+          height: 'calc(100dvh - 56px - env(safe-area-inset-bottom))',
           paddingTop: 'env(safe-area-inset-top)',
-          paddingBottom: 'calc(56px + env(safe-area-inset-bottom))',
           boxSizing: 'border-box',
         }}>
           <TabContent active={activeTab} />
