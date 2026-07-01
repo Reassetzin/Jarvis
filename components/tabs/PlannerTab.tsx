@@ -60,6 +60,8 @@ export default function PlannerTab() {
   const [evType, setEvType] = useState('Appointment')
   const [editingEvent, setEditingEvent] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({ title: '', time: '', type: 'Appointment' })
+  const [editingTask, setEditingTask] = useState<string | null>(null)
+  const [taskEdit, setTaskEdit] = useState({ text: '', category: 'Personal', priority: false })
 
   const todayStr = ymd(new Date())
 
@@ -96,6 +98,12 @@ export default function PlannerTab() {
   }
   function toggle(id: string) { setTasks(t => t.map(x => x.id === id ? { ...x, done: !x.done } : x)) }
   function remove(id: string) { setTasks(t => t.filter(x => x.id !== id)) }
+  function startEditTask(t: Task) { setEditingTask(t.id); setTaskEdit({ text: t.text, category: t.category, priority: t.priority }) }
+  function saveEditTask() {
+    if (!taskEdit.text.trim()) return
+    setTasks(ts => ts.map(x => x.id === editingTask ? { ...x, text: taskEdit.text.trim(), category: taskEdit.category, priority: taskEdit.priority } : x))
+    setEditingTask(null)
+  }
 
   // Month grid
   function monthGrid() {
@@ -334,15 +342,31 @@ export default function PlannerTab() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {selectedTasks.length === 0 && selectedEvents.length === 0 && <div style={{ fontSize: '0.78rem', color: '#374151', textAlign: 'center', padding: '16px 0' }}>Nothing planned. Add a task or event above.</div>}
             {[...selectedTasks].sort((a, b) => Number(b.priority) - Number(a.priority)).map(t => (
-              <div key={t.id} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 8, background: t.done ? '#0d1a0d' : '#181818', border: `1px solid ${t.done ? '#15391590' : '#222'}`, borderRadius: 4, padding: '10px 12px' }}>
-                <button onClick={() => toggle(t.id)} className={t.done ? 'check-pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${t.done ? '#22C55E' : '#374151'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {t.done && <Check size={11} color="#000" strokeWidth={3} />}
-                </button>
-                {t.priority && <span style={{ color: '#F59E0B' }}>⚡</span>}
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[t.category], flexShrink: 0 }} />
-                <span style={{ flex: 1, fontSize: '0.82rem', color: t.done ? '#4B5563' : '#F3F4F6', textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</span>
-                <button onClick={() => remove(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={13} /></button>
-              </div>
+              editingTask === t.id ? (
+                <div key={t.id} style={{ display: 'flex', flexDirection: 'column', gap: 6, background: '#181818', border: '1px solid #92400E', borderRadius: 4, padding: 10 }}>
+                  <input type="text" value={taskEdit.text} onChange={e => setTaskEdit(f => ({ ...f, text: e.target.value }))} onKeyDown={e => e.key === 'Enter' && saveEditTask()} autoFocus />
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button onClick={() => setTaskEdit(f => ({ ...f, priority: !f.priority }))} style={{ background: taskEdit.priority ? '#1a0a00' : 'transparent', border: `1px solid ${taskEdit.priority ? '#F59E0B' : '#374151'}`, borderRadius: 4, padding: '0 12px', cursor: 'pointer', color: taskEdit.priority ? '#F59E0B' : '#374151', fontWeight: 700 }}>⚡</button>
+                    <select value={taskEdit.category} onChange={e => setTaskEdit(f => ({ ...f, category: e.target.value }))} style={{ flex: 1 }}>
+                      {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button onClick={saveEditTask} className="btn-amber" style={{ flex: 1, fontSize: '0.75rem', padding: '7px' }}>Save</button>
+                    <button onClick={() => setEditingTask(null)} className="btn-ghost" style={{ flex: 1, fontSize: '0.75rem' }}>Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <div key={t.id} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 8, background: t.done ? '#0d1a0d' : '#181818', border: `1px solid ${t.done ? '#15391590' : '#222'}`, borderRadius: 4, padding: '10px 12px' }}>
+                  <button onClick={() => toggle(t.id)} className={t.done ? 'check-pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${t.done ? '#22C55E' : '#374151'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {t.done && <Check size={11} color="#000" strokeWidth={3} />}
+                  </button>
+                  {t.priority && <span style={{ color: '#F59E0B' }}>⚡</span>}
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[t.category], flexShrink: 0 }} />
+                  <button onClick={() => startEditTask(t)} style={{ flex: 1, minWidth: 0, background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', padding: 0, fontSize: '0.82rem', color: t.done ? '#4B5563' : '#F3F4F6', textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</button>
+                  <button onClick={() => remove(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={13} /></button>
+                </div>
+              )
             ))}
           </div>
 
