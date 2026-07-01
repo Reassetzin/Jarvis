@@ -8,6 +8,7 @@ import DebtTracker from '@/components/finances/DebtTracker'
 import RecurringTransactions from '@/components/finances/RecurringTransactions'
 import NetWorthChart from '@/components/finances/NetWorthChart'
 import BillCalendar from '@/components/finances/BillCalendar'
+import SpendingAlerts from '@/components/finances/SpendingAlerts'
 import TransactionExplorer from '@/components/finances/TransactionExplorer'
 import CashFlowChart from '@/components/finances/CashFlowChart'
 
@@ -127,6 +128,7 @@ export default function FinancesTab() {
 
       <DesktopGrid columns={2}>
         <CashFlowChart txns={txns} />
+        <SpendingAlerts />
         <NetWorthChart />
         <BillCalendar />
         <DebtTracker />
