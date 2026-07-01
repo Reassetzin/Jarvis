@@ -30,6 +30,21 @@ export function onDataChange(fn: () => void) {
 }
 function emitDataChange() { dataChangeListeners.forEach(l => l()) }
 
+// ── Debug log (shown in on-screen SyncDebug panel) ──
+let syncLog: string[] = []
+function log(msg: string) {
+  const ts = new Date().toLocaleTimeString()
+  syncLog.unshift(`[${ts}] ${msg}`)
+  syncLog = syncLog.slice(0, 40)
+  console.log('[sync]', msg)
+}
+export function getSyncLog() { return syncLog }
+export async function forcePushNow() {
+  log('FORCE PUSH requested')
+  pendingLocalChange = true
+  await doPush()
+}
+
 function collectLocalState(): Record<string, string> {
   const out: Record<string, string> = {}
   for (let i = 0; i < localStorage.length; i++) {
@@ -82,23 +97,25 @@ export async function pullState(force = false): Promise<boolean> {
 
 async function doPush() {
   const sb = getSupabase()
-  if (!sb) return
+  if (!sb) { log('doPush: NO supabase client (env vars missing?)'); return }
   const state = collectLocalState()
   const snapshot = JSON.stringify(state)
-  if (snapshot === lastSyncedSnapshot) { pendingLocalChange = false; return }
+  if (snapshot === lastSyncedSnapshot) { pendingLocalChange = false; log('doPush: no change, skip'); return }
   pushInFlight = true
   setStatus('syncing')
+  log(`doPush: uploading ${Object.keys(state).length} keys (${snapshot.length} bytes) as "${USER_ID}"`)
   try {
     const { error } = await sb.from('app_state').upsert(
       { user_id: USER_ID, state, updated_at: new Date().toISOString() },
       { onConflict: 'user_id' }
     )
-    if (error) { console.warn('push error:', error.message); setStatus('error'); return }
+    if (error) { log(`doPush ERROR: ${error.message} | code=${(error as any).code} | details=${(error as any).details}`); setStatus('error'); return }
     lastSyncedSnapshot = snapshot
     pendingLocalChange = false
     try { localStorage.removeItem('jarvis_sync_dirty') } catch {}
+    log('doPush: SUCCESS ✓')
     setStatus('synced')
-  } catch (e) { console.warn('push failed:', e); setStatus('error') }
+  } catch (e: any) { log(`doPush FAIL (exception): ${e?.message || e}`); setStatus('error') }
   finally { pushInFlight = false }
 }
 
@@ -139,8 +156,9 @@ export async function initSync(onReady?: () => void) {
   rawSetItem = localStorage.setItem.bind(localStorage)
   localStorage.setItem = (key: string, value: string) => {
     rawSetItem!(key, value)
-    if (key.startsWith('los_')) pushState()
+    if (key.startsWith('los_')) { log(`write detected: ${key}`); pushState() }
   }
+  log('setItem patched — writes will now sync')
   // Also catch removeItem so deletes push immediately
   const rawRemove = localStorage.removeItem.bind(localStorage)
   localStorage.removeItem = (key: string) => {

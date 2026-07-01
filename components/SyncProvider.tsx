@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { initSync, isConfigured } from '@/lib/sync'
 import SyncIndicator from '@/components/ui/SyncIndicator'
+import SyncDebug from '@/components/ui/SyncDebug'
 
 export default function SyncProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false)
@@ -24,5 +25,5 @@ export default function SyncProvider({ children }: { children: React.ReactNode }
       </div>
     )
   }
-  return <>{children}<SyncIndicator /></>
+  return <>{children}<SyncIndicator /><SyncDebug /></>
 }
