@@ -12,6 +12,7 @@ import WeeklyReview from '@/components/main/WeeklyReview'
 import MonthlyReview from '@/components/main/MonthlyReview'
 import NotificationSettings from '@/components/main/NotificationSettings'
 import ThemePicker from '@/components/main/ThemePicker'
+import UpcomingEvents from '@/components/main/UpcomingEvents'
 import Heatmap from '@/components/ui/Heatmap'
 import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
@@ -101,6 +102,7 @@ export default function MainTab() {
         <DayProgressRing />
         <Goalmaxxing />
         <TodayPlanner />
+        <UpcomingEvents />
         <CashTrendChart />
         <WeeklyReview />
         <MonthlyReview />
