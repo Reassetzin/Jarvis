@@ -62,6 +62,15 @@ export default function PlannerTab() {
   const [editForm, setEditForm] = useState({ title: '', time: '', type: 'Appointment' })
   const [editingTask, setEditingTask] = useState<string | null>(null)
   const [taskEdit, setTaskEdit] = useState({ text: '', category: 'Personal', priority: false })
+  const [dragItem, setDragItem] = useState<{ kind: 'task' | 'event'; id: string } | null>(null)
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null)
+
+  function rescheduleTo(dateStr: string) {
+    if (!dragItem) return
+    if (dragItem.kind === 'task') setTasks(ts => ts.map(t => t.id === dragItem.id ? { ...t, date: dateStr } : t))
+    else setEvents(es => es.map(e => e.id === dragItem.id ? { ...e, date: dateStr } : e))
+    setDragItem(null); setDragOverDate(null)
+  }
 
   const todayStr = ymd(new Date())
 
@@ -187,9 +196,13 @@ export default function PlannerTab() {
                     const isToday = ds === todayStr
                     const isSelected = ds === selectedDate
                     return (
-                      <button key={i} onClick={() => setSelectedDate(ds)} className="cal-cell" style={{
-                        minHeight: 92, background: isSelected ? '#1a0a00' : isToday ? '#181818' : '#0c0c0c',
-                        border: `1px solid ${isSelected ? '#92400E' : isToday ? '#333' : '#1a1a1a'}`,
+                      <button key={i} onClick={() => setSelectedDate(ds)} className="cal-cell"
+                        onDragOver={(ev) => { if (dragItem) { ev.preventDefault(); setDragOverDate(ds) } }}
+                        onDragLeave={() => { if (dragOverDate === ds) setDragOverDate(null) }}
+                        onDrop={(ev) => { ev.preventDefault(); rescheduleTo(ds) }}
+                        style={{
+                        minHeight: 92, background: dragOverDate === ds ? '#2a1a00' : isSelected ? '#1a0a00' : isToday ? '#181818' : '#0c0c0c',
+                        border: `1px solid ${dragOverDate === ds ? '#F59E0B' : isSelected ? '#92400E' : isToday ? '#333' : '#1a1a1a'}`,
                         borderRadius: 4, cursor: 'pointer', padding: 5, display: 'flex', flexDirection: 'column', gap: 3, textAlign: 'left', overflow: 'hidden',
                       }}>
                         <span style={{ fontSize: '0.7rem', color: isToday ? '#F59E0B' : isSelected ? '#F59E0B' : '#9CA3AF', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
@@ -326,7 +339,7 @@ export default function PlannerTab() {
                     </div>
                   </div>
                 ) : (
-                  <div key={e.id} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 10, background: `${EVENT_META[e.type]?.color || '#6B7280'}12`, border: `1px solid ${EVENT_META[e.type]?.color || '#6B7280'}40`, borderRadius: 6, padding: '9px 12px' }}>
+                  <div key={e.id} draggable onDragStart={() => setDragItem({ kind: 'event', id: e.id })} onDragEnd={() => { setDragItem(null); setDragOverDate(null) }} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 10, background: `${EVENT_META[e.type]?.color || '#6B7280'}12`, border: `1px solid ${EVENT_META[e.type]?.color || '#6B7280'}40`, borderRadius: 6, padding: '9px 12px', cursor: 'grab' }}>
                     <span style={{ fontSize: '1rem' }}>{EVENT_META[e.type]?.emoji || '📌'}</span>
                     <button onClick={() => startEditEvent(e)} style={{ flex: 1, minWidth: 0, background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', padding: 0 }}>
                       <div style={{ fontSize: '0.82rem', color: '#F3F4F6', fontWeight: 600 }}>{e.title}</div>
@@ -357,7 +370,7 @@ export default function PlannerTab() {
                   </div>
                 </div>
               ) : (
-                <div key={t.id} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 8, background: t.done ? '#0d1a0d' : '#181818', border: `1px solid ${t.done ? '#15391590' : '#222'}`, borderRadius: 4, padding: '10px 12px' }}>
+                <div key={t.id} draggable onDragStart={() => setDragItem({ kind: 'task', id: t.id })} onDragEnd={() => { setDragItem(null); setDragOverDate(null) }} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 8, background: t.done ? '#0d1a0d' : '#181818', border: `1px solid ${t.done ? '#15391590' : '#222'}`, borderRadius: 4, padding: '10px 12px', cursor: 'grab' }}>
                   <button onClick={() => toggle(t.id)} className={t.done ? 'check-pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${t.done ? '#22C55E' : '#374151'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {t.done && <Check size={11} color="#000" strokeWidth={3} />}
                   </button>
