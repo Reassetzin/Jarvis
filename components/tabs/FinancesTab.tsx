@@ -121,10 +121,6 @@ export default function FinancesTab() {
             <div onDoubleClick={() => { setBalanceInput(startBalance.toString()); setEditingBalance(true) }} title="Double-click to adjust starting balance" style={{ fontSize: '1.3rem', fontWeight: 800, color: cashBalance >= 0 ? '#22C55E' : '#EF4444', cursor: 'default' }}>${cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
           )}
         </div>
-        <div className="card" style={{ padding: 14 }}>
-          <div style={{ fontSize: '0.62rem', color: '#6B7280', marginBottom: 4 }}>Net Worth</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#F59E0B' }}>${netWorth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-        </div>
       </div>
 
       <DesktopGrid columns={2}>
