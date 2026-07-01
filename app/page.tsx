@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import BottomNav, { TabId } from '@/components/ui/BottomNav'
+import MobileMenu from '@/components/ui/MobileMenu'
 import DesktopLayout from '@/components/ui/DesktopLayout'
 import ErrorBoundary from '@/components/ui/ErrorBoundary'
 import SyncProvider from '@/components/SyncProvider'
@@ -36,13 +37,13 @@ export default function Home() {
     <SyncProvider>
       <div className="mobile-layout" style={{ display: 'none' }}>
         <div style={{
-          height: 'calc(100dvh - 56px - env(safe-area-inset-bottom))',
+          height: '100dvh',
           paddingTop: 'env(safe-area-inset-top)',
           boxSizing: 'border-box',
         }}>
           <TabContent active={activeTab} />
         </div>
-        <BottomNav active={activeTab} onChange={setActiveTab} />
+        <MobileMenu active={activeTab} onChange={setActiveTab} />
       </div>
       <div className="desktop-layout" style={{ display: 'none' }}>
         <DesktopLayout active={activeTab} onChange={setActiveTab}>

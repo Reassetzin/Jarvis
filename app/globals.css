@@ -114,7 +114,7 @@ body::before {
 
 .topbar-inner { padding: 10px 40px 8px; }
 @media (max-width: 768px) {
-  .topbar-inner { padding: 8px 14px; }
+  .topbar-inner { padding: 8px 14px 8px 120px; min-height: 44px; }
 }
 
 input[type="text"], input[type="number"], input[type="time"], input[type="date"], textarea, select {
@@ -200,7 +200,7 @@ select option:hover {
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
-    padding: 16px 14px 32px 14px;
+    padding: 56px 14px 32px 14px;
     box-sizing: border-box;
   }
   .desktop-layout { display: none !important; }
@@ -287,6 +287,8 @@ select option:hover {
 /* Modal + overlay */
 .modal-in { animation: modalIn 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
 .overlay-in { animation: overlayIn 0.2s ease; }
+@keyframes menuSlideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+.menu-panel { animation: menuSlideIn 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
 
 /* Smooth transitions on interactive elements */
 button, .card, input, select {
