@@ -105,10 +105,13 @@ async function doPush() {
 export async function pushState(immediate = false) {
   if (!getSupabase()) return
   pendingLocalChange = true
-  try { localStorage.setItem('jarvis_sync_dirty', '1') } catch {}
+  try {
+    localStorage.setItem('jarvis_sync_dirty', '1')
+    localStorage.setItem('jarvis_local_mtime', Date.now().toString())
+  } catch {}
   if (immediate) { if (pushTimer) clearTimeout(pushTimer); await doPush(); return }
   if (pushTimer) clearTimeout(pushTimer)
-  pushTimer = setTimeout(doPush, 600)
+  pushTimer = setTimeout(doPush, 250)
 }
 
 export function isConfigured(): boolean { return !!getSupabase() }
@@ -145,11 +148,19 @@ export async function initSync(onReady?: () => void) {
     if (key.startsWith('los_')) pushState()
   }
 
-  // 3. Flush pending pushes when leaving
+  // 3. Flush pending pushes when leaving (iOS-friendly: pagehide + visibilitychange)
+  const flushOnLeave = () => { if (pendingLocalChange) { if (pushTimer) clearTimeout(pushTimer); doPush() } }
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && pendingLocalChange) pushState(true)
+    if (document.visibilityState === 'hidden') flushOnLeave()
+    else {
+      // Became visible again (reopened / switched back)
+      if (!onlineStatus) return
+      if (pendingLocalChange) pushState(true)
+      else pullState()
+    }
   })
-  window.addEventListener('beforeunload', () => { if (pendingLocalChange) pushState(true) })
+  window.addEventListener('pagehide', flushOnLeave)
+  window.addEventListener('beforeunload', flushOnLeave)
 
   // 4. On focus/online: if we have pending edits, PUSH them first;
   //    otherwise pull to get changes from other devices.
