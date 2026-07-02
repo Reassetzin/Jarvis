@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { Plus, X, Check, ChevronDown, ChevronRight, ListTodo, Pencil, Tag, GripVertical } from 'lucide-react'
 import PageShell from '@/components/ui/PageShell'
 
-interface Todo { id: string; text: string; done: boolean; tags: string[] }
-interface Group { id: string; name: string; color: string; todos: Todo[]; tags?: string[]; collapsed?: boolean }
+interface Todo { id: string; text: string; done: boolean; tags: string[]; doneTags?: string[] }
+interface Group { id: string; name: string; color: string; todos: Todo[]; tags?: string[]; collapsed?: boolean; collapsedTags?: string[] }
 
 const GROUP_COLORS = ['#F59E0B', '#3B82F6', '#22C55E', '#8B5CF6', '#EC4899', '#EF4444', '#06B6D4', '#F97316']
 const UNTAGGED = '__untagged__'
@@ -25,7 +25,7 @@ export default function TodosTab() {
   const [drag, setDrag] = useState<{ gid: string; tid: string } | null>(null)
   const [dragOver, setDragOver] = useState<string | null>(null)
 
-  const norm = (g: Group): Group & { tags: string[] } => ({ ...g, tags: g.tags || [], todos: g.todos.map(t => ({ ...t, tags: t.tags || [] })) })
+  const norm = (g: Group): Group & { tags: string[] } => ({ ...g, tags: g.tags || [], collapsedTags: g.collapsedTags || [], todos: g.todos.map(t => ({ ...t, tags: t.tags || [], doneTags: t.doneTags || [] })) })
 
   function addGroup() {
     if (!newGroup.trim()) return
@@ -60,7 +60,19 @@ export default function TodosTab() {
     setTodoInputs(t => ({ ...t, [gid]: '' })); setTodoTags(t => ({ ...t, [gid]: [] }))
   }
   function toggleTodo(gid: string, tid: string) {
+    // Untagged item — simple done toggle
     setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.map(t => t.id === tid ? { ...t, done: !t.done } : t) } : x))
+  }
+  // Toggle completion of a specific tag (sub-task) on an item
+  function toggleTagDone(gid: string, tid: string, tag: string) {
+    setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.map(t => {
+      if (t.id !== tid) return t
+      const dt = t.doneTags || []
+      return { ...t, doneTags: dt.includes(tag) ? dt.filter(x => x !== tag) : [...dt, tag] }
+    }) } : x))
+  }
+  function toggleTagSection(gid: string, tag: string) {
+    setGroups(g => g.map(x => x.id === gid ? { ...x, collapsedTags: (x.collapsedTags || []).includes(tag) ? (x.collapsedTags || []).filter(t => t !== tag) : [...(x.collapsedTags || []), tag] } : x))
   }
   function removeTodo(gid: string, tid: string) {
     setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.filter(t => t.id !== tid) } : x))
@@ -73,7 +85,12 @@ export default function TodosTab() {
   function toggleTodoTag(gid: string, tid: string, tag: string) {
     setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.map(t => { const tags = t.tags || []; return t.id === tid ? { ...t, tags: tags.includes(tag) ? tags.filter(tg => tg !== tag) : [...tags, tag] } : t }) } : x))
   }
-  function clearDone(gid: string) { setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.filter(t => !t.done) } : x)) }
+  function isFullyDone(t: Todo) {
+    const tags = t.tags || []
+    if (tags.length === 0) return t.done
+    return tags.every(tg => (t.doneTags || []).includes(tg))
+  }
+  function clearDone(gid: string) { setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.filter(t => !isFullyDone(t)) } : x)) }
 
   // Reorder: move dragged todo to just before the target todo, within the group's global order
   function handleDrop(gid: string, targetTid: string) {
@@ -92,12 +109,30 @@ export default function TodosTab() {
     setDrag(null); setDragOver(null)
   }
 
-  const totalOpen = groups.reduce((a, g) => a + g.todos.filter(t => !t.done).length, 0)
+  // Count total sub-tasks and completed sub-tasks in a group.
+  // Each tag on an item = 1 sub-task; untagged item = 1 task.
+  function groupCounts(group: Group) {
+    let total = 0, done = 0
+    group.todos.forEach(t => {
+      const tags = t.tags || []
+      if (tags.length === 0) { total += 1; if (t.done) done += 1 }
+      else { total += tags.length; done += (t.doneTags || []).filter(tg => tags.includes(tg)).length }
+    })
+    return { total, done }
+  }
 
-  function TodoRow({ group, t }: { group: Group; t: Todo }) {
+  const totalOpen = groups.reduce((a, g) => { const c = groupCounts(g); return a + (c.total - c.done) }, 0)
+
+  function TodoRow({ group, t, sectionTag }: { group: Group; t: Todo; sectionTag?: string }) {
     const [showTags, setShowTags] = useState(false)
     const isEditing = editingTodo === t.id
     const isDragOver = dragOver === t.id
+    // Completion depends on context: in a tag section, this row = that tag's sub-task
+    const inTagSection = sectionTag && sectionTag !== UNTAGGED
+    const checked = inTagSection ? (t.doneTags || []).includes(sectionTag!) : t.done
+    const onToggle = () => inTagSection ? toggleTagDone(group.id, t.id, sectionTag!) : toggleTodo(group.id, t.id)
+    // Other tags this item has (besides the current section) — shown as small context
+    const otherTags = (t.tags || []).filter(tg => tg !== sectionTag)
     return (
       <div
         draggable={!isEditing}
@@ -106,33 +141,42 @@ export default function TodosTab() {
         onDragOver={e => { if (drag && drag.gid === group.id) { e.preventDefault(); setDragOver(t.id) } }}
         onDrop={e => { e.preventDefault(); handleDrop(group.id, t.id) }}
         style={{
-          background: t.done ? '#0d160d' : '#161616', border: `1px solid ${isDragOver ? group.color : t.done ? '#1a331a' : '#232323'}`,
+          background: checked ? '#0d160d' : '#161616', border: `1px solid ${isDragOver ? group.color : checked ? '#1a331a' : '#232323'}`,
           borderRadius: 8, padding: '10px 12px', transition: 'border-color 0.12s',
         }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <GripVertical size={14} color="#333" style={{ cursor: 'grab', flexShrink: 0 }} className="drag-handle" />
-          <button onClick={() => toggleTodo(group.id, t.id)} className={t.done ? 'check-pop' : ''} style={{ width: 19, height: 19, borderRadius: 6, border: `1.5px solid ${t.done ? '#22C55E' : '#3a3a3a'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            {t.done && <Check size={12} color="#000" strokeWidth={3} />}
+          <button onClick={onToggle} className={checked ? 'check-pop' : ''} style={{ width: 19, height: 19, borderRadius: 6, border: `1.5px solid ${checked ? '#22C55E' : '#3a3a3a'}`, background: checked ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            {checked && <Check size={12} color="#000" strokeWidth={3} />}
           </button>
           {isEditing ? (
             <input type="text" value={editTodoText} onChange={e => setEditTodoText(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEditTodo(group.id, t.id)} onBlur={() => saveEditTodo(group.id, t.id)} autoFocus style={{ flex: 1, fontSize: '0.84rem', padding: '3px 6px' }} />
           ) : (
-            <button onClick={() => { setEditingTodo(t.id); setEditTodoText(t.text) }} style={{ flex: 1, textAlign: 'left', background: 'none', border: 'none', cursor: 'text', padding: 0, fontSize: '0.84rem', color: t.done ? '#4B5563' : '#F3F4F6', textDecoration: t.done ? 'line-through' : 'none', lineHeight: 1.35 }}>{t.text}</button>
+            <button onClick={() => { setEditingTodo(t.id); setEditTodoText(t.text) }} style={{ flex: 1, textAlign: 'left', background: 'none', border: 'none', cursor: 'text', padding: 0, fontSize: '0.84rem', color: checked ? '#4B5563' : '#F3F4F6', textDecoration: checked ? 'line-through' : 'none', lineHeight: 1.35 }}>{t.text}</button>
           )}
           <button onClick={() => setShowTags(s => !s)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: showTags ? group.color : '#3a3a3a', display: 'flex', padding: 2, flexShrink: 0 }}><Tag size={13} /></button>
           <button onClick={() => removeTodo(group.id, t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3a3a3a', display: 'flex', padding: 2, flexShrink: 0 }}><X size={14} /></button>
         </div>
-        {/* Tag chips (compact) */}
-        {t.tags.length > 0 && !showTags && (
+        {/* Context: other tags this item needs (with their done state) */}
+        {inTagSection && otherTags.length > 0 && !showTags && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 7, paddingLeft: 39 }}>
-            {t.tags.map(tag => <span key={tag} style={{ fontSize: '0.56rem', fontWeight: 600, background: `${group.color}1e`, color: group.color, borderRadius: 5, padding: '2px 7px', letterSpacing: '0.02em' }}>{tag}</span>)}
+            {otherTags.map(tag => {
+              const tagDone = (t.doneTags || []).includes(tag)
+              return <span key={tag} style={{ fontSize: '0.56rem', fontWeight: 600, background: tagDone ? '#16331620' : `${group.color}14`, color: tagDone ? '#22C55E' : '#6B7280', borderRadius: 5, padding: '2px 7px', letterSpacing: '0.02em', textDecoration: tagDone ? 'line-through' : 'none' }}>{tag}</span>
+            })}
+          </div>
+        )}
+        {/* Flat/untagged view: show all tag chips */}
+        {!inTagSection && (t.tags || []).length > 0 && !showTags && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 7, paddingLeft: 39 }}>
+            {(t.tags || []).map(tag => <span key={tag} style={{ fontSize: '0.56rem', fontWeight: 600, background: `${group.color}1e`, color: group.color, borderRadius: 5, padding: '2px 7px' }}>{tag}</span>)}
           </div>
         )}
         {/* Tag editor */}
         {showTags && (group.tags || []).length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 8, paddingLeft: 39 }}>
             {(group.tags || []).map(tag => {
-              const on = t.tags.includes(tag)
+              const on = (t.tags || []).includes(tag)
               return <button key={tag} onClick={() => toggleTodoTag(group.id, t.id, tag)} style={{ fontSize: '0.6rem', fontWeight: on ? 700 : 500, background: on ? group.color : 'transparent', color: on ? '#000' : '#9CA3AF', border: `1px solid ${on ? group.color : '#333'}`, borderRadius: 6, padding: '2px 9px', cursor: 'pointer' }}>{tag}</button>
             })}
           </div>
@@ -142,32 +186,45 @@ export default function TodosTab() {
   }
 
   function TagSection({ group, tag, items }: { group: Group; tag: string; items: Todo[] }) {
-    const open = items.filter(t => !t.done).length
+    const collapsed = (group.collapsedTags || []).includes(tag)
+    const isUntagged = tag === UNTAGGED
+    // For a tag section, "done" = this tag checked; untagged uses item.done
+    const doneCount = isUntagged ? items.filter(t => t.done).length : items.filter(t => (t.doneTags || []).includes(tag)).length
+    const open = items.length - doneCount
+    // Sort: incomplete first
+    const sorted = [...items].sort((a, b) => {
+      const ad = isUntagged ? a.done : (a.doneTags || []).includes(tag)
+      const bd = isUntagged ? b.done : (b.doneTags || []).includes(tag)
+      return Number(ad) - Number(bd)
+    })
     return (
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7, paddingLeft: 2 }}>
-          <div style={{ width: 7, height: 7, borderRadius: 2, background: tag === UNTAGGED ? '#4B5563' : group.color, transform: 'rotate(45deg)' }} />
-          <span style={{ fontSize: '0.7rem', fontWeight: 800, color: tag === UNTAGGED ? '#6B7280' : group.color, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{tag === UNTAGGED ? 'Untagged' : tag}</span>
+        <button onClick={() => toggleTagSection(group.id, tag)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 7, marginBottom: collapsed ? 0 : 8, paddingLeft: 0, background: 'none', border: 'none', cursor: 'pointer' }}>
+          {collapsed ? <ChevronRight size={13} color={isUntagged ? '#6B7280' : group.color} /> : <ChevronDown size={13} color={isUntagged ? '#6B7280' : group.color} />}
+          <div style={{ width: 7, height: 7, borderRadius: 2, background: isUntagged ? '#4B5563' : group.color, transform: 'rotate(45deg)' }} />
+          <span style={{ fontSize: '0.7rem', fontWeight: 800, color: isUntagged ? '#6B7280' : group.color, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{isUntagged ? 'Untagged' : tag}</span>
           <div style={{ flex: 1, height: 1, background: '#1c1c1c' }} />
-          <span style={{ fontSize: '0.62rem', color: '#4B5563', fontWeight: 600 }}>{open}</span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {items.map(t => <TodoRow key={t.id} group={group} t={t} />)}
-        </div>
+          <span style={{ fontSize: '0.62rem', color: doneCount === items.length ? '#22C55E' : '#4B5563', fontWeight: 700 }}>{doneCount}/{items.length}</span>
+        </button>
+        {!collapsed && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {sorted.map(t => <TodoRow key={t.id} group={group} t={t} sectionTag={tag} />)}
+          </div>
+        )}
       </div>
     )
   }
 
   function renderGrouped(group: Group) {
     if (group.todos.length === 0) return <div style={{ fontSize: '0.74rem', color: '#374151', padding: '8px 0', textAlign: 'center' }}>Nothing here yet — add an item below.</div>
-    const sorted = [...group.todos].sort((a, b) => Number(a.done) - Number(b.done))
     const tags = group.tags || []
     if (tags.length === 0) {
+      const sorted = [...group.todos].sort((a, b) => Number(a.done) - Number(b.done))
       return <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>{sorted.map(t => <TodoRow key={t.id} group={group} t={t} />)}</div>
     }
     const sections: { tag: string; items: Todo[] }[] = []
-    tags.forEach(tag => { const items = sorted.filter(t => (t.tags || []).includes(tag)); if (items.length) sections.push({ tag, items }) })
-    const untagged = sorted.filter(t => (t.tags || []).length === 0)
+    tags.forEach(tag => { const items = group.todos.filter(t => (t.tags || []).includes(tag)); if (items.length) sections.push({ tag, items }) })
+    const untagged = group.todos.filter(t => (t.tags || []).length === 0)
     if (untagged.length) sections.push({ tag: UNTAGGED, items: untagged })
     return <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>{sections.map(s => <TagSection key={s.tag} group={group} tag={s.tag} items={s.items} />)}</div>
   }
@@ -204,8 +261,9 @@ export default function TodosTab() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {groups.map(gRaw => {
           const group = norm(gRaw)
-          const total = group.todos.length
-          const doneCount = group.todos.filter(t => t.done).length
+          const counts = groupCounts(group)
+          const total = counts.total
+          const doneCount = counts.done
           const pct = total > 0 ? Math.round((doneCount / total) * 100) : 0
           const staged = todoTags[group.id] || []
           return (
@@ -281,8 +339,8 @@ export default function TodosTab() {
                     </div>
                   )}
 
-                  {doneCount > 0 && (
-                    <button onClick={() => clearDone(group.id)} style={{ marginTop: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#4B5563', fontSize: '0.66rem', padding: 0 }}>Clear {doneCount} completed</button>
+                  {group.todos.filter(isFullyDone).length > 0 && (
+                    <button onClick={() => clearDone(group.id)} style={{ marginTop: 12, background: 'none', border: 'none', cursor: 'pointer', color: '#4B5563', fontSize: '0.66rem', padding: 0 }}>Clear {group.todos.filter(isFullyDone).length} completed</button>
                   )}
                 </>
               )}
