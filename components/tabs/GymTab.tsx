@@ -21,7 +21,7 @@ const ACTIVITY_META: Record<ActivityType, { color: string; emoji: string; metric
 
 interface ExSet { reps: number; note: string }
 interface Session {
-  id: string; type: ActivityType; date: string
+  id: string; type: ActivityType; date: string; iso?: string
   duration?: number; distance?: number; grade?: string
   exercises?: { name: string; sets: ExSet[] }[]
   notes: string
@@ -57,6 +57,7 @@ export default function GymTab() {
     const session: Session = {
       id: Date.now().toString(), type: todayType,
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      iso: new Date().toISOString(),
       notes,
     }
     if (meta.metric === 'duration') session.duration = parseInt(duration) || 0
@@ -69,17 +70,25 @@ export default function GymTab() {
     alert('Session logged!')
   }
 
-  // This week's count
+  // Robustly parse a session's date (handles both new iso field and old display string)
+  function sessionDate(s: Session): Date {
+    if (s.iso) return new Date(s.iso)
+    // Old format like "Jul 1, 2026" already includes the year — parse as-is
+    const d = new Date(s.date)
+    return d
+  }
+
+  // This week's count (week starts Sunday)
   const now = new Date()
-  const weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay())
+  const weekStart = new Date(now); weekStart.setDate(now.getDate() - now.getDay()); weekStart.setHours(0, 0, 0, 0)
   const thisWeek = history.filter(s => {
-    const d = new Date(s.date + ', ' + now.getFullYear())
-    return d >= weekStart
+    const d = sessionDate(s)
+    return !isNaN(d.getTime()) && d >= weekStart
   }).length
 
   const activityHeatmap: Record<string, number> = {}
   history.forEach(s => {
-    const d = new Date(s.date)
+    const d = sessionDate(s)
     if (!isNaN(d.getTime())) {
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
       activityHeatmap[key] = (activityHeatmap[key] || 0) + 1
@@ -89,22 +98,24 @@ export default function GymTab() {
   return (
     <PageShell>
       {/* Weekly goal banner */}
-      <div className="card" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-        <Activity size={20} color="var(--accent)" />
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '0.7rem', color: '#6B7280' }}>This week</div>
-          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: thisWeek >= weeklyGoal ? '#22C55E' : 'var(--accent)' }}>
-            {thisWeek} / {weeklyGoal} sessions
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Activity size={18} color="var(--accent)" />
+            <div>
+              <div style={{ fontSize: '0.62rem', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>This Week</div>
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: thisWeek >= weeklyGoal ? '#22C55E' : 'var(--accent)', lineHeight: 1.1 }}>
+                {thisWeek} <span style={{ fontSize: '0.8rem', color: '#6B7280', fontWeight: 500 }}>/ {weeklyGoal} sessions</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: '0.58rem', color: '#6B7280' }}>Goal/wk</span>
+            <input type="number" value={weeklyGoal} onChange={e => setWeeklyGoal(Number(e.target.value))} style={{ width: 48, textAlign: 'center', padding: '5px' }} />
           </div>
         </div>
-        <div style={{ flex: 2, minWidth: 120 }}>
-          <div style={{ height: 8, background: '#1f1f1f', borderRadius: 4, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.min(100, (thisWeek / weeklyGoal) * 100)}%`, background: thisWeek >= weeklyGoal ? '#22C55E' : 'var(--accent)', borderRadius: 4, transition: 'width 0.3s' }} />
-          </div>
-        </div>
-        <div>
-          <span style={{ fontSize: '0.6rem', color: '#6B7280' }}>Goal/wk </span>
-          <input type="number" value={weeklyGoal} onChange={e => setWeeklyGoal(Number(e.target.value))} style={{ width: 50, display: 'inline-block' }} />
+        <div style={{ height: 8, background: '#1f1f1f', borderRadius: 4, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${Math.min(100, (thisWeek / weeklyGoal) * 100)}%`, background: thisWeek >= weeklyGoal ? '#22C55E' : 'var(--accent)', borderRadius: 4, transition: 'width 0.3s' }} />
         </div>
       </div>
 
