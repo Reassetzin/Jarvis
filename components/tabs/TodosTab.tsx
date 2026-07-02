@@ -22,8 +22,9 @@ export default function TodosTab() {
   const [managingTags, setManagingTags] = useState<string | null>(null)
   const [editingTodo, setEditingTodo] = useState<string | null>(null)
   const [editTodoText, setEditTodoText] = useState('')
-  const [drag, setDrag] = useState<{ gid: string; tid: string } | null>(null)
-  const [dragOver, setDragOver] = useState<string | null>(null)
+  const [dragTid, setDragTid] = useState<string | null>(null)
+  const [dragGid, setDragGid] = useState<string | null>(null)
+  const [dragOverTid, setDragOverTid] = useState<string | null>(null)
 
   const norm = (g: Group): Group & { tags: string[] } => ({ ...g, tags: g.tags || [], collapsedTags: g.collapsedTags || [], todos: g.todos.map(t => ({ ...t, tags: t.tags || [], doneTags: t.doneTags || [] })) })
 
@@ -92,21 +93,45 @@ export default function TodosTab() {
   }
   function clearDone(gid: string) { setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.filter(t => !isFullyDone(t)) } : x)) }
 
-  // Reorder: move dragged todo to just before the target todo, within the group's global order
-  function handleDrop(gid: string, targetTid: string) {
-    if (!drag || drag.gid !== gid || drag.tid === targetTid) { setDrag(null); setDragOver(null); return }
+  // Pointer-based drag reorder (works on mouse + touch)
+  function startDrag(gid: string, tid: string, e: React.PointerEvent) {
+    e.preventDefault()
+    setDragGid(gid); setDragTid(tid); setDragOverTid(tid)
+    let latestOver = tid
+
+    const onMove = (ev: PointerEvent) => {
+      ev.preventDefault()
+      const el = document.elementFromPoint(ev.clientX, ev.clientY)
+      const row = el?.closest('[data-todo-id]') as HTMLElement | null
+      if (row) {
+        const overId = row.getAttribute('data-todo-id')
+        const overGid = row.getAttribute('data-group-id')
+        if (overId && overGid === gid) { latestOver = overId; setDragOverTid(overId) }
+      }
+    }
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      reorder(gid, tid, latestOver)
+      setDragTid(null); setDragGid(null); setDragOverTid(null)
+    }
+    window.addEventListener('pointermove', onMove, { passive: false })
+    window.addEventListener('pointerup', onUp)
+  }
+
+  function reorder(gid: string, fromTid: string, toTid: string | null) {
+    if (!toTid || fromTid === toTid) return
     setGroups(g => g.map(x => {
       if (x.id !== gid) return x
       const arr = [...x.todos]
-      const from = arr.findIndex(t => t.id === drag.tid)
-      const to = arr.findIndex(t => t.id === targetTid)
-      if (from < 0 || to < 0) return x
+      const from = arr.findIndex(t => t.id === fromTid)
+      if (from < 0) return x
       const [moved] = arr.splice(from, 1)
-      const insertAt = arr.findIndex(t => t.id === targetTid)
-      arr.splice(insertAt, 0, moved)
+      const to = arr.findIndex(t => t.id === toTid)
+      if (to < 0) { arr.push(moved); return { ...x, todos: arr } }
+      arr.splice(to, 0, moved)
       return { ...x, todos: arr }
     }))
-    setDrag(null); setDragOver(null)
   }
 
   // Count total sub-tasks and completed sub-tasks in a group.
@@ -126,26 +151,27 @@ export default function TodosTab() {
   function TodoRow({ group, t, sectionTag }: { group: Group; t: Todo; sectionTag?: string }) {
     const [showTags, setShowTags] = useState(false)
     const isEditing = editingTodo === t.id
-    const isDragOver = dragOver === t.id
     // Completion depends on context: in a tag section, this row = that tag's sub-task
     const inTagSection = sectionTag && sectionTag !== UNTAGGED
     const checked = inTagSection ? (t.doneTags || []).includes(sectionTag!) : t.done
     const onToggle = () => inTagSection ? toggleTagDone(group.id, t.id, sectionTag!) : toggleTodo(group.id, t.id)
     // Other tags this item has (besides the current section) — shown as small context
     const otherTags = (t.tags || []).filter(tg => tg !== sectionTag)
+    const isDragging = dragTid === t.id
+    const isDragOver = dragOverTid === t.id && dragTid !== t.id
     return (
       <div
-        draggable={!isEditing}
-        onDragStart={() => setDrag({ gid: group.id, tid: t.id })}
-        onDragEnd={() => { setDrag(null); setDragOver(null) }}
-        onDragOver={e => { if (drag && drag.gid === group.id) { e.preventDefault(); setDragOver(t.id) } }}
-        onDrop={e => { e.preventDefault(); handleDrop(group.id, t.id) }}
+        data-todo-id={t.id}
+        data-group-id={group.id}
         style={{
           background: checked ? '#0d160d' : '#161616', border: `1px solid ${isDragOver ? group.color : checked ? '#1a331a' : '#232323'}`,
-          borderRadius: 8, padding: '10px 12px', transition: 'border-color 0.12s',
+          borderRadius: 8, padding: '10px 12px', transition: 'border-color 0.12s, opacity 0.12s',
+          opacity: isDragging ? 0.4 : 1,
         }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <GripVertical size={14} color="#333" style={{ cursor: 'grab', flexShrink: 0 }} className="drag-handle" />
+          <div onPointerDown={e => startDrag(group.id, t.id, e)} style={{ cursor: 'grab', flexShrink: 0, touchAction: 'none', display: 'flex', padding: '2px 0', margin: '-2px 0' }} className="drag-handle">
+            <GripVertical size={15} color={isDragging ? group.color : '#3a3a3a'} />
+          </div>
           <button onClick={onToggle} className={checked ? 'check-pop' : ''} style={{ width: 19, height: 19, borderRadius: 6, border: `1.5px solid ${checked ? '#22C55E' : '#3a3a3a'}`, background: checked ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {checked && <Check size={12} color="#000" strokeWidth={3} />}
           </button>

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { onSyncStatus, isConfigured } from '@/lib/sync'
 import { Cloud, CloudOff, RefreshCw, Check, AlertCircle } from 'lucide-react'
 
-export const APP_VERSION = '1.15.0'
+export const APP_VERSION = '1.15.1'
 
 export default function SyncIndicator() {
   const [status, setStatus] = useState<string>('idle')
