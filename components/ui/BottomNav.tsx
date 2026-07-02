@@ -1,7 +1,7 @@
 'use client'
 import { Home, CalendarDays, TrendingUp, Star, Heart, Dumbbell, Gamepad2, Search } from 'lucide-react'
 
-export type TabId = 'main' | 'planner' | 'projects' | 'finances' | 'brand' | 'health' | 'gym' | 'search'
+export type TabId = 'main' | 'planner' | 'todos' | 'projects' | 'finances' | 'brand' | 'health' | 'gym' | 'search'
 
 const TABS: { id: TabId; label: string; Icon: React.ElementType }[] = [
   { id: 'main', label: 'Main', Icon: Home },

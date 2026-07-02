@@ -1,11 +1,12 @@
 'use client'
 import { useState } from 'react'
-import { Home, CalendarDays, TrendingUp, Star, Heart, Dumbbell, Gamepad2, Search, Menu, X } from 'lucide-react'
+import { Home, CalendarDays, TrendingUp, Star, Heart, Dumbbell, Gamepad2, Search, Menu, X, ListTodo } from 'lucide-react'
 import { TabId } from './BottomNav'
 
 const TABS: { id: TabId; label: string; Icon: React.ElementType; color: string }[] = [
   { id: 'main', label: 'Main', Icon: Home, color: 'var(--accent)' },
   { id: 'planner', label: 'Planner', Icon: CalendarDays, color: '#3B82F6' },
+  { id: 'todos', label: 'To-Do', Icon: ListTodo, color: '#F59E0B' },
   { id: 'projects', label: 'Projects', Icon: Gamepad2, color: '#8B5CF6' },
   { id: 'finances', label: 'Finances', Icon: TrendingUp, color: '#22C55E' },
   { id: 'brand', label: 'Brand', Icon: Star, color: '#EAB308' },

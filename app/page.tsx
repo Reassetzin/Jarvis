@@ -7,6 +7,7 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary'
 import SyncProvider from '@/components/SyncProvider'
 import MainTab from '@/components/tabs/MainTab'
 import PlannerTab from '@/components/tabs/PlannerTab'
+import TodosTab from '@/components/tabs/TodosTab'
 import ProjectsTab from '@/components/tabs/ProjectsTab'
 import HealthTab from '@/components/tabs/HealthTab'
 import BrandTab from '@/components/tabs/BrandTab'
@@ -20,6 +21,7 @@ function TabContent({ active }: { active: TabId }) {
       <div className="page-enter" style={{ height: '100%' }}>
         {active === 'main' && <MainTab />}
         {active === 'planner' && <PlannerTab />}
+        {active === 'todos' && <TodosTab />}
         {active === 'projects' && <ProjectsTab />}
         {active === 'health' && <HealthTab />}
         {active === 'brand' && <BrandTab />}

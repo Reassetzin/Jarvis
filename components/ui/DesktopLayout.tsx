@@ -1,10 +1,11 @@
 'use client'
-import { Home, CalendarDays, TrendingUp, Star, Heart, Dumbbell, Gamepad2, Search } from 'lucide-react'
+import { Home, CalendarDays, TrendingUp, Star, Heart, Dumbbell, Gamepad2, Search, ListTodo } from 'lucide-react'
 import { TabId } from '@/components/ui/BottomNav'
 
 const TABS: { id: TabId; label: string; Icon: React.ElementType }[] = [
   { id: 'main', label: 'Main', Icon: Home },
   { id: 'planner', label: 'Planner', Icon: CalendarDays },
+  { id: 'todos', label: 'To-Do', Icon: ListTodo },
   { id: 'projects', label: 'Projects', Icon: Gamepad2 },
   { id: 'finances', label: 'Finances', Icon: TrendingUp },
   { id: 'brand', label: 'Brand', Icon: Star },

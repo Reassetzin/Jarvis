@@ -31,6 +31,14 @@ export default function SearchTab() {
       })
     } catch {}
     try {
+      const raw = localStorage.getItem('los_p_todo_groups')
+      if (raw) (JSON.parse(raw) || []).forEach((g: any) => {
+        (g.todos || []).forEach((t: any) => {
+          if (t.text?.toLowerCase().includes(q)) found.push({ section: 'To-Do', text: t.text, sub: `${g.name}${t.done ? ' · done' : ''}` })
+        })
+      })
+    } catch {}
+    try {
       const raw = localStorage.getItem('los_p_roblox_projects')
       if (raw) (JSON.parse(raw) || []).forEach((p: any) => {
         if (p.name?.toLowerCase().includes(q)) found.push({ section: 'Projects', text: p.name, sub: p.status })
