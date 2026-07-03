@@ -38,8 +38,8 @@ export default function DesktopLayout({ active, onChange, children }: Props) {
         top: 0,
       }}>
         <div style={{ padding: '0 20px 24px', borderBottom: '1px solid #1a1a1a', marginBottom: 16 }}>
-          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent)', letterSpacing: '-0.02em' }}>JARVIS</div>
-          <div style={{ fontSize: '0.6rem', color: '#374151', marginTop: 2, letterSpacing: '0.1em' }}>LIFE OS</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent)', letterSpacing: '-0.02em' }}>Life OS</div>
+          <div style={{ fontSize: '0.6rem', color: '#374151', marginTop: 2, letterSpacing: '0.06em' }}>Joao's dashboard</div>
         </div>
         <nav style={{ flex: 1, padding: '0 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
           {TABS.map(({ id, label, Icon }) => {

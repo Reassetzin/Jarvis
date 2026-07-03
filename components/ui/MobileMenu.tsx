@@ -44,8 +44,8 @@ export default function MobileMenu({ active, onChange }: { active: TabId; onChan
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px 20px' }}>
               <div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 800, letterSpacing: '0.02em' }}>JARVIS</div>
-                <div style={{ fontSize: '0.6rem', color: '#6B7280', letterSpacing: '0.1em' }}>LIFE OS</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, letterSpacing: '0.02em' }}>Life OS</div>
+                <div style={{ fontSize: '0.6rem', color: '#6B7280', letterSpacing: '0.06em' }}>Joao's dashboard</div>
               </div>
               <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', display: 'flex' }}><X size={20} /></button>
             </div>
