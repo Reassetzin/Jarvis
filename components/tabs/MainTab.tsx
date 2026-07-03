@@ -1,5 +1,4 @@
 'use client'
-import TopBar from '@/components/ui/TopBar'
 import DayProgressRing from '@/components/main/DayProgressRing'
 import Goalmaxxing from '@/components/main/Goalmaxxing'
 import OverseerWidget from '@/components/main/OverseerWidget'
@@ -18,7 +17,7 @@ import DesktopGrid from '@/components/ui/DesktopGrid'
 import PageShell from '@/components/ui/PageShell'
 import { useDailyStore, usePersistentStore } from '@/hooks/useStore'
 import { useMemo, useState } from 'react'
-import { Droplet, Pill, DollarSign, Activity, Zap, CalendarDays, SlidersHorizontal, Eye, EyeOff, ChevronUp, ChevronDown, X } from 'lucide-react'
+import { DollarSign, Activity, Zap, CalendarDays, SlidersHorizontal, Eye, EyeOff, ChevronUp, ChevronDown, X } from 'lucide-react'
 
 function thisMonth(dateStr: string) {
   const d = new Date(dateStr); const now = new Date()
@@ -118,25 +117,23 @@ export default function MainTab() {
   const stats = [
     { icon: Zap, label: 'Goals', value: `${goalsDone}/${goals.length}`, color: 'var(--accent)', done: goals.length > 0 && goalsDone === goals.length },
     { icon: CalendarDays, label: 'Tasks', value: `${tasksDone}/${todayTasks.length}`, color: '#3B82F6', done: todayTasks.length > 0 && tasksDone === todayTasks.length },
-    { icon: Pill, label: 'Vitamins', value: `${vitsTakenCount}/${vits.length}`, color: '#22C55E', done: vits.length > 0 && vitsTakenCount === vits.length },
-    { icon: Droplet, label: 'Water', value: `${(water / 1000).toFixed(1)}L`, color: '#3B82F6', done: water >= waterGoal },
-    { icon: DollarSign, label: 'Net (mo)', value: `${net >= 0 ? '+' : ''}$${Math.abs(net).toLocaleString()}`, color: net >= 0 ? '#22C55E' : '#EF4444' },
     { icon: Activity, label: 'Activity (wk)', value: `${weekActivity}`, color: '#EC4899' },
+    { icon: DollarSign, label: 'Net (mo)', value: `${net >= 0 ? '+' : '−'}$${Math.abs(net).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, color: net >= 0 ? '#22C55E' : '#EF4444' },
   ]
 
   return (
-    <PageShell topBar={<TopBar />}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 10, marginBottom: 16 }}>
+    <PageShell>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 16 }}>
         {stats.map((s, i) => {
           const Icon = s.icon
           return (
-            <div key={i} className="card" style={{ padding: 12, boxShadow: `0 0 20px ${s.color}18, 0 4px 24px rgba(0,0,0,0.4)`, borderColor: `${s.color}22` }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                <Icon size={12} color={s.color} />
-                <span style={{ fontSize: '0.58rem', color: '#6B7280' }}>{s.label}</span>
+            <div key={i} className="card" style={{ padding: 14, boxShadow: `0 0 20px ${s.color}18, 0 4px 24px rgba(0,0,0,0.4)`, borderColor: `${s.color}22`, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
+                <Icon size={13} color={s.color} />
+                <span style={{ fontSize: '0.62rem', color: '#6B7280' }}>{s.label}</span>
                 {s.done && <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#22C55E', marginLeft: 'auto', boxShadow: '0 0 6px #22C55E' }} />}
               </div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: 'clamp(1rem, 5vw, 1.25rem)', fontWeight: 800, color: s.color, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.value}</div>
             </div>
           )
         })}
