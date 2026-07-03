@@ -22,6 +22,16 @@ interface Event {
   notes?: string
 }
 
+interface RecurringRule {
+  id: string
+  text: string
+  category: string
+  days: number[]        // 0=Sun … 6=Sat
+  priority: boolean
+  doneDates: string[]   // YYYY-MM-DD dates that have been checked off
+  createdAt: string     // YYYY-MM-DD — don't show occurrences before this
+}
+
 const CATEGORIES = ['Personal', 'Work', 'Brand', 'Health', 'Finance', 'Activity']
 const CAT_COLORS: Record<string, string> = {
   Personal: '#3B82F6', Work: 'var(--accent)', Brand: '#8B5CF6', Health: '#22C55E', Finance: '#EF4444', Activity: '#EC4899',
@@ -46,6 +56,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 export default function PlannerTab() {
   const [tasks, setTasks] = usePersistentStore<Task[]>('planner_tasks', [])
   const [events, setEvents] = usePersistentStore<Event[]>('planner_events', [])
+  const [recurring, setRecurring] = usePersistentStore<RecurringRule[]>('planner_recurring', [])
   const [brands] = usePersistentStore<{ id: string; name: string; ideas: { id: string; text: string; status: string; date?: string; platform?: string }[] }[]>('brands', [])
   const [showContent, setShowContent] = useState(true)
   const [view, setView] = useState<'month' | 'week' | 'day'>('month')
@@ -54,10 +65,13 @@ export default function PlannerTab() {
   const [input, setInput] = useState('')
   const [cat, setCat] = useState('Personal')
   const [priority, setPriority] = useState(false)
-  const [addMode, setAddMode] = useState<'task' | 'event'>('task')
+  const [addMode, setAddMode] = useState<'task' | 'event' | 'recurring'>('task')
   const [evTitle, setEvTitle] = useState('')
   const [evTime, setEvTime] = useState('')
   const [evType, setEvType] = useState('Appointment')
+  const [recText, setRecText] = useState('')
+  const [recCat, setRecCat] = useState('Personal')
+  const [recDays, setRecDays] = useState<number[]>([])
   const [editingEvent, setEditingEvent] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({ title: '', time: '', type: 'Appointment' })
   const [editingTask, setEditingTask] = useState<string | null>(null)
@@ -74,7 +88,21 @@ export default function PlannerTab() {
 
   const todayStr = ymd(new Date())
 
-  function tasksFor(dateStr: string) { return tasks.filter(t => t.date === dateStr) }
+  function recurringFor(dateStr: string): Task[] {
+    const d = parseYmd(dateStr)
+    const dow = d.getDay()
+    return recurring
+      .filter(r => r.days.includes(dow) && dateStr >= r.createdAt)
+      .map(r => ({
+        id: `rec:${r.id}:${dateStr}`,
+        text: r.text,
+        date: dateStr,
+        done: (r.doneDates || []).includes(dateStr),
+        priority: r.priority,
+        category: r.category,
+      }))
+  }
+  function tasksFor(dateStr: string) { return [...tasks.filter(t => t.date === dateStr), ...recurringFor(dateStr)] }
   function eventsFor(dateStr: string) {
     return events.filter(e => e.date === dateStr).sort((a, b) => (a.time || '99').localeCompare(b.time || '99'))
   }
@@ -105,8 +133,35 @@ export default function PlannerTab() {
     setEvents(es => es.map(x => x.id === editingEvent ? { ...x, title: editForm.title.trim(), time: editForm.time, type: editForm.type } : x))
     setEditingEvent(null)
   }
-  function toggle(id: string) { setTasks(t => t.map(x => x.id === id ? { ...x, done: !x.done } : x)) }
-  function remove(id: string) { setTasks(t => t.filter(x => x.id !== id)) }
+  function isRecurring(id: string) { return id.startsWith('rec:') }
+  function parseRecId(id: string) { const [, ruleId, date] = id.split(':'); return { ruleId, date } }
+
+  function toggle(id: string) {
+    if (isRecurring(id)) {
+      const { ruleId, date } = parseRecId(id)
+      setRecurring(rs => rs.map(r => {
+        if (r.id !== ruleId) return r
+        const dd = r.doneDates || []
+        return { ...r, doneDates: dd.includes(date) ? dd.filter(x => x !== date) : [...dd, date] }
+      }))
+      return
+    }
+    setTasks(t => t.map(x => x.id === id ? { ...x, done: !x.done } : x))
+  }
+  function remove(id: string) {
+    if (isRecurring(id)) {
+      const { ruleId } = parseRecId(id)
+      if (confirm('Delete this recurring task entirely? It will stop repeating.')) setRecurring(rs => rs.filter(r => r.id !== ruleId))
+      return
+    }
+    setTasks(t => t.filter(x => x.id !== id))
+  }
+  function addRecurring() {
+    if (!recText.trim() || recDays.length === 0) return
+    setRecurring(rs => [...rs, { id: Date.now().toString(), text: recText.trim(), category: recCat, days: [...recDays].sort(), priority: false, doneDates: [], createdAt: todayStr }])
+    setRecText(''); setRecDays([])
+  }
+  function toggleRecDay(d: number) { setRecDays(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d]) }
   function startEditTask(t: Task) { setEditingTask(t.id); setTaskEdit({ text: t.text, category: t.category, priority: t.priority }) }
   function saveEditTask() {
     if (!taskEdit.text.trim()) return
@@ -292,11 +347,41 @@ export default function PlannerTab() {
 
           {/* Add mode toggle */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-            <button onClick={() => setAddMode('task')} style={{ flex: 1, background: addMode === 'task' ? '#1a0a00' : 'transparent', border: `1px solid ${addMode === 'task' ? 'var(--accent-dim)' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'task' ? 'var(--accent)' : '#9CA3AF', fontSize: '0.72rem', fontWeight: addMode === 'task' ? 700 : 400 }}>✓ Task</button>
-            <button onClick={() => setAddMode('event')} style={{ flex: 1, background: addMode === 'event' ? '#1a0a2a' : 'transparent', border: `1px solid ${addMode === 'event' ? '#6d28d9' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'event' ? '#a78bfa' : '#9CA3AF', fontSize: '0.72rem', fontWeight: addMode === 'event' ? 700 : 400 }}>📅 Event</button>
+            <button onClick={() => setAddMode('task')} style={{ flex: 1, background: addMode === 'task' ? '#1a0a00' : 'transparent', border: `1px solid ${addMode === 'task' ? 'var(--accent-dim)' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'task' ? 'var(--accent)' : '#9CA3AF', fontSize: '0.7rem', fontWeight: addMode === 'task' ? 700 : 400 }}>✓ Task</button>
+            <button onClick={() => setAddMode('event')} style={{ flex: 1, background: addMode === 'event' ? '#1a0a2a' : 'transparent', border: `1px solid ${addMode === 'event' ? '#6d28d9' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'event' ? '#a78bfa' : '#9CA3AF', fontSize: '0.7rem', fontWeight: addMode === 'event' ? 700 : 400 }}>📅 Event</button>
+            <button onClick={() => setAddMode('recurring')} style={{ flex: 1, background: addMode === 'recurring' ? '#0a1a1a' : 'transparent', border: `1px solid ${addMode === 'recurring' ? '#0e7490' : '#333'}`, borderRadius: 6, padding: '6px', cursor: 'pointer', color: addMode === 'recurring' ? '#22d3ee' : '#9CA3AF', fontSize: '0.7rem', fontWeight: addMode === 'recurring' ? 700 : 400 }}>🔁 Repeat</button>
           </div>
 
-          {addMode === 'task' ? (
+          {addMode === 'recurring' ? (
+            <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <input type="text" placeholder="Recurring task (e.g. Take out the trash)" value={recText} onChange={e => setRecText(e.target.value)} onKeyDown={e => e.key === 'Enter' && addRecurring()} />
+              <div style={{ display: 'flex', gap: 5, justifyContent: 'space-between' }}>
+                {DAYS.map((d, i) => {
+                  const on = recDays.includes(i)
+                  return <button key={i} onClick={() => toggleRecDay(i)} style={{ flex: 1, background: on ? '#06B6D4' : 'transparent', color: on ? '#000' : '#6B7280', border: `1px solid ${on ? '#06B6D4' : '#333'}`, borderRadius: 6, padding: '7px 0', cursor: 'pointer', fontSize: '0.66rem', fontWeight: on ? 700 : 500 }}>{d[0]}</button>
+                })}
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <select value={recCat} onChange={e => setRecCat(e.target.value)} style={{ flex: 1 }}>
+                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+                <button onClick={addRecurring} disabled={!recText.trim() || recDays.length === 0} style={{ background: (!recText.trim() || recDays.length === 0) ? '#1f1f1f' : '#06B6D4', color: (!recText.trim() || recDays.length === 0) ? '#4B5563' : '#000', border: 'none', borderRadius: 4, padding: '0 16px', cursor: 'pointer', fontWeight: 700 }}>Add</button>
+              </div>
+              {recurring.length > 0 && (
+                <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ fontSize: '0.6rem', color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Active recurring</div>
+                  {recurring.map(r => (
+                    <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#161616', border: '1px solid #232323', borderRadius: 6, padding: '7px 10px' }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[r.category], flexShrink: 0 }} />
+                      <span style={{ flex: 1, fontSize: '0.76rem', color: '#E5E7EB' }}>{r.text}</span>
+                      <span style={{ fontSize: '0.6rem', color: '#06B6D4', fontWeight: 600 }}>{r.days.map(d => DAYS[d][0]).join(' ')}</span>
+                      <button onClick={() => { if (confirm('Delete this recurring task?')) setRecurring(rs => rs.filter(x => x.id !== r.id)) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151', display: 'flex' }}><X size={13} /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : addMode === 'task' ? (
             <>
               <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
                 <button onClick={() => setPriority(p => !p)} style={{ background: priority ? '#1a0a00' : 'transparent', border: `1px solid ${priority ? 'var(--accent)' : '#374151'}`, borderRadius: 4, padding: '8px 10px', cursor: 'pointer', flexShrink: 0, color: priority ? 'var(--accent)' : '#374151', fontWeight: 700 }}>⚡</button>
@@ -370,13 +455,19 @@ export default function PlannerTab() {
                   </div>
                 </div>
               ) : (
-                <div key={t.id} draggable onDragStart={() => setDragItem({ kind: 'task', id: t.id })} onDragEnd={() => { setDragItem(null); setDragOverDate(null) }} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 8, background: t.done ? '#0d1a0d' : '#181818', border: `1px solid ${t.done ? '#15391590' : '#222'}`, borderRadius: 4, padding: '10px 12px', cursor: 'grab' }}>
+                <div key={t.id} draggable={!isRecurring(t.id)} onDragStart={() => !isRecurring(t.id) && setDragItem({ kind: 'task', id: t.id })} onDragEnd={() => { setDragItem(null); setDragOverDate(null) }} className="item-enter" style={{ display: 'flex', alignItems: 'center', gap: 8, background: t.done ? '#0d1a0d' : '#181818', border: `1px solid ${t.done ? '#15391590' : '#222'}`, borderRadius: 4, padding: '10px 12px', cursor: isRecurring(t.id) ? 'default' : 'grab' }}>
                   <button onClick={() => toggle(t.id)} className={t.done ? 'check-pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${t.done ? '#22C55E' : '#374151'}`, background: t.done ? '#22C55E' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {t.done && <Check size={11} color="#000" strokeWidth={3} />}
                   </button>
                   {t.priority && <span style={{ color: 'var(--accent)' }}>⚡</span>}
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[t.category], flexShrink: 0 }} />
-                  <button onClick={() => startEditTask(t)} style={{ flex: 1, minWidth: 0, background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', padding: 0, fontSize: '0.82rem', color: t.done ? '#4B5563' : '#F3F4F6', textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</button>
+                  {isRecurring(t.id) ? (
+                    <span style={{ flex: 1, minWidth: 0, fontSize: '0.82rem', color: t.done ? '#4B5563' : '#F3F4F6', textDecoration: t.done ? 'line-through' : 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {t.text}<span title="Recurring" style={{ fontSize: '0.6rem', color: '#6B7280' }}>🔁</span>
+                    </span>
+                  ) : (
+                    <button onClick={() => startEditTask(t)} style={{ flex: 1, minWidth: 0, background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', padding: 0, fontSize: '0.82rem', color: t.done ? '#4B5563' : '#F3F4F6', textDecoration: t.done ? 'line-through' : 'none' }}>{t.text}</button>
+                  )}
                   <button onClick={() => remove(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151' }}><X size={13} /></button>
                 </div>
               )
