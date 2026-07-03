@@ -319,9 +319,9 @@ export default function TodosTab() {
       </div>
 
       {addingGroup && (
-        <div className="card" style={{ marginBottom: 14, display: 'flex', gap: 6 }}>
-          <input type="text" placeholder="List name (e.g. CIRE, Web Clients)" value={newGroup} onChange={e => setNewGroup(e.target.value)} onKeyDown={e => e.key === 'Enter' && addGroup()} autoFocus style={{ flex: 1 }} />
-          <button onClick={addGroup} className="btn-amber" style={{ padding: '0 16px' }}>Add</button>
+        <div className="card" style={{ marginBottom: 14, display: 'flex', gap: 8 }}>
+          <input type="text" placeholder="List name (e.g. CIRE, Web Clients)" value={newGroup} onChange={e => setNewGroup(e.target.value)} onKeyDown={e => e.key === 'Enter' && addGroup()} autoFocus style={{ flex: 1, minWidth: 0 }} />
+          <button onClick={addGroup} className="btn-amber" style={{ padding: '0 20px', flexShrink: 0, width: 'auto' }}>Add</button>
         </div>
       )}
 

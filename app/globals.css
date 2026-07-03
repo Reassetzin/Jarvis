@@ -117,7 +117,7 @@ body::before {
 
 .topbar-inner { padding: 10px 40px 8px; }
 @media (max-width: 768px) {
-  .topbar-inner { padding: 8px 14px 8px 120px; min-height: 44px; }
+  .topbar-inner { padding: 52px 14px 10px 14px; min-height: 44px; }
 }
 
 input[type="text"], input[type="number"], input[type="time"], input[type="date"], textarea, select {
@@ -205,6 +205,9 @@ select option:hover {
     margin: 0 auto;
     padding: 56px 14px 32px 14px;
     box-sizing: border-box;
+  }
+  .page-shell-inner.has-topbar {
+    padding-top: 14px;
   }
   .desktop-layout { display: none !important; }
   .mobile-layout { display: block !important; }

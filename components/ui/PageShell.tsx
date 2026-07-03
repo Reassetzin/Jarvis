@@ -11,7 +11,7 @@ export default function PageShell({ children, topBar }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', overflow: 'hidden' }}>
       {topBar}
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', width: '100%' }}>
-        <div className="page-shell-inner">
+        <div className={`page-shell-inner${topBar ? ' has-topbar' : ''}`}>
           {children}
         </div>
       </div>
