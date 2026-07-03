@@ -1,14 +1,21 @@
 'use client'
 import { usePersistentStore } from '@/hooks/useStore'
 import { useState } from 'react'
-import { Plus, X, Check, ChevronDown, ChevronRight, ListTodo, Pencil, Tag, GripVertical } from 'lucide-react'
+import { Plus, X, Check, ChevronDown, ChevronRight, ListTodo, Pencil, Tag, GripVertical, Share2, Copy, Download } from 'lucide-react'
 import PageShell from '@/components/ui/PageShell'
+import { buildTodoText, buildTodoImage } from '@/lib/todoShare'
 
 interface Todo { id: string; text: string; done: boolean; tags: string[]; doneTags?: string[] }
 interface Group { id: string; name: string; color: string; todos: Todo[]; tags?: string[]; collapsed?: boolean; collapsedTags?: string[] }
 
 const GROUP_COLORS = ['#F59E0B', '#3B82F6', '#22C55E', '#8B5CF6', '#EC4899', '#EF4444', '#06B6D4', '#F97316']
 const UNTAGGED = '__untagged__'
+
+function getComputedAccent(): string {
+  if (typeof window === 'undefined') return '#F59E0B'
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
+  return v || '#F59E0B'
+}
 
 export default function TodosTab() {
   const [groups, setGroups] = usePersistentStore<Group[]>('todo_groups', [])
@@ -25,6 +32,11 @@ export default function TodosTab() {
   const [dragTid, setDragTid] = useState<string | null>(null)
   const [dragGid, setDragGid] = useState<string | null>(null)
   const [dragOverTid, setDragOverTid] = useState<string | null>(null)
+  const [sharing, setSharing] = useState(false)
+  const [shareScope, setShareScope] = useState<string>('all')  // 'all' or a group id
+  const [shareImg, setShareImg] = useState<string | null>(null)
+  const [shareBlob, setShareBlob] = useState<Blob | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const norm = (g: Group): Group & { tags: string[] } => ({ ...g, tags: g.tags || [], collapsedTags: g.collapsedTags || [], todos: g.todos.map(t => ({ ...t, tags: t.tags || [], doneTags: t.doneTags || [] })) })
 
@@ -92,6 +104,36 @@ export default function TodosTab() {
     return tags.every(tg => (t.doneTags || []).includes(tg))
   }
   function clearDone(gid: string) { setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.filter(t => !isFullyDone(t)) } : x)) }
+
+  const accent = getComputedAccent()
+  async function openShare(scope: string) {
+    setShareScope(scope)
+    setSharing(true)
+    setShareImg(null); setShareBlob(null); setCopied(false)
+    const normed = groups.map(norm)
+    const only = scope === 'all' ? undefined : scope
+    try {
+      const { url, blob } = await buildTodoImage(normed, only, accent)
+      setShareImg(url); setShareBlob(blob)
+    } catch (e) { /* image failed, text still available */ }
+  }
+  async function copyText() {
+    const normed = groups.map(norm)
+    const only = shareScope === 'all' ? undefined : shareScope
+    const text = buildTodoText(normed, only)
+    try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000) } catch {}
+  }
+  async function shareImage() {
+    if (!shareBlob) return
+    const file = new File([shareBlob], 'todo-summary.png', { type: 'image/png' })
+    // Use native share sheet if available (great on mobile)
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'To-Do Summary' }); return } catch {}
+    }
+    // Fallback: download
+    const a = document.createElement('a')
+    a.href = shareImg!; a.download = 'todo-summary.png'; a.click()
+  }
 
   // Pointer-based drag reorder (works on mouse + touch)
   function startDrag(gid: string, tid: string, e: React.PointerEvent) {
@@ -264,9 +306,16 @@ export default function TodosTab() {
           </h1>
           <p style={{ fontSize: '0.72rem', color: '#6B7280', marginTop: 3 }}>{totalOpen} open across {groups.length} list{groups.length !== 1 ? 's' : ''}</p>
         </div>
-        <button onClick={() => setAddingGroup(a => !a)} className="glow-orange" style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 9, padding: '9px 14px', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem' }}>
-          <Plus size={16} /> List
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {groups.length > 0 && (
+            <button onClick={() => openShare('all')} style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#181818', color: '#E5E7EB', border: '1px solid #333', borderRadius: 9, padding: '9px 12px', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem' }}>
+              <Share2 size={15} /> Share
+            </button>
+          )}
+          <button onClick={() => setAddingGroup(a => !a)} className="glow-orange" style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 9, padding: '9px 14px', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem' }}>
+            <Plus size={16} /> List
+          </button>
+        </div>
       </div>
 
       {addingGroup && (
@@ -310,6 +359,7 @@ export default function TodosTab() {
                 <button onClick={() => setManagingTags(managingTags === group.id ? null : group.id)} style={{ display: 'flex', alignItems: 'center', gap: 4, background: managingTags === group.id ? `${group.color}20` : 'transparent', border: `1px solid ${managingTags === group.id ? group.color : '#2a2a2a'}`, borderRadius: 7, padding: '5px 9px', cursor: 'pointer', color: managingTags === group.id ? group.color : '#9CA3AF', fontSize: '0.66rem', fontWeight: 600 }}>
                   <Tag size={11} /> {group.tags.length || 'Tags'}
                 </button>
+                <button onClick={() => openShare(group.id)} title="Share this list" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', display: 'flex', padding: 2 }}><Share2 size={14} /></button>
                 <button onClick={() => removeGroup(group.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#333', display: 'flex' }}><X size={16} /></button>
               </div>
 
@@ -374,6 +424,39 @@ export default function TodosTab() {
           )
         })}
       </div>
+      {sharing && (
+        <div onClick={() => setSharing(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, backdropFilter: 'blur(3px)' }}>
+          <div onClick={e => e.stopPropagation()} className="modal-in" style={{ background: '#101012', border: '1px solid #262626', borderRadius: 16, padding: 18, maxWidth: 440, width: '100%', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div style={{ fontSize: '1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 7 }}><Share2 size={17} style={{ color: 'var(--accent)' }} /> Share To-Do</div>
+              <button onClick={() => setSharing(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', display: 'flex' }}><X size={19} /></button>
+            </div>
+
+            {/* Scope selector */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+              <button onClick={() => openShare('all')} style={{ fontSize: '0.7rem', fontWeight: 600, background: shareScope === 'all' ? 'var(--accent)' : '#1a1a1a', color: shareScope === 'all' ? '#000' : '#9CA3AF', border: `1px solid ${shareScope === 'all' ? 'var(--accent)' : '#333'}`, borderRadius: 7, padding: '5px 11px', cursor: 'pointer' }}>All lists</button>
+              {groups.map(g => (
+                <button key={g.id} onClick={() => openShare(g.id)} style={{ fontSize: '0.7rem', fontWeight: 600, background: shareScope === g.id ? g.color : '#1a1a1a', color: shareScope === g.id ? '#000' : '#9CA3AF', border: `1px solid ${shareScope === g.id ? g.color : '#333'}`, borderRadius: 7, padding: '5px 11px', cursor: 'pointer' }}>{g.name}</button>
+              ))}
+            </div>
+
+            {/* Image preview */}
+            <div style={{ flex: 1, overflowY: 'auto', background: '#0a0a0c', borderRadius: 10, marginBottom: 14, minHeight: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {shareImg ? <img src={shareImg} alt="To-Do summary" style={{ width: '100%', borderRadius: 10 }} /> : <div style={{ color: '#4B5563', fontSize: '0.8rem', padding: 30 }}>Generating…</div>}
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={copyText} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: '#1a1a1a', color: '#E5E7EB', border: '1px solid #333', borderRadius: 9, padding: '11px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem' }}>
+                <Copy size={15} /> {copied ? 'Copied!' : 'Copy text'}
+              </button>
+              <button onClick={shareImage} disabled={!shareBlob} className="glow-orange" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 9, padding: '11px', cursor: shareBlob ? 'pointer' : 'wait', fontWeight: 700, fontSize: '0.8rem', opacity: shareBlob ? 1 : 0.6 }}>
+                <Download size={15} /> Share image
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </PageShell>
   )
 }
