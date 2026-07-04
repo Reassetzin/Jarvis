@@ -1,16 +1,12 @@
 'use client'
 // Records daily completion history for habit streaks.
 // Stored under los_p_streak_history: { [category]: { 'YYYY-MM-DD': true } }
+import { getEasternDateStr } from '@/lib/supabase'
 
 export type StreakCategory = 'water' | 'vitamins' | 'activity'
 
 function todayKey(): string {
-  const now = new Date()
-  const h = now.getHours()
-  // Align to 6am reset like the rest of the app
-  const d = new Date(now)
-  if (h < 6) d.setDate(d.getDate() - 1)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  return getEasternDateStr()
 }
 
 function read(): Record<string, Record<string, boolean>> {
@@ -42,9 +38,8 @@ export function getStreak(cat: StreakCategory): number {
   const data = read()
   const hist = data[cat] || {}
   let streak = 0
-  const cursor = new Date()
-  if (cursor.getHours() < 6) cursor.setDate(cursor.getDate() - 1)
-  // Walk backwards from today
+  // Start from the EST "today" and walk backwards day by day
+  let cursor = new Date(todayKey() + 'T12:00:00')  // noon avoids DST edge issues
   for (let i = 0; i < 3650; i++) {
     const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`
     if (hist[key]) { streak++; cursor.setDate(cursor.getDate() - 1) }

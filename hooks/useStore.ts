@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { shouldReset } from '@/lib/supabase'
+import { shouldReset, getEasternDateStr } from '@/lib/supabase'
 import { onDataChange, pushState } from '@/lib/sync'
 
 interface StoredData<T> {
@@ -10,13 +10,7 @@ interface StoredData<T> {
 }
 
 function getTodayStr(): string {
-  const now = new Date()
-  if (now.getHours() < 6) {
-    const y = new Date(now)
-    y.setDate(y.getDate() - 1)
-    return y.toISOString().split('T')[0]
-  }
-  return now.toISOString().split('T')[0]
+  return getEasternDateStr()
 }
 
 export function useDailyStore<T>(key: string, defaultValue: T) {

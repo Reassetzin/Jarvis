@@ -15,24 +15,19 @@ export const supabase = null
 
 export const USER_ID = process.env.NEXT_PUBLIC_USER_ID || 'default-user'
 
+// Current calendar date in Eastern Time (America/New_York), as YYYY-MM-DD.
+// A new day begins at midnight ET. Handles EST/EDT automatically.
+export function getEasternDateStr(d: Date = new Date()): string {
+  // en-CA gives YYYY-MM-DD formatting
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d)
+}
+
 export function shouldReset(lastReset: string | null): boolean {
   if (!lastReset) return true
-  const last = new Date(lastReset)
-  const now = new Date()
-  const resetHour = 6
-  const todayReset = new Date(now)
-  todayReset.setHours(resetHour, 0, 0, 0)
-  if (last < todayReset && now >= todayReset) return true
-  return false
+  // Reset when the Eastern-time calendar day has changed since lastReset.
+  return getEasternDateStr(new Date(lastReset)) !== getEasternDateStr(new Date())
 }
 
 export function getTodayKey(): string {
-  const now = new Date()
-  const resetHour = 6
-  if (now.getHours() < resetHour) {
-    const yesterday = new Date(now)
-    yesterday.setDate(yesterday.getDate() - 1)
-    return yesterday.toISOString().split('T')[0]
-  }
-  return now.toISOString().split('T')[0]
+  return getEasternDateStr()
 }
