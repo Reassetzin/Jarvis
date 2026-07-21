@@ -1,7 +1,7 @@
 'use client'
 // Generate a shareable summary of To-Do lists — as text or a canvas image.
 
-interface Todo { id: string; text: string; done: boolean; tags: string[]; doneTags?: string[] }
+interface Todo { id: string; text: string; done: boolean; tags: string[]; doneTags?: string[]; note?: string }
 interface Group { id: string; name: string; color: string; todos: Todo[]; tags?: string[] }
 
 const UNTAGGED = '__untagged__'
@@ -41,15 +41,16 @@ export function buildTodoText(groups: Group[], onlyGroupId?: string): string {
         items.forEach(t => {
           const done = (t.doneTags || []).includes(tag)
           lines.push(`    ${done ? '✓' : '○'} ${t.text}`)
+          if (t.note) lines.push(`        ↳ ${t.note.replace(/\n/g, ' ')}`)
         })
       })
       const untagged = g.todos.filter(t => (t.tags || []).length === 0)
       if (untagged.length) {
         lines.push(`  Other:`)
-        untagged.forEach(t => lines.push(`    ${t.done ? '✓' : '○'} ${t.text}`))
+        untagged.forEach(t => { lines.push(`    ${t.done ? '✓' : '○'} ${t.text}`); if (t.note) lines.push(`        ↳ ${t.note.replace(/\n/g, ' ')}`) })
       }
     } else {
-      g.todos.forEach(t => lines.push(`  ${t.done ? '✓' : '○'} ${t.text}`))
+      g.todos.forEach(t => { lines.push(`  ${t.done ? '✓' : '○'} ${t.text}`); if (t.note) lines.push(`      ↳ ${t.note.replace(/\n/g, ' ')}`) })
     }
     lines.push('')
   })
@@ -62,6 +63,10 @@ export async function buildTodoImage(groups: Group[], onlyGroupId?: string, acce
   const scale = 2
   const W = 720
   const pad = 40
+
+  // Rough note line estimate: ~64 chars per line at this width
+  const noteLines = (note?: string) => note ? Math.max(1, Math.ceil(note.length / 64)) + (note.match(/\n/g)?.length || 0) : 0
+  const itemH = (t: Todo) => 30 + noteLines(t.note) * 18
 
   // Measure required height first
   let h = pad
@@ -77,12 +82,12 @@ export async function buildTodoImage(groups: Group[], onlyGroupId?: string, acce
         const items = g.todos.filter(t => (t.tags || []).includes(tag))
         if (!items.length) return
         h += 30 // tag header
-        h += items.length * 30
+        items.forEach(t => { h += itemH(t) })
       })
       const untagged = g.todos.filter(t => (t.tags || []).length === 0)
-      if (untagged.length) { h += 30; h += untagged.length * 30 }
+      if (untagged.length) { h += 30; untagged.forEach(t => { h += itemH(t) }) }
     } else {
-      h += g.todos.length * 30
+      g.todos.forEach(t => { h += itemH(t) })
     }
     h += 26 // group spacing
   })
@@ -113,7 +118,7 @@ export async function buildTodoImage(groups: Group[], onlyGroupId?: string, acce
   ctx.fillText(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }), pad, y + 12)
   y += 44
 
-  const drawItem = (text: string, done: boolean, x: number) => {
+  const drawItem = (text: string, done: boolean, x: number, note?: string) => {
     // checkbox
     ctx.strokeStyle = done ? '#22C55E' : '#3a3a3a'
     ctx.lineWidth = 1.5
@@ -132,6 +137,24 @@ export async function buildTodoImage(groups: Group[], onlyGroupId?: string, acce
     if (label !== text) label = label.slice(0, -1) + '…'
     ctx.fillText(label, x + 24, y + 15)
     y += 30
+    // Note (wrapped, indented, accent-colored)
+    if (note) {
+      ctx.fillStyle = accent
+      ctx.font = 'italic 400 13px -apple-system, Segoe UI, Roboto, sans-serif'
+      const noteX = x + 24
+      const noteMaxW = W - noteX - 50
+      const words = note.replace(/\n/g, ' ').split(' ')
+      let line = '↳ '
+      words.forEach(word => {
+        const test = line + word + ' '
+        if (ctx.measureText(test).width > noteMaxW && line !== '↳ ') {
+          ctx.fillText(line.trimEnd(), noteX, y + 10)
+          y += 18
+          line = word + ' '
+        } else line = test
+      })
+      if (line.trim()) { ctx.fillText(line.trimEnd(), noteX, y + 10); y += 18 }
+    }
   }
 
   list.forEach(g => {
@@ -163,7 +186,7 @@ export async function buildTodoImage(groups: Group[], onlyGroupId?: string, acce
         ctx.font = '700 12px -apple-system, Segoe UI, Roboto, sans-serif'
         ctx.fillText(tag.toUpperCase(), pad + 4, y + 12)
         y += 30
-        items.forEach(t => drawItem(t.text, (t.doneTags || []).includes(tag), pad + 12))
+        items.forEach(t => drawItem(t.text, (t.doneTags || []).includes(tag), pad + 12, t.note))
       })
       const untagged = g.todos.filter(t => (t.tags || []).length === 0)
       if (untagged.length) {
@@ -171,10 +194,10 @@ export async function buildTodoImage(groups: Group[], onlyGroupId?: string, acce
         ctx.font = '700 12px -apple-system, Segoe UI, Roboto, sans-serif'
         ctx.fillText('OTHER', pad + 4, y + 12)
         y += 30
-        untagged.forEach(t => drawItem(t.text, t.done, pad + 12))
+        untagged.forEach(t => drawItem(t.text, t.done, pad + 12, t.note))
       }
     } else {
-      g.todos.forEach(t => drawItem(t.text, t.done, pad))
+      g.todos.forEach(t => drawItem(t.text, t.done, pad, t.note))
     }
     y += 26
   })

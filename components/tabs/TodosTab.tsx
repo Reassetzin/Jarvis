@@ -1,11 +1,11 @@
 'use client'
 import { usePersistentStore } from '@/hooks/useStore'
 import { useState } from 'react'
-import { Plus, X, Check, ChevronDown, ChevronRight, ListTodo, Pencil, Tag, GripVertical, Share2, Copy, Download } from 'lucide-react'
+import { Plus, X, Check, ChevronDown, ChevronRight, ListTodo, Pencil, Tag, GripVertical, Share2, Copy, Download, MessageSquarePlus, MessageSquare } from 'lucide-react'
 import PageShell from '@/components/ui/PageShell'
 import { buildTodoText, buildTodoImage } from '@/lib/todoShare'
 
-interface Todo { id: string; text: string; done: boolean; tags: string[]; doneTags?: string[] }
+interface Todo { id: string; text: string; done: boolean; tags: string[]; doneTags?: string[]; note?: string }
 interface Group { id: string; name: string; color: string; todos: Todo[]; tags?: string[]; collapsed?: boolean; collapsedTags?: string[] }
 
 const GROUP_COLORS = ['#F59E0B', '#3B82F6', '#22C55E', '#8B5CF6', '#EC4899', '#EF4444', '#06B6D4', '#F97316']
@@ -94,6 +94,9 @@ export default function TodosTab() {
     if (!editTodoText.trim()) { setEditingTodo(null); return }
     setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.map(t => t.id === tid ? { ...t, text: editTodoText.trim() } : t) } : x))
     setEditingTodo(null)
+  }
+  function setNote(gid: string, tid: string, note: string) {
+    setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.map(t => t.id === tid ? { ...t, note } : t) } : x))
   }
   function toggleTodoTag(gid: string, tid: string, tag: string) {
     setGroups(g => g.map(x => x.id === gid ? { ...x, todos: x.todos.map(t => { const tags = t.tags || []; return t.id === tid ? { ...t, tags: tags.includes(tag) ? tags.filter(tg => tg !== tag) : [...tags, tag] } : t }) } : x))
@@ -192,6 +195,8 @@ export default function TodosTab() {
 
   function TodoRow({ group, t, sectionTag }: { group: Group; t: Todo; sectionTag?: string }) {
     const [showTags, setShowTags] = useState(false)
+    const [showNote, setShowNote] = useState(false)
+    const [noteDraft, setNoteDraft] = useState(t.note || '')
     const isEditing = editingTodo === t.id
     // Completion depends on context: in a tag section, this row = that tag's sub-task
     const inTagSection = sectionTag && sectionTag !== UNTAGGED
@@ -223,8 +228,29 @@ export default function TodosTab() {
             <button onClick={() => { setEditingTodo(t.id); setEditTodoText(t.text) }} style={{ flex: 1, textAlign: 'left', background: 'none', border: 'none', cursor: 'text', padding: 0, fontSize: '0.84rem', color: checked ? '#4B5563' : '#F3F4F6', textDecoration: checked ? 'line-through' : 'none', lineHeight: 1.35 }}>{t.text}</button>
           )}
           <button onClick={() => setShowTags(s => !s)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: showTags ? group.color : '#3a3a3a', display: 'flex', padding: 2, flexShrink: 0 }}><Tag size={13} /></button>
+          <button onClick={() => { setShowNote(s => !s); setNoteDraft(t.note || '') }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.note ? group.color : (showNote ? group.color : '#3a3a3a'), display: 'flex', padding: 2, flexShrink: 0 }} title="Comment">
+            {t.note ? <MessageSquare size={13} /> : <MessageSquarePlus size={13} />}
+          </button>
           <button onClick={() => removeTodo(group.id, t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3a3a3a', display: 'flex', padding: 2, flexShrink: 0 }}><X size={14} /></button>
         </div>
+        {/* Note display (when not editing) */}
+        {t.note && !showNote && (
+          <div style={{ marginTop: 7, marginLeft: 39, fontSize: '0.7rem', color: '#9CA3AF', lineHeight: 1.4, display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+            <MessageSquare size={11} color={group.color} style={{ marginTop: 2, flexShrink: 0 }} />
+            <span style={{ whiteSpace: 'pre-wrap' }}>{t.note}</span>
+          </div>
+        )}
+        {/* Note editor */}
+        {showNote && (
+          <div style={{ marginTop: 8, marginLeft: 39, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <textarea value={noteDraft} onChange={e => setNoteDraft(e.target.value)} placeholder="Add a comment / what's missing…" rows={2} style={{ width: '100%', fontSize: '0.75rem', padding: '7px 9px', resize: 'vertical', lineHeight: 1.4, fontFamily: 'inherit' }} autoFocus />
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button onClick={() => { setNote(group.id, t.id, noteDraft.trim()); setShowNote(false) }} style={{ background: group.color, color: '#000', border: 'none', borderRadius: 6, padding: '6px 14px', cursor: 'pointer', fontWeight: 700, fontSize: '0.72rem' }}>Save</button>
+              <button onClick={() => setShowNote(false)} className="btn-ghost" style={{ fontSize: '0.72rem', padding: '6px 12px' }}>Cancel</button>
+              {t.note && <button onClick={() => { setNote(group.id, t.id, ''); setShowNote(false) }} style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', fontSize: '0.68rem', marginLeft: 'auto' }}>Remove</button>}
+            </div>
+          </div>
+        )}
         {/* Context: other tags this item needs (with their done state) */}
         {inTagSection && otherTags.length > 0 && !showTags && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 7, paddingLeft: 39 }}>
