@@ -11,6 +11,7 @@ import WeeklyReview from '@/components/main/WeeklyReview'
 import MonthlyReview from '@/components/main/MonthlyReview'
 import NotificationSettings from '@/components/main/NotificationSettings'
 import ThemePicker from '@/components/main/ThemePicker'
+import CalendarSync from '@/components/main/CalendarSync'
 import UpcomingEvents from '@/components/main/UpcomingEvents'
 import Heatmap from '@/components/ui/Heatmap'
 import DesktopGrid from '@/components/ui/DesktopGrid'
@@ -83,6 +84,7 @@ export default function MainTab() {
     { id: 'waterMini', name: 'Water', node: <WaterMini /> },
     { id: 'notifications', name: 'Reminders', node: <NotificationSettings /> },
     { id: 'theme', name: 'Theme', node: <ThemePicker /> },
+    { id: 'calendarSync', name: 'Apple Calendar Sync', node: <CalendarSync /> },
     { id: 'overseer', name: 'Overseer AI', node: <OverseerWidget /> },
   ]
   const DEFAULT_ORDER = WIDGETS.map(w => w.id)
